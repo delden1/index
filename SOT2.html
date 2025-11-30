@@ -713,6 +713,7 @@
                                 <span class="prefix">$</span>
                                 <input type="number" id="maxGain" class="has-prefix" placeholder="200" value="200" step="1">
                             </div>
+                            <div class="hint">Total Profit for the whole position</div>
                         </div>
                         <div class="input-group">
                             <label>Max Loss (Total Position)</label>
@@ -855,7 +856,7 @@
         </div>
         
         <footer class="footer">
-            <p>⚠️ <strong>Disclaimer:</strong> This calculator is for educational purposes only by Strategic Options Trader. Options trading involves substantial risk. Past performance does not guarantee future results. Always conduct your own research and consult with a financial advisor.</p>
+            <p>⚠️ <strong>Disclaimer:</strong> This calculator is for educational purposes only. Options trading involves substantial risk. Past performance does not guarantee future results. Always conduct your own research and consult with a financial advisor.</p>
         </footer>
     </div>
     
@@ -866,14 +867,18 @@
         // Auto-calculate on input
         document.querySelectorAll('input').forEach(el => {
             el.addEventListener('input', function() {
-                // Check if user is editing max loss manually
+                // If user edits the result box directly, flag it
                 if (this.id === 'maxLoss') {
                     userEditedMaxLoss = true;
                 }
-                // If premium or contracts change, update min max loss
+
+                // If drivers change, we RESET the manual override flag
+                // This ensures the box recalculates automatically based on the new inputs
                 if (this.id === 'premium' || this.id === 'contracts') {
+                    userEditedMaxLoss = false;
                     updateMinMaxLoss();
                 }
+
                 calculate();
             });
         });
@@ -920,21 +925,22 @@
             const maxRiskPct = parseFloat(document.getElementById('maxRiskPct').value) || 2;
             const premium = parseFloat(document.getElementById('premium').value) || 0;
             const contracts = parseInt(document.getElementById('contracts').value) || 1;
-            const maxGainPerContract = parseFloat(document.getElementById('maxGain').value) || 0;
+            
+            // NOTE: Max Gain is now treated as TOTAL value manually entered, not multiplied by contracts
+            const totalMaxProfit = parseFloat(document.getElementById('maxGain').value) || 0;
             
             // This is now the TOTAL Max Loss from the input box
             let maxLossTotal = parseFloat(document.getElementById('maxLoss').value) || 0;
             const totalPremium = premium * contracts;
 
-            // Ensure max loss is at least the total premium
-            if (maxLossTotal < totalPremium && !userEditedMaxLoss) {
-                maxLossTotal = totalPremium;
-                document.getElementById('maxLoss').value = totalPremium;
+            // Ensure max loss is at least the total premium if we are in auto-mode
+            if (!userEditedMaxLoss) {
+                 maxLossTotal = totalPremium;
+                 document.getElementById('maxLoss').value = totalPremium;
             }
             
             // Calculate totals
-            const totalMaxProfit = maxGainPerContract * contracts;
-            const totalMaxLoss = maxLossTotal; // Already total, do not multiply by contracts again
+            const totalMaxLoss = maxLossTotal; // Already total
             
             // Calculate R/R Ratio (Reward / Risk)
             const rrRatio = totalMaxLoss > 0 ? totalMaxProfit / totalMaxLoss : 0;
@@ -1003,8 +1009,9 @@
                 riskAlert.className = 'alert success';
                 
                 // Calculate how much room is left based on TOTAL loss per current config
-                // We use the current maxLossTotal to determine "risk per trade unit"
-                const roomForMore = Math.floor((portfolioValue * maxRiskPct / 100) / (totalMaxLoss / contracts)) - contracts;
+                const currentLossPerContract = totalMaxLoss / contracts;
+                // If derived loss is 0, avoid division by zero
+                const roomForMore = currentLossPerContract > 0 ? Math.floor((portfolioValue * maxRiskPct / 100) / currentLossPerContract) - contracts : 0;
                 
                 if (roomForMore > 0) {
                     riskAlertText.innerHTML = `<strong>Position size is within your ${maxRiskPct}% risk tolerance.</strong> You could add up to ${roomForMore} more contract(s).`;
@@ -1017,7 +1024,8 @@
                 riskLabel.textContent = 'Slightly High';
                 riskAlert.className = 'alert warning';
                 // Calculate reduction
-                const idealContracts = Math.floor((portfolioValue * maxRiskPct / 100) / (totalMaxLoss / contracts));
+                const currentLossPerContract = totalMaxLoss / contracts;
+                const idealContracts = currentLossPerContract > 0 ? Math.floor((portfolioValue * maxRiskPct / 100) / currentLossPerContract) : 0;
                 const reduceBy = contracts - idealContracts;
                 riskAlertText.innerHTML = `<strong>Position slightly exceeds your ${maxRiskPct}% limit.</strong> Consider reducing by ${reduceBy} contract(s).`;
             } else {
@@ -1025,14 +1033,16 @@
                 riskLabel.className = 'risk-value high';
                 riskLabel.textContent = 'Too High';
                 riskAlert.className = 'alert danger';
-                const idealContracts = Math.floor((portfolioValue * maxRiskPct / 100) / (totalMaxLoss / contracts));
+                const currentLossPerContract = totalMaxLoss / contracts;
+                const idealContracts = currentLossPerContract > 0 ? Math.floor((portfolioValue * maxRiskPct / 100) / currentLossPerContract) : 0;
                 riskAlertText.innerHTML = `<strong>⚠️ Position significantly exceeds your ${maxRiskPct}% limit!</strong> Reduce to ${idealContracts} contract(s) or fewer.`;
             }
             
             // Position sizing table
-            // We pass the calculated per-contract loss which is (Total Max Loss / Contracts)
+            // We calculate IMPLIED per-contract values to allow the table to project logic
             const impliedLossPerContract = totalMaxLoss / contracts;
-            updateSizingTable(portfolioValue, maxRiskPct, maxGainPerContract, impliedLossPerContract);
+            const impliedGainPerContract = totalMaxProfit / contracts;
+            updateSizingTable(portfolioValue, maxRiskPct, impliedGainPerContract, impliedLossPerContract);
         }
         
         function updateSizingTable(portfolioValue, maxRiskPct, maxGainPerContract, maxLossPerContract) {
