@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sunset Portfolio</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        /* --- CSS VARIABLES (SUNSET PALETTE) --- */
+        :root {
+            /* Light Mode (Day) */
+            --bg-body: #FFF9F0;       /* Warm cream */
+            --bg-card: #FFFFFF;
+            --text-main: #2D1B36;     /* Deep violet */
+            --text-muted: #63596B;
+            --primary: #FF6B6B;       /* Sunset Red */
+            --secondary: #FFA502;     /* Golden Hour Orange */
+            --accent: #6C5CE7;        /* Twilight Purple */
+            --nav-bg: rgba(255, 249, 240, 0.95);
+            --shadow: 0 4px 6px rgba(0,0,0,0.05);
+            --border: #ececec;
+        }
+
+        [data-theme="dark"] {
+            /* Dark Mode (Night) */
+            --bg-body: #1A0F24;       /* Deep Night Purple */
+            --bg-card: #251630;
+            --text-main: #F7F1E3;
+            --text-muted: #Beb6C9;
+            --primary: #FF8E8E;       /* Softer Red */
+            --secondary: #FFB142;     /* Softer Orange */
+            --accent: #A29BFE;        /* Soft Purple */
+            --nav-bg: rgba(26, 15, 36, 0.95);
+            --shadow: 0 4px 6px rgba(0,0,0,0.3);
+            --border: #382545;
+        }
+
+        /* --- GLOBAL STYLES --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        a { text-decoration: none; color: inherit; }
+        ul { list-style: none; }
+
+        .container {
+            max-width: 100%;
+            padding: 0 20px;
+            margin: 0 auto;
+        }
+
+        /* --- NAVIGATION --- */
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background-color: var(--nav-bg);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            padding: 15px 0;
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-links a {
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        /* Mobile Menu Styles */
+        .hamburger {
+            display: none;
+            cursor: pointer;
+            font-size: 1.5rem;
+        }
+
+        .theme-toggle {
+            cursor: pointer;
+            font-size: 1.2rem;
+            margin-left: 20px;
+            color: var(--text-main);
+            background: none;
+            border: none;
+        }
+
+        /* --- HERO SECTION --- */
+        #hero {
+            height: 90vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 0 20px;
+        }
+
+        #hero h1 {
+            font-size: 3rem;
+            line-height: 1.2;
+            margin-bottom: 15px;
+        }
+
+        #hero span {
+            color: var(--primary);
+        }
+
+        #hero p {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            margin-bottom: 30px;
+            max-width: 500px;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            color: white;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+        }
+
+        /* --- SECTIONS GENERAL --- */
+        section {
+            padding: 80px 20px;
+            max-width: 800px; /* Constrain width for readability */
+            margin: 0 auto;
+        }
+
+        h2 {
+            font-size: 2rem;
+            margin-bottom: 40px;
+            position: relative;
+            display: inline-block;
+        }
+
+        h2::after {
+            content: '';
+            display: block;
+            width: 50%;
+            height: 4px;
+            background: var(--secondary);
+            margin-top: 5px;
+            border-radius: 2px;
+        }
+
+        /* --- SKILLS --- */
+        .skills-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .skill-tag {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            box-shadow: var(--shadow);
+        }
+
+        /* --- PROJECTS --- */
+        .project-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .project-card {
+            background-color: var(--bg-card);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+
+        .project-img {
+            height: 160px;
+            background: linear-gradient(135deg, var(--accent), var(--primary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 3rem;
+        }
+
+        .project-content {
+            padding: 20px;
+        }
+
+        .project-content h3 { margin-bottom: 10px; }
+        .project-content p { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 15px; }
+        .project-link { color: var(--primary); font-weight: 600; font-size: 0.9rem; }
+
+        /* --- EXPERIENCE --- */
+        .timeline {
+            border-left: 3px solid var(--border);
+            padding-left: 20px;
+        }
+
+        .exp-item {
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        .exp-item::before {
+            content: '';
+            width: 15px;
+            height: 15px;
+            background-color: var(--secondary);
+            border-radius: 50%;
+            position: absolute;
+            left: -29px;
+            top: 5px;
+        }
+
+        .exp-role { font-weight: 700; font-size: 1.1rem; }
+        .exp-company { color: var(--primary); margin-bottom: 5px; display: block; }
+        .exp-date { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px; display: block;}
+
+        /* --- CONTACT --- */
+        .contact-methods {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .contact-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background-color: var(--bg-card);
+            padding: 15px 25px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+        }
+
+        /* --- FOOTER --- */
+        footer {
+            text-align: center;
+            padding: 40px 0;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border);
+            margin-top: 40px;
+        }
+
+        /* --- MOBILE MEDIA QUERY (Designed for 500px and below) --- */
+        @media (max-width: 768px) {
+            .hamburger { display: block; }
+            
+            .nav-links {
+                position: absolute;
+                top: 60px;
+                left: 0;
+                width: 100%;
+                background-color: var(--bg-card);
+                flex-direction: column;
+                padding: 20px;
+                border-bottom: 1px solid var(--border);
+                transform: translateY(-150%); /* Hidden by default */
+                transition: transform 0.3s ease-in-out;
+                z-index: 999;
+                text-align: center;
+            }
+
+            .nav-links.active {
+                transform: translateY(0);
+                box-shadow: var(--shadow);
+            }
+
+            #hero h1 { font-size: 2.2rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="container nav-container">
+            <a href="#" class="logo">Alex.Design</a>
+            
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="#about" class="nav-close">About</a></li>
+                    <li><a href="#skills" class="nav-close">Skills</a></li>
+                    <li><a href="#projects" class="nav-close">Portfolio</a></li>
+                    <li><a href="#experience" class="nav-close">Experience</a></li>
+                    <li><a href="#contact" class="nav-close">Contact</a></li>
+                </ul>
+            </nav>
+
+            <div style="display: flex; align-items: center;">
+                <button class="theme-toggle" id="theme-toggle" aria-label="Toggle Dark Mode">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <div class="hamburger" id="hamburger">
+                    <i class="fas fa-bars"></i>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <section id="hero">
+        <h1>Building Digital <br><span>Sunsets</span></h1>
+        <p>I'm a creative developer crafting clean, modern, and responsive web experiences.</p>
+        <a href="#projects" class="btn btn-primary">View My Work</a>
+    </section>
+
+    <section id="about">
+        <h2>About Me</h2>
+        <p style="color: var(--text-muted);">
+            Hello! I'm Alex, a frontend developer based in the cloud. I specialize in turning complex problems into simple, beautiful, and intuitive designs. I love color theory, clean code, and watching the sunset after a long day of coding.
+        </p>
+    </section>
+
+    <section id="skills">
+        <h2>Skills</h2>
+        <div class="skills-grid">
+            <div class="skill-tag">HTML5</div>
+            <div class="skill-tag">CSS3 / SCSS</div>
+            <div class="skill-tag">JavaScript (ES6+)</div>
+            <div class="skill-tag">React.js</div>
+            <div class="skill-tag">UI/UX Design</div>
+            <div class="skill-tag">Git</div>
+            <div class="skill-tag">Responsive Layouts</div>
+        </div>
+    </section>
+
+    <section id="projects">
+        <h2>Selected Projects</h2>
+        <div class="project-grid">
+            <div class="project-card">
+                <div class="project-img"><i class="fas fa-mobile-alt"></i></div>
+                <div class="project-content">
+                    <h3>Task Master App</h3>
+                    <p>A productivity application featuring dark mode, local storage, and drag-and-drop.</p>
+                    <a href="#" class="project-link">View Project &rarr;</a>
+                </div>
+            </div>
+            <div class="project-card">
+                <div class="project-img"><i class="fas fa-shopping-bag"></i></div>
+                <div class="project-content">
+                    <h3>E-Commerce Dashboard</h3>
+                    <p>A comprehensive analytics dashboard for online retailers with data visualization.</p>
+                    <a href="#" class="project-link">View Project &rarr;</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="experience">
+        <h2>Experience</h2>
+        <div class="timeline">
+            <div class="exp-item">
+                <div class="exp-role">Senior Frontend Dev</div>
+                <span class="exp-company">TechFlow Solutions</span>
+                <span class="exp-date">2021 - Present</span>
+                <p style="color: var(--text-muted);">Leading the frontend team, refactoring legacy codebases, and implementing design systems.</p>
+            </div>
+            <div class="exp-item">
+                <div class="exp-role">Web Designer</div>
+                <span class="exp-company">Creative Sun Studios</span>
+                <span class="exp-date">2018 - 2021</span>
+                <p style="color: var(--text-muted);">Designed and developed 20+ client websites using modern web technologies.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="contact">
+        <h2>Get In Touch</h2>
+        <div class="contact-methods">
+            <a href="mailto:email@example.com" class="contact-btn">
+                <i class="fas fa-envelope" style="color: var(--primary);"></i> Email Me
+            </a>
+            <a href="#" class="contact-btn">
+                <i class="fab fa-linkedin" style="color: var(--secondary);"></i> LinkedIn
+            </a>
+            <a href="#" class="contact-btn">
+                <i class="fab fa-github" style="color: var(--text-main);"></i> GitHub
+            </a>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2023 Alex.Design. Built with Sunset Vibes.</p>
+    </footer>
+
+    <script>
+        const themeToggle = document.getElementById('theme-toggle');
+        const hamburger = document.getElementById('hamburger');
+        const navLinks = document.querySelector('.nav-links');
+        const navItems = document.querySelectorAll('.nav-close');
+        const icon = themeToggle.querySelector('i');
+
+        // 1. Theme Toggle Logic
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = document.body.getAttribute('data-theme');
+            if (currentTheme === 'dark') {
+                document.body.setAttribute('data-theme', 'light');
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+            } else {
+                document.body.setAttribute('data-theme', 'dark');
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+            }
+        });
+
+        // 2. Mobile Menu Logic
+        hamburger.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+        });
+
+        // 3. Close menu when a link is clicked
+        navItems.forEach(item => {
+            item.addEventListener('click', () => {
+                navLinks.classList.remove('active');
+            });
+        });
+    </script>
+</body>
+</html>
