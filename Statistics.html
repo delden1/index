@@ -1,0 +1,989 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Closed Trade Performance Statistics</title>
+<style>
+:root { --bg:#0b0f14; --card:#111827; --text:#e5e7eb; --muted:#9ca3af; --border:#1f2937; }
+body { margin:0; padding:28px; background:var(--bg); color:var(--text); font:14px/1.45 -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial; }
+.wrap { max-width:1250px; margin:0 auto; }
+h1 { margin:0 0 6px; font-size:22px; }
+p.lead { margin:0 0 14px; color:var(--muted); max-width:1050px; }
+.card { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:14px 16px; margin:12px 0; }
+.cards { display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:12px; margin-top:8px; }
+@media (max-width: 1050px) { .cards { grid-template-columns:repeat(2, minmax(0,1fr)); } }
+.k { color:var(--muted); font-size:12px; }
+.v { font-size:22px; margin-top:6px; }
+.grid { display:grid; grid-template-columns: 1.2fr 0.8fr; gap:12px; }
+@media (max-width: 980px) { .grid { grid-template-columns: 1fr; } body { padding:18px; } }
+.controls { display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin:8px 0 0; }
+select, input { background:#0f172a; color:var(--text); border:1px solid var(--border); border-radius:10px; padding:8px 10px; font-size:13px; }
+button { background:#0f172a; color:var(--text); border:1px solid var(--border); border-radius:10px; padding:8px 10px; font-size:13px; cursor:pointer; }
+button:hover { border-color:#334155; }
+button.active { border-color:#60a5fa; box-shadow: 0 0 0 2px rgba(96,165,250,0.25) inset; }
+canvas { width:100%; height:420px; display:block; background:#0b1220; border-radius:12px; border:1px solid var(--border); }
+canvas.small { height:340px; }
+.table { width:100%; border-collapse: collapse; background:var(--card); border:1px solid var(--border); border-radius:14px; overflow:hidden; }
+.table th, .table td { padding:9px 10px; border-bottom:1px solid var(--border); vertical-align:top; white-space:nowrap; }
+.table th { text-align:left; font-weight:600; color:#d1d5db; background:#0f172a; position: sticky; top: 0; z-index: 1; }
+.table tr:hover td { background:rgba(255,255,255,0.04); }
+.small { font-size:12px; color:var(--muted); }
+.tooltip { position:absolute; pointer-events:none; background:rgba(17,24,39,0.95); border:1px solid var(--border); color:var(--text);
+  padding:6px 8px; border-radius:10px; font-size:12px; display:none; white-space:nowrap; transform: translate(10px, -10px); }
+h2 { margin:18px 0 8px; font-size:16px; }
+ul.takeaways { margin:8px 0 0 20px; color:var(--text); }
+ul.takeaways li { margin:6px 0; color:var(--text); }
+.section-title { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="section-title">
+    <div>
+      <h1 id="pageTitle">Closed Trade Performance Statistics</h1>
+      <p class="lead">Use the toggle to switch between closed trades (realized PnL), open trades (current PnL), or the combined view.</p>
+    </div>
+    <div class="controls" style="margin:0;">
+      <button id="btnClosed" class="active">Closed</button>
+      <button id="btnOpen">Open</button>
+      <button id="btnAll">All</button>
+    </div>
+  </div>
+
+  <div id="closedBlock">
+    <div class="cards">
+      <div class="card"><div class="k">Closed trades</div><div class="v">35</div></div>
+      <div class="card"><div class="k">Win rate</div><div class="v">80%</div></div>
+      <div class="card"><div class="k">Profit factor</div><div class="v">12.7</div></div>
+      <div class="card"><div class="k">Median time to peak (days)</div><div class="v">46</div></div>
+      <div class="card"><div class="k">Median days after peak</div><div class="v">4</div></div>
+      <div class="card"><div class="k">Median capture (PnL/MFE)</div><div class="v">0.91</div></div>
+      <div class="card"><div class="k">Median duration (days)</div><div class="v">56</div></div>
+      <div class="card"><div class="k">Median % return (capped at 100%)</div><div class="v">100%</div></div>
+    </div>
+    <div class="card"><h2 style="margin:0 0 6px;">Key takeaways</h2><ul class="takeaways"><li>Win rate: 80% across 35 closed trades. Profit factor: 12.7.</li>
+<li>Typical winner reached peak profit about 46 days after entry (median).</li>
+<li>40% of winners were held more than 7 days after their peak (MFE); 36% more than 14 days.</li>
+<li>Median capture ratio on winners (realized PnL ÷ max favorable excursion) was 0.91.</li></ul></div>
+  </div>
+
+  <div id="openBlock" style="display:none;">
+    <div class="cards">
+      <div class="card"><div class="k">Open trades</div><div class="v">14</div></div>
+      <div class="card"><div class="k">Win rate (current PnL)</div><div class="v">93%</div></div>
+      <div class="card"><div class="k">Profit factor (current PnL)</div><div class="v">375.14</div></div>
+      <div class="card"><div class="k">Median unrealized % return</div><div class="v">7.77%</div></div>
+      <div class="card"><div class="k">Median capture (current PnL/MFE)</div><div class="v">0.24</div></div>
+      <div class="card"><div class="k">Median age (days)</div><div class="v">64</div></div>
+      <div class="card"><div class="k">Peak timing</div><div class="v">—</div><div class="small" style="margin-top:6px;">Not shown for open trades.</div></div>
+      <div class="card"><div class="k">Note</div><div class="v">Unrealized</div><div class="small" style="margin-top:6px;">Open metrics use Current PnL and Unrealized % Return.</div></div>
+    </div>
+    <div class="card"><h2 style="margin:0 0 6px;">Key takeaways</h2><ul class="takeaways"><li>Open trades: 14. Win rate by current PnL: 93%. Profit factor (current PnL): 375.14.</li>
+<li>Median unrealized % return: 7.77%.</li>
+<li>Median capture ratio on open winners (current PnL ÷ trade MFE) was 0.24.</li>
+<li>Median age of open trades: 64 days.</li></ul></div>
+  </div>
+
+  <div id="allBlock" style="display:none;">
+    <div class="cards">
+      <div class="card"><div class="k">Trades (closed + open)</div><div class="v">49</div></div>
+      <div class="card"><div class="k">Win rate (PnL basis)</div><div class="v">84%</div></div>
+      <div class="card"><div class="k">Profit factor</div><div class="v">23.74</div></div>
+      <div class="card"><div class="k">Median % return (capped at 100%)</div><div class="v">100%</div></div>
+      <div class="card"><div class="k">Median capture (PnL/MFE)</div><div class="v">0.86</div></div>
+      <div class="card"><div class="k">Median holding period / age (days)</div><div class="v">61</div></div>
+      <div class="card"><div class="k">Peak timing</div><div class="v">—</div><div class="small" style="margin-top:6px;">Not shown in combined view.</div></div>
+      <div class="card"><div class="k">Note</div><div class="v">Mixed</div><div class="small" style="margin-top:6px;">All metrics use realized PnL for closed trades and current PnL for open trades.</div></div>
+    </div>
+    <div class="card"><h2 style="margin:0 0 6px;">Key takeaways</h2><ul class="takeaways"><li>Trades (closed + open): 49. Win rate by realized/current PnL: 84%. Profit factor: 23.74.</li>
+<li>Median % return (capped at 100% for display): 100%.</li>
+<li>Median capture ratio on winners (PnL ÷ max favorable excursion) was 0.86.</li>
+<li>Median holding period / age: 61 days.</li></ul></div>
+  </div>
+
+  <div class="card">
+    <div class="grid">
+      <div style="position:relative">
+        <div class="k" id="scatterTitle">Interactive scatter (closed trades)</div>
+        <div class="controls">
+          <label class="small">X-axis:</label>
+          <select id="xSelect">
+            <option value="dteOpen">DTE at Open</option>
+            <option value="holdDays">Hold (days)</option>
+            <option value="vol">Total Volume</option>
+          </select>
+          <label class="small">Y-axis:</label>
+          <select id="ySelect">
+            <option value="pnl">PnL ($)</option>
+            <option value="retPct">% Return</option>
+            <option value="tradeMFE">Trade MFE ($)</option>
+            <option value="tradeMAE">Trade MAE ($)</option>
+            <option value="tradeRatio">Trade MFE/MAE</option>
+          </select>
+          <label class="small">Filter symbol contains:</label>
+          <input id="symFilter" placeholder="e.g., NVDA" />
+          <button id="resetBtn">Reset</button>
+        </div>
+        <canvas id="chart"></canvas>
+        <div class="tooltip" id="tooltip"></div>
+      </div>
+
+      <div>
+        <div class="k">Definitions</div>
+        <div style="margin-top:8px">
+          <b>PnL</b>: profit or loss. Closed view uses realized PnL; Open view uses current PnL.<br/><br/>
+          <b>% Return</b>: trade return. Closed view uses realized return; Open view uses unrealized return. Display is capped at +100% for readability.<br/><br/>
+          <b>Trade MFE</b>: the highest unrealized profit the trade reached while it was open.<br/>
+          <b>Trade MAE</b>: the lowest unrealized profit (largest drawdown) the trade reached while it was open.<br/><br/>
+          <b>Trade MFE/MAE</b>: Trade MFE divided by the absolute value of Trade MAE. Higher values mean more upside was available relative to the worst drawdown experienced.<br/><br/>
+          <b>DTE at Open</b>: days to expiry when the trade was opened.<br/>
+          <b>Hold (days)</b>: closed view shows time from open to close; open view shows age since entry.<br/>
+          <b>Total Volume</b>: total traded volume captured; a rough liquidity proxy.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="grid">
+      <div><div class="k">Win rate by structure (closed trades)</div><canvas id="barWin" class="small"></canvas></div>
+      <div><div class="k">Typical time-to-peak (median MFE timing, closed trades)</div><canvas id="barPeak" class="small"></canvas></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="k">Closed trades table</div>
+    <div class="small" style="margin:6px 0 10px;">Columns included: PnL, % Return, Trade MAE/MFE, Trade MFE/MAE, DTE (open), Hold time, and Total Volume.</div>
+    <table border="1" class="dataframe table">
+  <thead>
+    <tr style="text-align: right;">
+      <th>Close Date</th>
+      <th>Symbol</th>
+      <th>Tags</th>
+      <th>Strikes</th>
+      <th>DTE (Open)</th>
+      <th>Hold (days)</th>
+      <th>Total Volume</th>
+      <th>PnL</th>
+      <th>% Return</th>
+      <th>Trade MAE</th>
+      <th>Trade MFE</th>
+      <th>Trade MFE/MAE</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>2026-01-16</td>
+      <td>SMH</td>
+      <td>Vertical Bear Put</td>
+      <td>325/345</td>
+      <td>67</td>
+      <td>67.1</td>
+      <td>40</td>
+      <td>-6300</td>
+      <td>-100.00</td>
+      <td>-6390.0</td>
+      <td>7950.0</td>
+      <td>1.24</td>
+    </tr>
+    <tr>
+      <td>2026-01-16</td>
+      <td>EU</td>
+      <td>Vertical Bull Call</td>
+      <td>2/4</td>
+      <td>144</td>
+      <td>144.0</td>
+      <td>600</td>
+      <td>9000</td>
+      <td>120.00</td>
+      <td>-1950.0</td>
+      <td>9900.0</td>
+      <td>5.08</td>
+    </tr>
+    <tr>
+      <td>2026-01-16</td>
+      <td>DNN</td>
+      <td>Synthetic</td>
+      <td>2.5</td>
+      <td>120</td>
+      <td>120.0</td>
+      <td>200</td>
+      <td>5450</td>
+      <td>1090.00</td>
+      <td>-1700.0</td>
+      <td>5450.0</td>
+      <td>3.21</td>
+    </tr>
+    <tr>
+      <td>2026-01-16</td>
+      <td>GLD</td>
+      <td>Vertical Bull Call</td>
+      <td>385/430</td>
+      <td>56</td>
+      <td>56.0</td>
+      <td>20</td>
+      <td>12990</td>
+      <td>251.99</td>
+      <td>-740.0</td>
+      <td>14695.0</td>
+      <td>19.86</td>
+    </tr>
+    <tr>
+      <td>2026-01-16</td>
+      <td>CGAU</td>
+      <td>Vertical Bull Call</td>
+      <td>5/10</td>
+      <td>204</td>
+      <td>204.1</td>
+      <td>120</td>
+      <td>8520</td>
+      <td>131.48</td>
+      <td>-1020.0</td>
+      <td>10020.0</td>
+      <td>9.82</td>
+    </tr>
+    <tr>
+      <td>2026-01-16</td>
+      <td>CCJ</td>
+      <td>Vertical Bull Call</td>
+      <td>80/100</td>
+      <td>129</td>
+      <td>129.0</td>
+      <td>40</td>
+      <td>14760</td>
+      <td>281.68</td>
+      <td>-130.0</td>
+      <td>16050.0</td>
+      <td>123.46</td>
+    </tr>
+    <tr>
+      <td>2026-01-16</td>
+      <td>SA</td>
+      <td>Diagonal</td>
+      <td>26/27</td>
+      <td>98</td>
+      <td>98.9</td>
+      <td>160</td>
+      <td>14240</td>
+      <td>273.85</td>
+      <td>-2080.0</td>
+      <td>18800.0</td>
+      <td>9.04</td>
+    </tr>
+    <tr>
+      <td>2026-01-16</td>
+      <td>EEM</td>
+      <td>Vertical Bull Call</td>
+      <td>54/57</td>
+      <td>56</td>
+      <td>56.0</td>
+      <td>100</td>
+      <td>5150</td>
+      <td>219.15</td>
+      <td>-1275.0</td>
+      <td>5175.0</td>
+      <td>4.06</td>
+    </tr>
+    <tr>
+      <td>2025-12-20</td>
+      <td>U.UN</td>
+      <td>Vertical Bull Put</td>
+      <td>25/27</td>
+      <td>63</td>
+      <td>64.0</td>
+      <td>160</td>
+      <td>200</td>
+      <td>4.76</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>2025-12-19</td>
+      <td>GLD</td>
+      <td>Vertical Bull Put</td>
+      <td>355/365</td>
+      <td>25</td>
+      <td>25.0</td>
+      <td>40</td>
+      <td>1900</td>
+      <td>100.00</td>
+      <td>0.0</td>
+      <td>1900.0</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>2025-12-19</td>
+      <td>AEM</td>
+      <td>Vertical Bull Call</td>
+      <td>140/160</td>
+      <td>112</td>
+      <td>112.9</td>
+      <td>28</td>
+      <td>9520</td>
+      <td>212.50</td>
+      <td>-3521.0</td>
+      <td>12194.0</td>
+      <td>3.46</td>
+    </tr>
+    <tr>
+      <td>2025-12-12</td>
+      <td>IWM</td>
+      <td>Iron Condor</td>
+      <td>244/245/258/259</td>
+      <td>7</td>
+      <td>7.1</td>
+      <td>240</td>
+      <td>990</td>
+      <td>100.00</td>
+      <td>-300.0</td>
+      <td>990.0</td>
+      <td>3.30</td>
+    </tr>
+    <tr>
+      <td>2025-11-24</td>
+      <td>GC</td>
+      <td>Vertical Bull Put</td>
+      <td>3900/3950</td>
+      <td>13</td>
+      <td>13.0</td>
+      <td>8</td>
+      <td>1000</td>
+      <td>100.00</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>2025-11-21</td>
+      <td>UEC</td>
+      <td>Vertical Bull Call</td>
+      <td>10/13</td>
+      <td>93</td>
+      <td>93.9</td>
+      <td>80</td>
+      <td>300</td>
+      <td>20.00</td>
+      <td>0.0</td>
+      <td>4400.0</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>2025-11-21</td>
+      <td>NXE</td>
+      <td>Vertical Bull Call</td>
+      <td>7/9</td>
+      <td>154</td>
+      <td>154.9</td>
+      <td>400</td>
+      <td>-400</td>
+      <td>-6.67</td>
+      <td>-1800.0</td>
+      <td>14700.0</td>
+      <td>8.17</td>
+    </tr>
+    <tr>
+      <td>2025-11-14</td>
+      <td>PYPL</td>
+      <td>Iron Condor</td>
+      <td>62/64/74/76</td>
+      <td>14</td>
+      <td>14.0</td>
+      <td>160</td>
+      <td>-920</td>
+      <td>-104.55</td>
+      <td>-1500.0</td>
+      <td>820.0</td>
+      <td>0.55</td>
+    </tr>
+    <tr>
+      <td>2025-11-07</td>
+      <td>AMD</td>
+      <td>Vertical Bull Call</td>
+      <td>260/262.5</td>
+      <td>7</td>
+      <td>7.1</td>
+      <td>80</td>
+      <td>-2440</td>
+      <td>-100.00</td>
+      <td>-2440.0</td>
+      <td>0.0</td>
+      <td>0.00</td>
+    </tr>
+    <tr>
+      <td>2025-11-07</td>
+      <td>CCJ</td>
+      <td>Vertical Bull Put</td>
+      <td>75/84</td>
+      <td>43</td>
+      <td>43.1</td>
+      <td>80</td>
+      <td>6200</td>
+      <td>100.00</td>
+      <td>-3460.0</td>
+      <td>6320.0</td>
+      <td>1.83</td>
+    </tr>
+    <tr>
+      <td>2025-11-03</td>
+      <td>MRVL</td>
+      <td>Diagonal</td>
+      <td>75/84</td>
+      <td>545</td>
+      <td>100.8</td>
+      <td>20</td>
+      <td>6910</td>
+      <td>75.11</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>2025-10-31</td>
+      <td>RTX</td>
+      <td>Vertical Bull Put</td>
+      <td>152.5/155</td>
+      <td>37</td>
+      <td>37.9</td>
+      <td>200</td>
+      <td>4700</td>
+      <td>100.00</td>
+      <td>-3550.0</td>
+      <td>6400.0</td>
+      <td>1.80</td>
+    </tr>
+    <tr>
+      <td>2025-10-31</td>
+      <td>DE</td>
+      <td>Iron Condor</td>
+      <td>440/442.5/490/492.5</td>
+      <td>8</td>
+      <td>8.0</td>
+      <td>72</td>
+      <td>594</td>
+      <td>100.00</td>
+      <td>-450.0</td>
+      <td>1827.0</td>
+      <td>4.06</td>
+    </tr>
+    <tr>
+      <td>2025-10-15</td>
+      <td>UUUU</td>
+      <td>Vertical Bull Call</td>
+      <td>8/12</td>
+      <td>204</td>
+      <td>111.8</td>
+      <td>400</td>
+      <td>28500</td>
+      <td>300.00</td>
+      <td>-7500.0</td>
+      <td>28500.0</td>
+      <td>3.80</td>
+    </tr>
+    <tr>
+      <td>2025-10-15</td>
+      <td>SA</td>
+      <td>Vertical Bull Call</td>
+      <td>17/20</td>
+      <td>141</td>
+      <td>104.8</td>
+      <td>400</td>
+      <td>18900</td>
+      <td>290.77</td>
+      <td>-2000.0</td>
+      <td>37500.0</td>
+      <td>18.75</td>
+    </tr>
+    <tr>
+      <td>2025-10-15</td>
+      <td>SLV</td>
+      <td>Vertical Bull Put</td>
+      <td>38.5/41</td>
+      <td>53</td>
+      <td>15.9</td>
+      <td>120</td>
+      <td>2010</td>
+      <td>87.01</td>
+      <td>0.0</td>
+      <td>2010.0</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>2025-10-03</td>
+      <td>XLV</td>
+      <td>Iron Condor</td>
+      <td>131.5/134.5/141/144</td>
+      <td>28</td>
+      <td>28.5</td>
+      <td>120</td>
+      <td>-2490</td>
+      <td>-123.88</td>
+      <td>-2550.0</td>
+      <td>2100.0</td>
+      <td>0.82</td>
+    </tr>
+    <tr>
+      <td>2025-09-19</td>
+      <td>SA</td>
+      <td>Vertical Bull Call</td>
+      <td>17/19</td>
+      <td>39</td>
+      <td>38.9</td>
+      <td>160</td>
+      <td>6080</td>
+      <td>316.67</td>
+      <td>-920.0</td>
+      <td>6080.0</td>
+      <td>6.61</td>
+    </tr>
+    <tr>
+      <td>2025-09-19</td>
+      <td>ARQQ</td>
+      <td>Calendar</td>
+      <td>45/45/45</td>
+      <td>101</td>
+      <td>101.8</td>
+      <td>50</td>
+      <td>3500</td>
+      <td>100.00</td>
+      <td>0.0</td>
+      <td>5530.0</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>2025-09-19</td>
+      <td>ZLAB</td>
+      <td>Vertical Bull Call</td>
+      <td>35/40</td>
+      <td>120</td>
+      <td>120.8</td>
+      <td>40</td>
+      <td>-1300</td>
+      <td>-100.00</td>
+      <td>-1900.0</td>
+      <td>2730.0</td>
+      <td>1.44</td>
+    </tr>
+    <tr>
+      <td>2025-09-19</td>
+      <td>SSRM</td>
+      <td>Vertical Bull Call</td>
+      <td>13/17</td>
+      <td>86</td>
+      <td>86.8</td>
+      <td>400</td>
+      <td>31500</td>
+      <td>370.59</td>
+      <td>-8700.0</td>
+      <td>40800.0</td>
+      <td>4.69</td>
+    </tr>
+    <tr>
+      <td>2025-09-12</td>
+      <td>PYPL</td>
+      <td>Iron Condor</td>
+      <td>63/65/74/76</td>
+      <td>38</td>
+      <td>37.9</td>
+      <td>160</td>
+      <td>1420</td>
+      <td>100.00</td>
+      <td>0.0</td>
+      <td>1620.0</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>2025-09-10</td>
+      <td>IWM</td>
+      <td>Iron Condor</td>
+      <td>227/229/240/242</td>
+      <td>5</td>
+      <td>5.0</td>
+      <td>80</td>
+      <td>590</td>
+      <td>100.00</td>
+      <td>0.0</td>
+      <td>590.0</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>2025-09-05</td>
+      <td>B</td>
+      <td>Vertical Bull Call</td>
+      <td>21.5/24.5</td>
+      <td>38</td>
+      <td>37.9</td>
+      <td>80</td>
+      <td>4560</td>
+      <td>316.67</td>
+      <td>-120.0</td>
+      <td>5380.0</td>
+      <td>44.83</td>
+    </tr>
+    <tr>
+      <td>2025-08-29</td>
+      <td>SPY</td>
+      <td>Iron Condor</td>
+      <td>485/559/615/650</td>
+      <td>98</td>
+      <td>98.8</td>
+      <td>8</td>
+      <td>1635</td>
+      <td>100.00</td>
+      <td>-1694.0</td>
+      <td>1635.0</td>
+      <td>0.97</td>
+    </tr>
+    <tr>
+      <td>2025-08-22</td>
+      <td>GLD</td>
+      <td>Calendar</td>
+      <td>312/312</td>
+      <td>42</td>
+      <td>42.1</td>
+      <td>40</td>
+      <td>-2090</td>
+      <td>-100.00</td>
+      <td>-2090.0</td>
+      <td>2760.0</td>
+      <td>1.32</td>
+    </tr>
+    <tr>
+      <td>2025-08-22</td>
+      <td>DE</td>
+      <td>Iron Condor</td>
+      <td>490/492.5/520/522.5</td>
+      <td>10</td>
+      <td>10.0</td>
+      <td>80</td>
+      <td>1650</td>
+      <td>100.00</td>
+      <td>-510.0</td>
+      <td>1650.0</td>
+      <td>3.24</td>
+    </tr>
+  </tbody>
+</table>
+  </div>
+
+  <div class="small">Generated by Strategic Options trader</div>
+</div>
+
+<script>
+const CLOSED_ROWS = [{"symbol": "SMH", "dteOpen": 67.0, "holdDays": 67.05849537037037, "vol": 40.0, "pnl": -6300.0, "retPct": -100.0, "tradeMAE": -6390.0, "tradeMFE": 7950.0, "tradeRatio": 1.244131455399061, "isClosed": true}, {"symbol": "EU", "dteOpen": 144.0, "holdDays": 144.02229166666666, "vol": 600.0, "pnl": 9000.0, "retPct": 120.0, "tradeMAE": -1950.0, "tradeMFE": 9900.0, "tradeRatio": 5.076923076923077, "isClosed": true}, {"symbol": "DNN", "dteOpen": 120.0, "holdDays": 120.04980324074074, "vol": 200.0, "pnl": 5450.0, "retPct": 1090.0, "tradeMAE": -1700.0, "tradeMFE": 5450.0, "tradeRatio": 3.2058823529411766, "isClosed": true}, {"symbol": "GLD", "dteOpen": 56.0, "holdDays": 55.95811342592592, "vol": 20.0, "pnl": 12990.0, "retPct": 251.9884, "tradeMAE": -740.0, "tradeMFE": 14695.0, "tradeRatio": 19.85810810810811, "isClosed": true}, {"symbol": "CGAU", "dteOpen": 204.0, "holdDays": 204.11032407407407, "vol": 120.0, "pnl": 8520.0, "retPct": 131.4815, "tradeMAE": -1020.0, "tradeMFE": 10020.0, "tradeRatio": 9.823529411764707, "isClosed": true}, {"symbol": "CCJ", "dteOpen": 129.0, "holdDays": 128.9957638888889, "vol": 40.0, "pnl": 14760.0, "retPct": 281.6794, "tradeMAE": -130.0, "tradeMFE": 16050.0, "tradeRatio": 123.46153846153847, "isClosed": true}, {"symbol": "SA", "dteOpen": 98.0, "holdDays": 98.93515046296297, "vol": 160.0, "pnl": 14240.0, "retPct": 273.8462, "tradeMAE": -2080.0, "tradeMFE": 18800.0, "tradeRatio": 9.038461538461538, "isClosed": true}, {"symbol": "EEM", "dteOpen": 56.0, "holdDays": 55.95811342592592, "vol": 100.0, "pnl": 5150.0, "retPct": 219.1489, "tradeMAE": -1275.0, "tradeMFE": 5175.0, "tradeRatio": 4.0588235294117645, "isClosed": true}, {"symbol": "U.UN", "dteOpen": 63.0, "holdDays": 63.97554398148148, "vol": 160.0, "pnl": 200.0, "retPct": 4.7619, "tradeMAE": null, "tradeMFE": null, "tradeRatio": null, "isClosed": true}, {"symbol": "GLD", "dteOpen": 25.0, "holdDays": 24.978402777777777, "vol": 40.0, "pnl": 1900.0, "retPct": 100.0, "tradeMAE": 0.0, "tradeMFE": 1900.0, "tradeRatio": null, "isClosed": true}, {"symbol": "AEM", "dteOpen": 112.0, "holdDays": 112.8975, "vol": 28.0, "pnl": 9520.0, "retPct": 212.5, "tradeMAE": -3521.0, "tradeMFE": 12194.0, "tradeRatio": 3.463220675944334, "isClosed": true}, {"symbol": "IWM", "dteOpen": 7.0, "holdDays": 7.0704976851851855, "vol": 240.0, "pnl": 990.0, "retPct": 100.0, "tradeMAE": -300.0, "tradeMFE": 990.0, "tradeRatio": 3.3, "isClosed": true}, {"symbol": "GC", "dteOpen": 13.0, "holdDays": 13.034212962962963, "vol": 8.0, "pnl": 1000.0, "retPct": 100.0, "tradeMAE": null, "tradeMFE": null, "tradeRatio": null, "isClosed": true}, {"symbol": "UEC", "dteOpen": 93.0, "holdDays": 93.89498842592593, "vol": 80.0, "pnl": 300.0, "retPct": 20.0, "tradeMAE": 0.0, "tradeMFE": 4400.0, "tradeRatio": null, "isClosed": true}, {"symbol": "NXE", "dteOpen": 154.0, "holdDays": 154.8780787037037, "vol": 400.0, "pnl": -400.0, "retPct": -6.6667, "tradeMAE": -1800.0, "tradeMFE": 14700.0, "tradeRatio": 8.166666666666666, "isClosed": true}, {"symbol": "PYPL", "dteOpen": 14.0, "holdDays": 13.970335648148149, "vol": 160.0, "pnl": -920.0, "retPct": -104.5455, "tradeMAE": -1500.0, "tradeMFE": 820.0, "tradeRatio": 0.5466666666666666, "isClosed": true}, {"symbol": "CCJ", "dteOpen": 43.0, "holdDays": 43.0903125, "vol": 80.0, "pnl": 6200.0, "retPct": 100.0, "tradeMAE": -3460.0, "tradeMFE": 6320.0, "tradeRatio": 1.8265895953757225, "isClosed": true}, {"symbol": "AMD", "dteOpen": 7.0, "holdDays": 7.053668981481482, "vol": 80.0, "pnl": -2440.0, "retPct": -100.0, "tradeMAE": -2440.0, "tradeMFE": 0.0, "tradeRatio": 0.0, "isClosed": true}, {"symbol": "MRVL", "dteOpen": 545.0, "holdDays": 100.81041666666667, "vol": 20.0, "pnl": 6910.0, "retPct": 75.1087, "tradeMAE": null, "tradeMFE": null, "tradeRatio": null, "isClosed": true}, {"symbol": "RTX", "dteOpen": 37.0, "holdDays": 37.89340277777778, "vol": 200.0, "pnl": 4700.0, "retPct": 100.0, "tradeMAE": -3550.0, "tradeMFE": 6400.0, "tradeRatio": 1.8028169014084507, "isClosed": true}, {"symbol": "DE", "dteOpen": 8.0, "holdDays": 8.012453703703704, "vol": 72.0, "pnl": 594.0, "retPct": 100.0, "tradeMAE": -450.0, "tradeMFE": 1827.0, "tradeRatio": 4.06, "isClosed": true}, {"symbol": "UUUU", "dteOpen": 204.0, "holdDays": 111.80724537037037, "vol": 400.0, "pnl": 28500.0, "retPct": 300.0, "tradeMAE": -7500.0, "tradeMFE": 28500.0, "tradeRatio": 3.8, "isClosed": true}, {"symbol": "SA", "dteOpen": 141.0, "holdDays": 104.80155092592592, "vol": 400.0, "pnl": 18900.0, "retPct": 290.7692, "tradeMAE": -2000.0, "tradeMFE": 37500.0, "tradeRatio": 18.75, "isClosed": true}, {"symbol": "SLV", "dteOpen": 53.0, "holdDays": 15.94787037037037, "vol": 120.0, "pnl": 2010.0, "retPct": 87.013, "tradeMAE": 0.0, "tradeMFE": 2010.0, "tradeRatio": null, "isClosed": true}, {"symbol": "XLV", "dteOpen": 28.0, "holdDays": 28.457928240740742, "vol": 120.0, "pnl": -2490.0, "retPct": -123.8806, "tradeMAE": -2550.0, "tradeMFE": 2100.0, "tradeRatio": 0.8235294117647058, "isClosed": true}, {"symbol": "SSRM", "dteOpen": 86.0, "holdDays": 86.83641203703704, "vol": 400.0, "pnl": 31500.0, "retPct": 370.5882, "tradeMAE": -8700.0, "tradeMFE": 40800.0, "tradeRatio": 4.689655172413793, "isClosed": true}, {"symbol": "ZLAB", "dteOpen": 120.0, "holdDays": 120.83641203703704, "vol": 40.0, "pnl": -1300.0, "retPct": -100.0, "tradeMAE": -1900.0, "tradeMFE": 2730.0, "tradeRatio": 1.436842105263158, "isClosed": true}, {"symbol": "SA", "dteOpen": 39.0, "holdDays": 38.93361111111111, "vol": 160.0, "pnl": 6080.0, "retPct": 316.6667, "tradeMAE": -920.0, "tradeMFE": 6080.0, "tradeRatio": 6.608695652173913, "isClosed": true}, {"symbol": "ARQQ", "dteOpen": 101.0, "holdDays": 101.83927083333333, "vol": 50.0, "pnl": 3500.0, "retPct": 100.0, "tradeMAE": 0.0, "tradeMFE": 5530.0, "tradeRatio": null, "isClosed": true}, {"symbol": "PYPL", "dteOpen": 38.0, "holdDays": 37.94048611111111, "vol": 160.0, "pnl": 1420.0, "retPct": 100.0, "tradeMAE": 0.0, "tradeMFE": 1620.0, "tradeRatio": null, "isClosed": true}, {"symbol": "IWM", "dteOpen": 5.0, "holdDays": 5.018449074074074, "vol": 80.0, "pnl": 590.0, "retPct": 100.0, "tradeMAE": 0.0, "tradeMFE": 590.0, "tradeRatio": null, "isClosed": true}, {"symbol": "B", "dteOpen": 38.0, "holdDays": 37.898599537037036, "vol": 80.0, "pnl": 4560.0, "retPct": 316.6667, "tradeMAE": -120.0, "tradeMFE": 5380.0, "tradeRatio": 44.833333333333336, "isClosed": true}, {"symbol": "SPY", "dteOpen": 98.0, "holdDays": 98.83641203703704, "vol": 8.0, "pnl": 1635.0, "retPct": 100.0, "tradeMAE": -1694.0, "tradeMFE": 1635.0, "tradeRatio": 0.9651711924439197, "isClosed": true}, {"symbol": "GLD", "dteOpen": 42.0, "holdDays": 42.06865740740741, "vol": 40.0, "pnl": -2090.0, "retPct": -100.0, "tradeMAE": -2090.0, "tradeMFE": 2760.0, "tradeRatio": 1.3205741626794258, "isClosed": true}, {"symbol": "DE", "dteOpen": 10.0, "holdDays": 9.977939814814814, "vol": 80.0, "pnl": 1650.0, "retPct": 100.0, "tradeMAE": -510.0, "tradeMFE": 1650.0, "tradeRatio": 3.235294117647059, "isClosed": true}];
+const OPEN_ROWS = [{"symbol": "SLVP", "dteOpen": 211.0, "holdDays": 2.876378600810185, "vol": 100.0, "pnl": 1000.0, "retPct": 0.1012658227848101, "tradeMAE": -194650.0, "tradeMFE": 8250.0, "tradeRatio": 0.042383765733367586, "isClosed": false}, {"symbol": "CCJ", "dteOpen": 116.0, "holdDays": 60.99913323043982, "vol": 20.0, "pnl": 4630.0, "retPct": 9.353535353535351, "tradeMAE": -113050.0, "tradeMFE": 10380.0, "tradeRatio": 0.09181777974347634, "isClosed": false}, {"symbol": "SA", "dteOpen": 133.0, "holdDays": 106.962130915625, "vol": 200.0, "pnl": 50700.0, "retPct": 4.056, "tradeMAE": -352300.0, "tradeMFE": 4000.0, "tradeRatio": 0.011353959693443088, "isClosed": false}, {"symbol": "ORLA", "dteOpen": 188.0, "holdDays": 14.85287165636574, "vol": 70.0, "pnl": 3500.0, "retPct": null, "tradeMAE": -280.0, "tradeMFE": 51520.0, "tradeRatio": 184.0, "isClosed": false}, {"symbol": "ASPI", "dteOpen": 176.0, "holdDays": 1.9711586934027778, "vol": 200.0, "pnl": -500.0, "retPct": null, "tradeMAE": -70300.0, "tradeMFE": 0.0, "tradeRatio": 0.0, "isClosed": false}, {"symbol": "CRML", "dteOpen": 140.0, "holdDays": 112.99960776747685, "vol": 80.0, "pnl": 7480.0, "retPct": null, "tradeMAE": -75480.0, "tradeMFE": 6280.0, "tradeRatio": 0.08320084790673025, "isClosed": false}, {"symbol": "MUX", "dteOpen": 164.0, "holdDays": 53.047373971180555, "vol": 20.0, "pnl": 130.0, "retPct": null, "tradeMAE": 0.0, "tradeMFE": 23470.0, "tradeRatio": null, "isClosed": false}, {"symbol": "GDX", "dteOpen": 157.0, "holdDays": 130.96282536006944, "vol": 20.0, "pnl": 36150.0, "retPct": null, "tradeMAE": -1870.0, "tradeMFE": 100010.0, "tradeRatio": 53.481283422459896, "isClosed": false}, {"symbol": "B", "dteOpen": 143.0, "holdDays": 88.14167952673611, "vol": 60.0, "pnl": 18690.0, "retPct": null, "tradeMAE": -151125.0, "tradeMFE": 240.0, "tradeRatio": 0.001588089330024814, "isClosed": false}, {"symbol": "NEM", "dteOpen": 177.0, "holdDays": 32.05299897118056, "vol": 20.0, "pnl": 18420.0, "retPct": null, "tradeMAE": -1990.0, "tradeMFE": 111630.0, "tradeRatio": 56.095477386934675, "isClosed": false}, {"symbol": "NEM", "dteOpen": 151.0, "holdDays": 96.10132073043981, "vol": 20.0, "pnl": 13750.0, "retPct": 14.248704663212436, "tradeMAE": -9630.0, "tradeMFE": 110320.0, "tradeRatio": 11.455867082035306, "isClosed": false}, {"symbol": "EXK", "dteOpen": 121.0, "holdDays": 94.07879758229167, "vol": 80.0, "pnl": 11880.0, "retPct": 6.1875, "tradeMAE": -2760.0, "tradeMFE": 49520.0, "tradeRatio": 17.942028985507246, "isClosed": false}, {"symbol": "URA", "dteOpen": 150.0, "holdDays": 67.8998971193287, "vol": 10.0, "pnl": 3280.0, "retPct": null, "tradeMAE": -1070.0, "tradeMFE": 24450.0, "tradeRatio": 22.850467289719628, "isClosed": false}, {"symbol": "SLVR", "dteOpen": 108.0, "holdDays": 24.98406378599537, "vol": 40.0, "pnl": 17960.0, "retPct": 10.819277108433734, "tradeMAE": -145880.0, "tradeMFE": 2700.0, "tradeRatio": 0.01850836303811352, "isClosed": false}];
+const ALL_ROWS = [{"symbol": "SMH", "dteOpen": 67.0, "holdDays": 67.05849537037037, "vol": 40.0, "pnl": -6300.0, "retPct": -100.0, "tradeMAE": -6390.0, "tradeMFE": 7950.0, "tradeRatio": 1.244131455399061, "isClosed": true}, {"symbol": "EU", "dteOpen": 144.0, "holdDays": 144.02229166666666, "vol": 600.0, "pnl": 9000.0, "retPct": 120.0, "tradeMAE": -1950.0, "tradeMFE": 9900.0, "tradeRatio": 5.076923076923077, "isClosed": true}, {"symbol": "DNN", "dteOpen": 120.0, "holdDays": 120.04980324074074, "vol": 200.0, "pnl": 5450.0, "retPct": 1090.0, "tradeMAE": -1700.0, "tradeMFE": 5450.0, "tradeRatio": 3.2058823529411766, "isClosed": true}, {"symbol": "GLD", "dteOpen": 56.0, "holdDays": 55.95811342592592, "vol": 20.0, "pnl": 12990.0, "retPct": 251.9884, "tradeMAE": -740.0, "tradeMFE": 14695.0, "tradeRatio": 19.85810810810811, "isClosed": true}, {"symbol": "CGAU", "dteOpen": 204.0, "holdDays": 204.11032407407407, "vol": 120.0, "pnl": 8520.0, "retPct": 131.4815, "tradeMAE": -1020.0, "tradeMFE": 10020.0, "tradeRatio": 9.823529411764707, "isClosed": true}, {"symbol": "CCJ", "dteOpen": 129.0, "holdDays": 128.9957638888889, "vol": 40.0, "pnl": 14760.0, "retPct": 281.6794, "tradeMAE": -130.0, "tradeMFE": 16050.0, "tradeRatio": 123.46153846153847, "isClosed": true}, {"symbol": "SA", "dteOpen": 98.0, "holdDays": 98.93515046296297, "vol": 160.0, "pnl": 14240.0, "retPct": 273.8462, "tradeMAE": -2080.0, "tradeMFE": 18800.0, "tradeRatio": 9.038461538461538, "isClosed": true}, {"symbol": "EEM", "dteOpen": 56.0, "holdDays": 55.95811342592592, "vol": 100.0, "pnl": 5150.0, "retPct": 219.1489, "tradeMAE": -1275.0, "tradeMFE": 5175.0, "tradeRatio": 4.0588235294117645, "isClosed": true}, {"symbol": "U.UN", "dteOpen": 63.0, "holdDays": 63.97554398148148, "vol": 160.0, "pnl": 200.0, "retPct": 4.7619, "tradeMAE": null, "tradeMFE": null, "tradeRatio": null, "isClosed": true}, {"symbol": "GLD", "dteOpen": 25.0, "holdDays": 24.978402777777777, "vol": 40.0, "pnl": 1900.0, "retPct": 100.0, "tradeMAE": 0.0, "tradeMFE": 1900.0, "tradeRatio": null, "isClosed": true}, {"symbol": "AEM", "dteOpen": 112.0, "holdDays": 112.8975, "vol": 28.0, "pnl": 9520.0, "retPct": 212.5, "tradeMAE": -3521.0, "tradeMFE": 12194.0, "tradeRatio": 3.463220675944334, "isClosed": true}, {"symbol": "IWM", "dteOpen": 7.0, "holdDays": 7.0704976851851855, "vol": 240.0, "pnl": 990.0, "retPct": 100.0, "tradeMAE": -300.0, "tradeMFE": 990.0, "tradeRatio": 3.3, "isClosed": true}, {"symbol": "GC", "dteOpen": 13.0, "holdDays": 13.034212962962963, "vol": 8.0, "pnl": 1000.0, "retPct": 100.0, "tradeMAE": null, "tradeMFE": null, "tradeRatio": null, "isClosed": true}, {"symbol": "UEC", "dteOpen": 93.0, "holdDays": 93.89498842592593, "vol": 80.0, "pnl": 300.0, "retPct": 20.0, "tradeMAE": 0.0, "tradeMFE": 4400.0, "tradeRatio": null, "isClosed": true}, {"symbol": "NXE", "dteOpen": 154.0, "holdDays": 154.8780787037037, "vol": 400.0, "pnl": -400.0, "retPct": -6.6667, "tradeMAE": -1800.0, "tradeMFE": 14700.0, "tradeRatio": 8.166666666666666, "isClosed": true}, {"symbol": "PYPL", "dteOpen": 14.0, "holdDays": 13.970335648148149, "vol": 160.0, "pnl": -920.0, "retPct": -104.5455, "tradeMAE": -1500.0, "tradeMFE": 820.0, "tradeRatio": 0.5466666666666666, "isClosed": true}, {"symbol": "CCJ", "dteOpen": 43.0, "holdDays": 43.0903125, "vol": 80.0, "pnl": 6200.0, "retPct": 100.0, "tradeMAE": -3460.0, "tradeMFE": 6320.0, "tradeRatio": 1.8265895953757225, "isClosed": true}, {"symbol": "AMD", "dteOpen": 7.0, "holdDays": 7.053668981481482, "vol": 80.0, "pnl": -2440.0, "retPct": -100.0, "tradeMAE": -2440.0, "tradeMFE": 0.0, "tradeRatio": 0.0, "isClosed": true}, {"symbol": "MRVL", "dteOpen": 545.0, "holdDays": 100.81041666666667, "vol": 20.0, "pnl": 6910.0, "retPct": 75.1087, "tradeMAE": null, "tradeMFE": null, "tradeRatio": null, "isClosed": true}, {"symbol": "RTX", "dteOpen": 37.0, "holdDays": 37.89340277777778, "vol": 200.0, "pnl": 4700.0, "retPct": 100.0, "tradeMAE": -3550.0, "tradeMFE": 6400.0, "tradeRatio": 1.8028169014084507, "isClosed": true}, {"symbol": "DE", "dteOpen": 8.0, "holdDays": 8.012453703703704, "vol": 72.0, "pnl": 594.0, "retPct": 100.0, "tradeMAE": -450.0, "tradeMFE": 1827.0, "tradeRatio": 4.06, "isClosed": true}, {"symbol": "UUUU", "dteOpen": 204.0, "holdDays": 111.80724537037037, "vol": 400.0, "pnl": 28500.0, "retPct": 300.0, "tradeMAE": -7500.0, "tradeMFE": 28500.0, "tradeRatio": 3.8, "isClosed": true}, {"symbol": "SA", "dteOpen": 141.0, "holdDays": 104.80155092592592, "vol": 400.0, "pnl": 18900.0, "retPct": 290.7692, "tradeMAE": -2000.0, "tradeMFE": 37500.0, "tradeRatio": 18.75, "isClosed": true}, {"symbol": "SLV", "dteOpen": 53.0, "holdDays": 15.94787037037037, "vol": 120.0, "pnl": 2010.0, "retPct": 87.013, "tradeMAE": 0.0, "tradeMFE": 2010.0, "tradeRatio": null, "isClosed": true}, {"symbol": "XLV", "dteOpen": 28.0, "holdDays": 28.457928240740742, "vol": 120.0, "pnl": -2490.0, "retPct": -123.8806, "tradeMAE": -2550.0, "tradeMFE": 2100.0, "tradeRatio": 0.8235294117647058, "isClosed": true}, {"symbol": "SSRM", "dteOpen": 86.0, "holdDays": 86.83641203703704, "vol": 400.0, "pnl": 31500.0, "retPct": 370.5882, "tradeMAE": -8700.0, "tradeMFE": 40800.0, "tradeRatio": 4.689655172413793, "isClosed": true}, {"symbol": "ZLAB", "dteOpen": 120.0, "holdDays": 120.83641203703704, "vol": 40.0, "pnl": -1300.0, "retPct": -100.0, "tradeMAE": -1900.0, "tradeMFE": 2730.0, "tradeRatio": 1.436842105263158, "isClosed": true}, {"symbol": "SA", "dteOpen": 39.0, "holdDays": 38.93361111111111, "vol": 160.0, "pnl": 6080.0, "retPct": 316.6667, "tradeMAE": -920.0, "tradeMFE": 6080.0, "tradeRatio": 6.608695652173913, "isClosed": true}, {"symbol": "ARQQ", "dteOpen": 101.0, "holdDays": 101.83927083333333, "vol": 50.0, "pnl": 3500.0, "retPct": 100.0, "tradeMAE": 0.0, "tradeMFE": 5530.0, "tradeRatio": null, "isClosed": true}, {"symbol": "PYPL", "dteOpen": 38.0, "holdDays": 37.94048611111111, "vol": 160.0, "pnl": 1420.0, "retPct": 100.0, "tradeMAE": 0.0, "tradeMFE": 1620.0, "tradeRatio": null, "isClosed": true}, {"symbol": "IWM", "dteOpen": 5.0, "holdDays": 5.018449074074074, "vol": 80.0, "pnl": 590.0, "retPct": 100.0, "tradeMAE": 0.0, "tradeMFE": 590.0, "tradeRatio": null, "isClosed": true}, {"symbol": "B", "dteOpen": 38.0, "holdDays": 37.898599537037036, "vol": 80.0, "pnl": 4560.0, "retPct": 316.6667, "tradeMAE": -120.0, "tradeMFE": 5380.0, "tradeRatio": 44.833333333333336, "isClosed": true}, {"symbol": "SPY", "dteOpen": 98.0, "holdDays": 98.83641203703704, "vol": 8.0, "pnl": 1635.0, "retPct": 100.0, "tradeMAE": -1694.0, "tradeMFE": 1635.0, "tradeRatio": 0.9651711924439197, "isClosed": true}, {"symbol": "GLD", "dteOpen": 42.0, "holdDays": 42.06865740740741, "vol": 40.0, "pnl": -2090.0, "retPct": -100.0, "tradeMAE": -2090.0, "tradeMFE": 2760.0, "tradeRatio": 1.3205741626794258, "isClosed": true}, {"symbol": "DE", "dteOpen": 10.0, "holdDays": 9.977939814814814, "vol": 80.0, "pnl": 1650.0, "retPct": 100.0, "tradeMAE": -510.0, "tradeMFE": 1650.0, "tradeRatio": 3.235294117647059, "isClosed": true}, {"symbol": "SLVP", "dteOpen": 211.0, "holdDays": 2.876378600810185, "vol": 100.0, "pnl": 1000.0, "retPct": 0.1012658227848101, "tradeMAE": -194650.0, "tradeMFE": 8250.0, "tradeRatio": 0.042383765733367586, "isClosed": false}, {"symbol": "CCJ", "dteOpen": 116.0, "holdDays": 60.99913323043982, "vol": 20.0, "pnl": 4630.0, "retPct": 9.353535353535351, "tradeMAE": -113050.0, "tradeMFE": 10380.0, "tradeRatio": 0.09181777974347634, "isClosed": false}, {"symbol": "SA", "dteOpen": 133.0, "holdDays": 106.962130915625, "vol": 200.0, "pnl": 50700.0, "retPct": 4.056, "tradeMAE": -352300.0, "tradeMFE": 4000.0, "tradeRatio": 0.011353959693443088, "isClosed": false}, {"symbol": "ORLA", "dteOpen": 188.0, "holdDays": 14.85287165636574, "vol": 70.0, "pnl": 3500.0, "retPct": null, "tradeMAE": -280.0, "tradeMFE": 51520.0, "tradeRatio": 184.0, "isClosed": false}, {"symbol": "ASPI", "dteOpen": 176.0, "holdDays": 1.9711586934027778, "vol": 200.0, "pnl": -500.0, "retPct": null, "tradeMAE": -70300.0, "tradeMFE": 0.0, "tradeRatio": 0.0, "isClosed": false}, {"symbol": "CRML", "dteOpen": 140.0, "holdDays": 112.99960776747685, "vol": 80.0, "pnl": 7480.0, "retPct": null, "tradeMAE": -75480.0, "tradeMFE": 6280.0, "tradeRatio": 0.08320084790673025, "isClosed": false}, {"symbol": "MUX", "dteOpen": 164.0, "holdDays": 53.047373971180555, "vol": 20.0, "pnl": 130.0, "retPct": null, "tradeMAE": 0.0, "tradeMFE": 23470.0, "tradeRatio": null, "isClosed": false}, {"symbol": "GDX", "dteOpen": 157.0, "holdDays": 130.96282536006944, "vol": 20.0, "pnl": 36150.0, "retPct": null, "tradeMAE": -1870.0, "tradeMFE": 100010.0, "tradeRatio": 53.481283422459896, "isClosed": false}, {"symbol": "B", "dteOpen": 143.0, "holdDays": 88.14167952673611, "vol": 60.0, "pnl": 18690.0, "retPct": null, "tradeMAE": -151125.0, "tradeMFE": 240.0, "tradeRatio": 0.001588089330024814, "isClosed": false}, {"symbol": "NEM", "dteOpen": 177.0, "holdDays": 32.05299897118056, "vol": 20.0, "pnl": 18420.0, "retPct": null, "tradeMAE": -1990.0, "tradeMFE": 111630.0, "tradeRatio": 56.095477386934675, "isClosed": false}, {"symbol": "NEM", "dteOpen": 151.0, "holdDays": 96.10132073043981, "vol": 20.0, "pnl": 13750.0, "retPct": 14.248704663212436, "tradeMAE": -9630.0, "tradeMFE": 110320.0, "tradeRatio": 11.455867082035306, "isClosed": false}, {"symbol": "EXK", "dteOpen": 121.0, "holdDays": 94.07879758229167, "vol": 80.0, "pnl": 11880.0, "retPct": 6.1875, "tradeMAE": -2760.0, "tradeMFE": 49520.0, "tradeRatio": 17.942028985507246, "isClosed": false}, {"symbol": "URA", "dteOpen": 150.0, "holdDays": 67.8998971193287, "vol": 10.0, "pnl": 3280.0, "retPct": null, "tradeMAE": -1070.0, "tradeMFE": 24450.0, "tradeRatio": 22.850467289719628, "isClosed": false}, {"symbol": "SLVR", "dteOpen": 108.0, "holdDays": 24.98406378599537, "vol": 40.0, "pnl": 17960.0, "retPct": 10.819277108433734, "tradeMAE": -145880.0, "tradeMFE": 2700.0, "tradeRatio": 0.01850836303811352, "isClosed": false}];
+
+const tagLabels = ["Calendar", "Diagonal", "Iron Condor", "Synthetic", "Vertical Bear Put", "Vertical Bull Call", "Vertical Bull Put"];
+const tagWinRates = [50.0, 100.0, 75.0, 100.0, 0.0, 80.0, 100.0];
+const tagTimeToPeak = [41.9, 73.0, 7.3, 119.1, 0.0, 52.5, 22.0];
+
+let activeMode = 'closed';
+
+function activeRows() {
+  if (activeMode === 'open') return OPEN_ROWS;
+  if (activeMode === 'all') return ALL_ROWS;
+  return CLOSED_ROWS;
+}
+
+function getVal(r, key) {
+  const v = r[key];
+  return (v === null || v === undefined || Number.isNaN(v)) ? null : Number(v);
+}
+
+function filterRows(rows) {
+  const f = document.getElementById('symFilter').value.trim().toUpperCase();
+  if (!f) return rows;
+  return rows.filter(r => (r.symbol || '').toUpperCase().includes(f));
+}
+
+let lastPlot = null;
+
+function drawScatter(data, xKey, yKey) {
+  const canvas = document.getElementById('chart');
+  const ctx = canvas.getContext('2d');
+  const tooltip = document.getElementById('tooltip');
+
+  const cssW = canvas.clientWidth;
+  const cssH = canvas.clientHeight;
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = Math.floor(cssW * dpr);
+  canvas.height = Math.floor(cssH * dpr);
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,cssW,cssH);
+
+  const isPct = (yKey === "retPct");
+  const pts = [];
+  for (const r of data) {
+    const x = getVal(r, xKey);
+    let y = getVal(r, yKey);
+    if (x === null || y === null) continue;
+    if (isPct && y > 100) y = 100;
+    pts.push({x, y, symbol: r.symbol});
+  }
+
+  tooltip.style.display = "none";
+  if (pts.length === 0) {
+    ctx.fillStyle = "#9ca3af";
+    ctx.fillText("No data matches the current filter.", 16, 24);
+    lastPlot = null;
+    return;
+  }
+
+  const padL = 52, padR = 18, padT = 18, padB = 42;
+  const plotW = cssW - padL - padR;
+  const plotH = cssH - padT - padB;
+
+  const xs = pts.map(p => p.x);
+  const ys = pts.map(p => p.y);
+
+  let xMin = Math.min(...xs), xMax = Math.max(...xs);
+  let yMin = Math.min(...ys), yMax = Math.max(...ys);
+
+  const xPad = (xMax - xMin) * 0.05 || 1;
+  const yPad = (yMax - yMin) * 0.08 || 1;
+  xMin -= xPad; xMax += xPad; yMin -= yPad; yMax += yPad;
+
+  function xScale(x) { return padL + (x - xMin) / (xMax - xMin) * plotW; }
+  function yScale(y) { return padT + (1 - (y - yMin) / (yMax - yMin)) * plotH; }
+
+  // axes
+  ctx.strokeStyle = "#1f2937";
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(padL, padT);
+  ctx.lineTo(padL, padT + plotH);
+  ctx.lineTo(padL + plotW, padT + plotH);
+  ctx.stroke();
+
+  // grid/ticks
+  ctx.fillStyle = "#9ca3af";
+  ctx.font = "12px -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial";
+  const xTicks = 5, yTicks = 5;
+
+  for (let i=0;i<=xTicks;i++) {
+    const t = xMin + (xMax - xMin) * (i/xTicks);
+    const x = xScale(t);
+    ctx.strokeStyle = "rgba(255,255,255,0.06)";
+    ctx.beginPath(); ctx.moveTo(x, padT); ctx.lineTo(x, padT + plotH); ctx.stroke();
+    ctx.fillText(t.toFixed(0), x-10, padT + plotH + 18);
+  }
+
+  for (let i=0;i<=yTicks;i++) {
+    const t = yMin + (yMax - yMin) * (i/yTicks);
+    const y = yScale(t);
+    ctx.strokeStyle = "rgba(255,255,255,0.06)";
+    ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(padL + plotW, y); ctx.stroke();
+    const label = isPct ? (t.toFixed(0) + "%") : (Math.abs(yMax - yMin) < 10 ? t.toFixed(2) : t.toFixed(0));
+    ctx.fillText(label, 8, y+4);
+  }
+
+  // axis labels
+  ctx.fillStyle = "#e5e7eb";
+  const xLabel = document.getElementById('xSelect').selectedOptions[0].textContent;
+  const yLabel = document.getElementById('ySelect').selectedOptions[0].textContent;
+  ctx.fillText(xLabel, padL + plotW/2 - 40, padT + plotH + 36);
+  ctx.save();
+  ctx.translate(14, padT + plotH/2 + 30);
+  ctx.rotate(-Math.PI/2);
+  ctx.fillText(yLabel, 0, 0);
+  ctx.restore();
+
+  // points
+  const plotPts = [];
+  for (const p of pts) {
+    const sx = xScale(p.x);
+    const sy = yScale(p.y);
+    ctx.fillStyle = (p.y < 0) ? "rgba(239,68,68,0.9)" : "rgba(96,165,250,0.9)";
+    ctx.beginPath();
+    ctx.arc(sx, sy, 3.2, 0, Math.PI*2);
+    ctx.fill();
+    plotPts.push({sx, sy, symbol: p.symbol});
+  }
+  lastPlot = { plotPts };
+}
+
+function redrawScatter() {
+  const rows = activeRows();
+  const xKey = document.getElementById('xSelect').value;
+  const yKey = document.getElementById('ySelect').value;
+  drawScatter(filterRows(rows), xKey, yKey);
+}
+
+const canvas = document.getElementById('chart');
+const tooltip = document.getElementById('tooltip');
+
+canvas.addEventListener('mousemove', (ev) => {
+  if (!lastPlot) return;
+  const rect = canvas.getBoundingClientRect();
+  const mx = ev.clientX - rect.left;
+  const my = ev.clientY - rect.top;
+
+  let best = null;
+  let bestD = 9999;
+  for (const p of lastPlot.plotPts) {
+    const dx = p.sx - mx;
+    const dy = p.sy - my;
+    const d = Math.sqrt(dx*dx + dy*dy);
+    if (d < bestD) { bestD = d; best = p; }
+  }
+
+  if (best && bestD <= 8) {
+    tooltip.style.display = "block";
+    tooltip.textContent = best.symbol || "";
+    tooltip.style.left = best.sx + "px";
+    tooltip.style.top = best.sy + "px";
+  } else {
+    tooltip.style.display = "none";
+  }
+});
+canvas.addEventListener('mouseleave', () => tooltip.style.display = "none");
+
+document.getElementById('xSelect').addEventListener('change', redrawScatter);
+document.getElementById('ySelect').addEventListener('change', redrawScatter);
+document.getElementById('symFilter').addEventListener('input', redrawScatter);
+document.getElementById('resetBtn').addEventListener('click', () => {
+  document.getElementById('xSelect').value = 'dteOpen';
+  document.getElementById('ySelect').value = 'pnl';
+  document.getElementById('symFilter').value = '';
+  redrawScatter();
+});
+
+// Toggle title + blocks + scatter mode
+const btnClosed = document.getElementById('btnClosed');
+const btnOpen = document.getElementById('btnOpen');
+const btnAll = document.getElementById('btnAll');
+const closedBlock = document.getElementById('closedBlock');
+const openBlock = document.getElementById('openBlock');
+const allBlock = document.getElementById('allBlock');
+const pageTitle = document.getElementById('pageTitle');
+const scatterTitle = document.getElementById('scatterTitle');
+
+function setActive(which) {
+  activeMode = which;
+  btnClosed.classList.remove('active'); btnOpen.classList.remove('active'); btnAll.classList.remove('active');
+  closedBlock.style.display = 'none'; openBlock.style.display = 'none'; allBlock.style.display = 'none';
+
+  if (which === 'closed') {
+    btnClosed.classList.add('active'); closedBlock.style.display = '';
+    pageTitle.textContent = 'Closed Trade Performance Statistics';
+    scatterTitle.textContent = 'Interactive scatter (closed trades)';
+  } else if (which === 'open') {
+    btnOpen.classList.add('active'); openBlock.style.display = '';
+    pageTitle.textContent = 'Open Trade Performance Statistics';
+    scatterTitle.textContent = 'Interactive scatter (open trades)';
+  } else {
+    btnAll.classList.add('active'); allBlock.style.display = '';
+    pageTitle.textContent = 'Closed + Open Trade Performance Statistics';
+    scatterTitle.textContent = 'Interactive scatter (closed + open)';
+  }
+  redrawScatter();
+}
+
+btnClosed.addEventListener('click', () => setActive('closed'));
+btnOpen.addEventListener('click', () => setActive('open'));
+btnAll.addEventListener('click', () => setActive('all'));
+
+// Wrapped-label bar charts
+function wrapLines(ctx, text, maxWidth) {
+  const words = (text || "").split(/\s+/).filter(Boolean);
+  if (words.length <= 1) return [text];
+  const lines = [];
+  let line = words[0];
+  for (let i=1;i<words.length;i++) {
+    const test = line + " " + words[i];
+    if (ctx.measureText(test).width <= maxWidth) line = test;
+    else { lines.push(line); line = words[i]; if (lines.length >= 2) break; }
+  }
+  lines.push(line);
+  if (lines.length > 2) {
+    lines.length = 2; lines[1] = lines[1].slice(0, Math.max(0, lines[1].length-1)) + "…";
+  }
+  return lines;
+}
+
+function drawBar(canvasId, labels, values, yLabel, isPercent=false) {
+  const canvas = document.getElementById(canvasId);
+  const ctx = canvas.getContext('2d');
+
+  const cssW = canvas.clientWidth;
+  const cssH = canvas.clientHeight;
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = Math.floor(cssW * dpr);
+  canvas.height = Math.floor(cssH * dpr);
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,cssW,cssH);
+
+  const padL = 46, padR = 14, padT = 18, padB = 88;
+  const plotW = cssW - padL - padR;
+  const plotH = cssH - padT - padB;
+
+  const vals = values.map(v => (v==null ? 0 : Number(v)));
+  let vMin = 0;
+  let vMax = Math.max(...vals, 1);
+  if (isPercent) vMax = Math.max(vMax, 100);
+
+  function yScale(v) { return padT + (1 - (v - vMin) / (vMax - vMin)) * plotH; }
+
+  // axes
+  ctx.strokeStyle = "#1f2937";
+  ctx.beginPath();
+  ctx.moveTo(padL, padT);
+  ctx.lineTo(padL, padT + plotH);
+  ctx.lineTo(padL + plotW, padT + plotH);
+  ctx.stroke();
+
+  // ticks
+  ctx.fillStyle = "#9ca3af";
+  ctx.font = "12px -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial";
+  const yTicks = 4;
+  for (let i=0;i<=yTicks;i++) {
+    const t = vMin + (vMax - vMin) * (i/yTicks);
+    const y = yScale(t);
+    ctx.strokeStyle = "rgba(255,255,255,0.06)";
+    ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(padL + plotW, y); ctx.stroke();
+    ctx.fillText(isPercent ? (t.toFixed(0) + "%") : t.toFixed(0), 6, y+4);
+  }
+
+  // bars
+  const n = labels.length;
+  const gap = 10;
+  const barW = (plotW - gap*(n-1)) / Math.max(n,1);
+  for (let i=0;i<n;i++) {
+    const v = vals[i];
+    const x = padL + i*(barW + gap);
+    const y = yScale(v);
+    const h = (padT + plotH) - y;
+    ctx.fillStyle = "rgba(96,165,250,0.9)";
+    ctx.fillRect(x, y, barW, h);
+
+    const maxLabelW = Math.max(barW + gap - 2, 40);
+    const lines = wrapLines(ctx, labels[i], maxLabelW);
+    ctx.fillStyle = "#9ca3af";
+    ctx.textAlign = "center";
+    const baseY = padT + plotH + 22;
+    for (let li=0; li<lines.length; li++) ctx.fillText(lines[li], x + barW/2, baseY + li*14);
+  }
+
+  // y label
+  ctx.fillStyle = "#e5e7eb";
+  ctx.textAlign = "left";
+  ctx.fillText(yLabel, padL + 6, 12);
+}
+
+function redrawBars() {
+  drawBar("barWin", tagLabels, tagWinRates, "Win rate", true);
+  drawBar("barPeak", tagLabels, tagTimeToPeak, "Days to peak", false);
+}
+
+window.addEventListener('resize', () => {
+  redrawScatter();
+  redrawBars();
+});
+
+redrawBars();
+redrawScatter();
+</script>
+</body>
+</html>
