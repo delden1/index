@@ -1,5 +1,5 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Closed Trade Performance Statistics</title>
+<title>Trade Performance Statistics - $100 K Portfolio</title>
 <style>
 :root{--bg:#0b0f14;--card:#111827;--text:#e5e7eb;--muted:#9ca3af;--border:#1f2937;--blue:#60a5fa;--red:#ef4444}
 body{margin:0;padding:28px;background:var(--bg);color:var(--text);font:14px/1.45 -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial}
@@ -37,31 +37,53 @@ canvas.small{height:340px}
 </style></head><body><div class="wrap">
 <div class="section-title">
   <div>
-    <h1 id="pageTitle">Closed Trade Performance Statistics</h1>
+    <h1 id="pageTitle">Closed Trade Performance Statistics - $100 K Portfolio</h1>
     <p class="lead">Toggle between closed (realized) and open (current). The scatter updates with the toggle. The table shows closed trades only.</p>
   </div>
   <div class="controls" style="margin:0;">
+    <span class="date-label" style="color:var(--muted);font-size:13px;margin-right:8px;">4 Feb, 2026</span>
     <button id="btnClosed" class="active">Closed</button>
     <button id="btnOpen">Open</button>
   </div>
 </div>
 
+
+<div class="cards" style="margin-top:10px">
+  <div class="card" style="grid-column: span 2;">
+    <div class="k">Equity Curve (closed trades only)</div>
+    <div style="margin-top:6px;font-size:13px">
+      <a href="https://www.tradesviz.com/viewstats/StratOptions/53ad83f03c1e9123" target="_blank" rel="noopener noreferrer" style="color:var(--blue);text-decoration:none;font-weight:700">
+        View current Equity Curve
+      </a>
+      <div class="small" style="margin-top:6px">This link reflects the current equity curve for closed trades only.</div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="k">Total Closed PnL ($)</div>
+    <div class="v">148,864</div>
+  </div>
+  <div class="card">
+    <div class="k">Current Unrealized Open PnL ($)</div>
+    <div class="v">88,556</div>
+  </div>
+</div>
+
 <div id="closedBlock"><div class="cards">
-  <div class="card"><div class="k">Closed trades</div><div class="v">35.0</div></div>
-  <div class="card"><div class="k">Win rate</div><div class="v">80.0%</div></div>
-  <div class="card"><div class="k">Profit factor</div><div class="v">12.7</div></div>
-  <div class="card"><div class="k">Median time to peak (days)</div><div class="v">46.0</div></div>
-  <div class="card"><div class="k">Median days after peak</div><div class="v">3.9</div></div>
+  <div class="card"><div class="k">Closed trades</div><div class="v">27</div></div>
+  <div class="card"><div class="k">Win rate</div><div class="v">81.5%</div></div>
+  <div class="card"><div class="k">Profit factor</div><div class="v">12.9</div></div>
+  <div class="card"><div class="k">Median time to peak (days)</div><div class="v">49.1</div></div>
+  <div class="card"><div class="k">Median days after peak</div><div class="v">6.9</div></div>
   <div class="card"><div class="k">Median capture (PnL/MFE)</div><div class="v">0.9</div></div>
-  <div class="card"><div class="k">Median duration (days)</div><div class="v">56.0</div></div>
-  <div class="card"><div class="k">Median % return</div><div class="v">100.0%</div></div>
+  <div class="card"><div class="k">Median duration (days)</div><div class="v">64</div></div>
+  <div class="card"><div class="k">Median % return</div><div class="v">2,014.2%</div></div>
 </div></div>
 
 <div id="openBlock" style="display:none;"><div class="cards">
-  <div class="card"><div class="k">Open trades</div><div class="v">14.0</div></div>
-  <div class="card"><div class="k">Win rate (current PnL)</div><div class="v">92.9%</div></div>
-  <div class="card"><div class="k">Profit factor (current PnL)</div><div class="v">375.1</div></div>
-  <div class="card"><div class="k">Median unrealized % return</div><div class="v">7.8%</div></div>
+  <div class="card"><div class="k">Open trades</div><div class="v">23</div></div>
+  <div class="card"><div class="k">Win rate (current PnL)</div><div class="v">87%</div></div>
+  <div class="card"><div class="k">Profit factor (current PnL)</div><div class="v">9.1</div></div>
+  <div class="card"><div class="k">Median unrealized % return</div><div class="v">9.3%</div></div>
 </div></div>
 
 <div class="card"><div class="grid">
@@ -76,6 +98,8 @@ canvas.small{height:340px}
         <option value="openPrice">Open Price</option>
         <option value="closePrice">Close Price</option>
         <option value="deltaPct">Delta %</option>
+        <option value="openTs">Open Timestamp</option>
+        <option value="closeTs">Close Timestamp</option>
       </select>
       <label class="small">Y-axis:</label>
       <select id="ySelect">
@@ -89,7 +113,7 @@ canvas.small{height:340px}
         <option value="deltaPct">Delta %</option>
       </select>
       <label class="small">Filter symbol contains:</label>
-      <input id="symFilter" placeholder="e.g., NVDA"/>
+      <input id="symFilter" placeholder="e.g., URA"/>
       <button id="resetBtn">Reset</button>
     </div>
     <canvas id="chart"></canvas>
@@ -146,50 +170,33 @@ canvas.small{height:340px}
       <td>SMH</td>
       <td>Vertical Bear Put</td>
       <td>325/345</td>
-      <td>63.0</td>
-      <td>0.0</td>
-      <td>-100.0</td>
+      <td>7.7</td>
+      <td>4.5</td>
+      <td>-41</td>
       <td>67</td>
       <td>67.1</td>
       <td>40</td>
-      <td>-6300</td>
-      <td>-100.0</td>
-      <td>-6390.0</td>
-      <td>7950.0</td>
+      <td>-6,300</td>
+      <td>-819</td>
+      <td>-6,390</td>
+      <td>7,950</td>
       <td>1.2</td>
-    </tr>
-    <tr>
-      <td>2026-01-16</td>
-      <td>EU</td>
-      <td>Vertical Bull Call</td>
-      <td>2/4</td>
-      <td>75.0</td>
-      <td>165.0</td>
-      <td>120.0</td>
-      <td>144</td>
-      <td>144.0</td>
-      <td>600</td>
-      <td>9000</td>
-      <td>120.0</td>
-      <td>-1950.0</td>
-      <td>9900.0</td>
-      <td>5.1</td>
     </tr>
     <tr>
       <td>2026-01-16</td>
       <td>DNN</td>
       <td>Synthetic</td>
       <td>2.5</td>
-      <td>5.0</td>
-      <td>59.5</td>
-      <td>1090.0</td>
+      <td>0.2</td>
+      <td>0.8</td>
+      <td>259.5</td>
       <td>120</td>
-      <td>120.0</td>
+      <td>120</td>
       <td>200</td>
-      <td>5450</td>
-      <td>1090.0</td>
-      <td>-1700.0</td>
-      <td>5450.0</td>
+      <td>5,450</td>
+      <td>25,952</td>
+      <td>-1,700</td>
+      <td>5,450</td>
       <td>3.2</td>
     </tr>
     <tr>
@@ -197,16 +204,16 @@ canvas.small{height:340px}
       <td>GLD</td>
       <td>Vertical Bull Call</td>
       <td>385/430</td>
-      <td>51.6</td>
-      <td>181.4</td>
-      <td>252.0</td>
+      <td>19</td>
+      <td>6</td>
+      <td>-68.5</td>
       <td>56</td>
-      <td>56.0</td>
+      <td>56</td>
       <td>20</td>
-      <td>12990</td>
-      <td>252.0</td>
-      <td>-740.0</td>
-      <td>14695.0</td>
+      <td>12,990</td>
+      <td>2,170</td>
+      <td>-740</td>
+      <td>14,695</td>
       <td>19.9</td>
     </tr>
     <tr>
@@ -214,16 +221,16 @@ canvas.small{height:340px}
       <td>CGAU</td>
       <td>Vertical Bull Call</td>
       <td>5/10</td>
-      <td>64.8</td>
-      <td>150.0</td>
-      <td>131.5</td>
+      <td>4.2</td>
+      <td>5.6</td>
+      <td>33.6</td>
       <td>204</td>
       <td>204.1</td>
       <td>120</td>
-      <td>8520</td>
-      <td>131.5</td>
-      <td>-1020.0</td>
-      <td>10020.0</td>
+      <td>8,520</td>
+      <td>2,014</td>
+      <td>-1,020</td>
+      <td>10,020</td>
       <td>9.8</td>
     </tr>
     <tr>
@@ -231,16 +238,16 @@ canvas.small{height:340px}
       <td>CCJ</td>
       <td>Vertical Bull Call</td>
       <td>80/100</td>
-      <td>52.4</td>
-      <td>200.0</td>
-      <td>281.7</td>
+      <td>11.9</td>
+      <td>19.3</td>
+      <td>61.8</td>
       <td>129</td>
-      <td>129.0</td>
+      <td>129</td>
       <td>40</td>
-      <td>14760</td>
-      <td>281.7</td>
-      <td>-130.0</td>
-      <td>16050.0</td>
+      <td>14,760</td>
+      <td>1,237</td>
+      <td>-130</td>
+      <td>16,050</td>
       <td>123.5</td>
     </tr>
     <tr>
@@ -248,84 +255,101 @@ canvas.small{height:340px}
       <td>SA</td>
       <td>Diagonal</td>
       <td>26/27</td>
-      <td>52.0</td>
-      <td>194.4</td>
-      <td>273.8</td>
+      <td>3.2</td>
+      <td>1.4</td>
+      <td>-56</td>
       <td>98</td>
       <td>98.9</td>
       <td>160</td>
-      <td>14240</td>
-      <td>273.8</td>
-      <td>-2080.0</td>
-      <td>18800.0</td>
-      <td>9.0</td>
+      <td>14,240</td>
+      <td>10,171</td>
+      <td>-2,080</td>
+      <td>18,800</td>
+      <td>9</td>
     </tr>
     <tr>
       <td>2026-01-16</td>
       <td>EEM</td>
       <td>Vertical Bull Call</td>
       <td>54/57</td>
-      <td>23.5</td>
-      <td>75.0</td>
-      <td>219.1</td>
+      <td>2</td>
+      <td>1</td>
+      <td>-50.4</td>
       <td>56</td>
-      <td>56.0</td>
+      <td>56</td>
       <td>100</td>
-      <td>5150</td>
-      <td>219.1</td>
-      <td>-1275.0</td>
-      <td>5175.0</td>
+      <td>5,150</td>
+      <td>5,074</td>
+      <td>-1,275</td>
+      <td>5,175</td>
       <td>4.1</td>
+    </tr>
+    <tr>
+      <td>2026-01-16</td>
+      <td>EU</td>
+      <td>Vertical Bull Call</td>
+      <td>2/4</td>
+      <td>0.6</td>
+      <td>0.3</td>
+      <td>-50</td>
+      <td>144</td>
+      <td>144</td>
+      <td>600</td>
+      <td>9,000</td>
+      <td>30,000</td>
+      <td>-1,950</td>
+      <td>9,900</td>
+      <td>5.1</td>
     </tr>
     <tr>
       <td>2025-12-20</td>
       <td>U.UN</td>
       <td>Vertical Bull Put</td>
       <td>25/27</td>
-      <td>40.0</td>
-      <td>42.0</td>
-      <td>5.0</td>
+      <td>1.3</td>
+      <td>1.3</td>
+      <td>2</td>
       <td>63</td>
-      <td>64.0</td>
+      <td>64</td>
       <td>160</td>
       <td>200</td>
-      <td>4.8</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
+      <td>157</td>
+      <td>—</td>
+      <td>—</td>
+      <td>—</td>
     </tr>
     <tr>
       <td>2025-12-19</td>
       <td>GLD</td>
       <td>Vertical Bull Put</td>
       <td>355/365</td>
-      <td>0.0</td>
-      <td>19.0</td>
-      <td>100.0</td>
+      <td>1.6</td>
+      <td>0.7</td>
+      <td>-58.8</td>
       <td>25</td>
-      <td>25.0</td>
+      <td>25</td>
       <td>40</td>
-      <td>1900</td>
-      <td>100.0</td>
-      <td>0.0</td>
-      <td>1900.0</td>
-      <td>NaN</td>
+      <td>1,900</td>
+      <td>2,857</td>
+      <td>0</td>
+      <td>1,900</td>
+      <td>—</td>
     </tr>
     <tr>
       <td>2025-12-19</td>
       <td>AEM</td>
       <td>Vertical Bull Call</td>
       <td>140/160</td>
-      <td>44.8</td>
-      <td>140.0</td>
-      <td>212.5</td>
+      <td>19.1</td>
+      <td>12.3</td>
+      <td>-35.5</td>
       <td>112</td>
       <td>112.9</td>
       <td>28</td>
-      <td>9520</td>
-      <td>212.5</td>
-      <td>-3521.0</td>
-      <td>12194.0</td>
+      <td>9,520</td>
+      <td>772</td>
+      <td>-3,521</td>
+      <td>12,194</td>
       <td>3.5</td>
     </tr>
     <tr>
@@ -333,16 +357,16 @@ canvas.small{height:340px}
       <td>IWM</td>
       <td>Iron Condor</td>
       <td>244/245/258/259</td>
-      <td>0.0</td>
-      <td>9.9</td>
-      <td>100.0</td>
+      <td>0.4</td>
+      <td>0.3</td>
+      <td>-19.2</td>
       <td>7</td>
       <td>7.1</td>
       <td>240</td>
       <td>990</td>
-      <td>100.0</td>
-      <td>-300.0</td>
-      <td>990.0</td>
+      <td>2,849</td>
+      <td>-300</td>
+      <td>990</td>
       <td>3.3</td>
     </tr>
     <tr>
@@ -350,135 +374,135 @@ canvas.small{height:340px}
       <td>GC</td>
       <td>Vertical Bull Put</td>
       <td>3900/3950</td>
-      <td>0.0</td>
-      <td>10.0</td>
-      <td>100.0</td>
+      <td>4.8</td>
+      <td>2.2</td>
+      <td>-52.6</td>
       <td>13</td>
-      <td>13.0</td>
+      <td>13</td>
       <td>8</td>
-      <td>1000</td>
-      <td>100.0</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-    </tr>
-    <tr>
-      <td>2025-11-21</td>
-      <td>UEC</td>
-      <td>Vertical Bull Call</td>
-      <td>10/13</td>
-      <td>15.0</td>
-      <td>18.0</td>
-      <td>20.0</td>
-      <td>93</td>
-      <td>93.9</td>
-      <td>80</td>
-      <td>300</td>
-      <td>20.0</td>
-      <td>0.0</td>
-      <td>4400.0</td>
-      <td>NaN</td>
+      <td>1,000</td>
+      <td>444</td>
+      <td>—</td>
+      <td>—</td>
+      <td>—</td>
     </tr>
     <tr>
       <td>2025-11-21</td>
       <td>NXE</td>
       <td>Vertical Bull Call</td>
       <td>7/9</td>
-      <td>60.0</td>
-      <td>56.0</td>
-      <td>-6.7</td>
+      <td>0.6</td>
+      <td>0.5</td>
+      <td>-3.6</td>
       <td>154</td>
       <td>154.9</td>
       <td>400</td>
       <td>-400</td>
-      <td>-6.7</td>
-      <td>-1800.0</td>
-      <td>14700.0</td>
+      <td>-714</td>
+      <td>-1,800</td>
+      <td>14,700</td>
       <td>8.2</td>
+    </tr>
+    <tr>
+      <td>2025-11-21</td>
+      <td>UEC</td>
+      <td>Vertical Bull Call</td>
+      <td>10/13</td>
+      <td>0.6</td>
+      <td>0.7</td>
+      <td>12.5</td>
+      <td>93</td>
+      <td>93.9</td>
+      <td>80</td>
+      <td>300</td>
+      <td>500</td>
+      <td>0</td>
+      <td>4,400</td>
+      <td>—</td>
     </tr>
     <tr>
       <td>2025-11-14</td>
       <td>PYPL</td>
       <td>Iron Condor</td>
       <td>62/64/74/76</td>
-      <td>18.0</td>
-      <td>8.8</td>
-      <td>-51.1</td>
+      <td>0.3</td>
+      <td>0.4</td>
+      <td>45.5</td>
       <td>14</td>
-      <td>14.0</td>
+      <td>14</td>
       <td>160</td>
       <td>-920</td>
-      <td>-104.5</td>
-      <td>-1500.0</td>
-      <td>820.0</td>
+      <td>-2,503</td>
+      <td>-1,500</td>
+      <td>820</td>
       <td>0.5</td>
-    </tr>
-    <tr>
-      <td>2025-11-07</td>
-      <td>AMD</td>
-      <td>Vertical Bull Call</td>
-      <td>260/262.5</td>
-      <td>24.4</td>
-      <td>0.0</td>
-      <td>-100.0</td>
-      <td>7</td>
-      <td>7.1</td>
-      <td>80</td>
-      <td>-2440</td>
-      <td>-100.0</td>
-      <td>-2440.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
     </tr>
     <tr>
       <td>2025-11-07</td>
       <td>CCJ</td>
       <td>Vertical Bull Put</td>
       <td>75/84</td>
-      <td>0.0</td>
-      <td>62.0</td>
-      <td>100.0</td>
+      <td>2.4</td>
+      <td>0.9</td>
+      <td>-63.9</td>
       <td>43</td>
       <td>43.1</td>
       <td>80</td>
-      <td>6200</td>
-      <td>100.0</td>
-      <td>-3460.0</td>
-      <td>6320.0</td>
+      <td>6,200</td>
+      <td>7,086</td>
+      <td>-3,460</td>
+      <td>6,320</td>
       <td>1.8</td>
+    </tr>
+    <tr>
+      <td>2025-11-07</td>
+      <td>AMD</td>
+      <td>Vertical Bull Call</td>
+      <td>260/262.5</td>
+      <td>6.2</td>
+      <td>5.6</td>
+      <td>-9.9</td>
+      <td>7</td>
+      <td>7.1</td>
+      <td>80</td>
+      <td>-2,440</td>
+      <td>-396</td>
+      <td>-2,440</td>
+      <td>0</td>
+      <td>0</td>
     </tr>
     <tr>
       <td>2025-11-03</td>
       <td>MRVL</td>
       <td>Diagonal</td>
       <td>75/84</td>
-      <td>92.0</td>
-      <td>161.1</td>
-      <td>75.1</td>
+      <td>16.7</td>
+      <td>9.8</td>
+      <td>-41.5</td>
       <td>545</td>
       <td>100.8</td>
       <td>20</td>
-      <td>6910</td>
-      <td>75.1</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
+      <td>6,910</td>
+      <td>709</td>
+      <td>—</td>
+      <td>—</td>
+      <td>—</td>
     </tr>
     <tr>
       <td>2025-10-31</td>
       <td>RTX</td>
       <td>Vertical Bull Put</td>
       <td>152.5/155</td>
-      <td>0.0</td>
-      <td>47.0</td>
-      <td>100.0</td>
+      <td>1.6</td>
+      <td>1.1</td>
+      <td>-29.7</td>
       <td>37</td>
       <td>37.9</td>
       <td>200</td>
-      <td>4700</td>
-      <td>100.0</td>
-      <td>-3550.0</td>
-      <td>6400.0</td>
+      <td>4,700</td>
+      <td>4,234</td>
+      <td>-3,550</td>
+      <td>6,400</td>
       <td>1.8</td>
     </tr>
     <tr>
@@ -486,16 +510,16 @@ canvas.small{height:340px}
       <td>DE</td>
       <td>Iron Condor</td>
       <td>440/442.5/490/492.5</td>
-      <td>0.0</td>
-      <td>5.9</td>
-      <td>100.0</td>
+      <td>1</td>
+      <td>0.8</td>
+      <td>-16.6</td>
       <td>8</td>
-      <td>8.0</td>
+      <td>8</td>
       <td>72</td>
       <td>594</td>
-      <td>100.0</td>
-      <td>-450.0</td>
-      <td>1827.0</td>
+      <td>716</td>
+      <td>-450</td>
+      <td>1,827</td>
       <td>4.1</td>
     </tr>
     <tr>
@@ -503,16 +527,16 @@ canvas.small{height:340px}
       <td>UUUU</td>
       <td>Vertical Bull Call</td>
       <td>8/12</td>
-      <td>95.0</td>
-      <td>380.0</td>
-      <td>300.0</td>
+      <td>9.6</td>
+      <td>8.2</td>
+      <td>-14.8</td>
       <td>204</td>
       <td>111.8</td>
       <td>400</td>
-      <td>28500</td>
-      <td>300.0</td>
-      <td>-7500.0</td>
-      <td>28500.0</td>
+      <td>28,500</td>
+      <td>3,471</td>
+      <td>-7,500</td>
+      <td>28,500</td>
       <td>3.8</td>
     </tr>
     <tr>
@@ -520,16 +544,16 @@ canvas.small{height:340px}
       <td>SA</td>
       <td>Vertical Bull Call</td>
       <td>17/20</td>
-      <td>65.0</td>
-      <td>254.0</td>
-      <td>290.8</td>
+      <td>5.4</td>
+      <td>4.5</td>
+      <td>-17.4</td>
       <td>141</td>
       <td>104.8</td>
       <td>400</td>
-      <td>18900</td>
-      <td>290.8</td>
-      <td>-2000.0</td>
-      <td>37500.0</td>
+      <td>18,900</td>
+      <td>4,223</td>
+      <td>-2,000</td>
+      <td>37,500</td>
       <td>18.8</td>
     </tr>
     <tr>
@@ -537,33 +561,33 @@ canvas.small{height:340px}
       <td>SLV</td>
       <td>Vertical Bull Put</td>
       <td>38.5/41</td>
-      <td>3.0</td>
-      <td>23.1</td>
-      <td>670.0</td>
+      <td>0.8</td>
+      <td>0.5</td>
+      <td>-41.9</td>
       <td>53</td>
       <td>15.9</td>
       <td>120</td>
-      <td>2010</td>
-      <td>87.0</td>
-      <td>0.0</td>
-      <td>2010.0</td>
-      <td>NaN</td>
+      <td>2,010</td>
+      <td>4,323</td>
+      <td>0</td>
+      <td>2,010</td>
+      <td>—</td>
     </tr>
     <tr>
       <td>2025-10-03</td>
       <td>XLV</td>
       <td>Iron Condor</td>
       <td>131.5/134.5/141/144</td>
-      <td>45.0</td>
-      <td>20.1</td>
-      <td>-55.3</td>
+      <td>0.8</td>
+      <td>1.2</td>
+      <td>55.3</td>
       <td>28</td>
       <td>28.5</td>
       <td>120</td>
-      <td>-2490</td>
-      <td>-123.9</td>
-      <td>-2550.0</td>
-      <td>2100.0</td>
+      <td>-2,490</td>
+      <td>-2,137</td>
+      <td>-2,550</td>
+      <td>2,100</td>
       <td>0.8</td>
     </tr>
     <tr>
@@ -571,16 +595,16 @@ canvas.small{height:340px}
       <td>SA</td>
       <td>Vertical Bull Call</td>
       <td>17/19</td>
-      <td>19.2</td>
-      <td>80.0</td>
-      <td>316.7</td>
+      <td>1.8</td>
+      <td>1</td>
+      <td>-43.1</td>
       <td>39</td>
       <td>38.9</td>
       <td>160</td>
-      <td>6080</td>
-      <td>316.7</td>
-      <td>-920.0</td>
-      <td>6080.0</td>
+      <td>6,080</td>
+      <td>6,050</td>
+      <td>-920</td>
+      <td>6,080</td>
       <td>6.6</td>
     </tr>
     <tr>
@@ -588,166 +612,38 @@ canvas.small{height:340px}
       <td>ARQQ</td>
       <td>Calendar</td>
       <td>45/45/45</td>
-      <td>0.0</td>
-      <td>35.0</td>
-      <td>100.0</td>
+      <td>3.5</td>
+      <td>2.1</td>
+      <td>-40.2</td>
       <td>101</td>
       <td>101.8</td>
       <td>50</td>
-      <td>3500</td>
-      <td>100.0</td>
-      <td>0.0</td>
-      <td>5530.0</td>
-      <td>NaN</td>
+      <td>3,500</td>
+      <td>1,683</td>
+      <td>0</td>
+      <td>5,530</td>
+      <td>—</td>
     </tr>
-    <tr>
-      <td>2025-09-19</td>
-      <td>ZLAB</td>
-      <td>Vertical Bull Call</td>
-      <td>35/40</td>
-      <td>13.0</td>
-      <td>0.0</td>
-      <td>-100.0</td>
-      <td>120</td>
-      <td>120.8</td>
-      <td>40</td>
-      <td>-1300</td>
-      <td>-100.0</td>
-      <td>-1900.0</td>
-      <td>2730.0</td>
-      <td>1.4</td>
-    </tr>
-    <tr>
-      <td>2025-09-19</td>
-      <td>SSRM</td>
-      <td>Vertical Bull Call</td>
-      <td>13/17</td>
-      <td>85.0</td>
-      <td>400.0</td>
-      <td>370.6</td>
-      <td>86</td>
-      <td>86.8</td>
-      <td>400</td>
-      <td>31500</td>
-      <td>370.6</td>
-      <td>-8700.0</td>
-      <td>40800.0</td>
-      <td>4.7</td>
-    </tr>
-    <tr>
-      <td>2025-09-12</td>
-      <td>PYPL</td>
-      <td>Iron Condor</td>
-      <td>63/65/74/76</td>
-      <td>0.0</td>
-      <td>14.2</td>
-      <td>100.0</td>
-      <td>38</td>
-      <td>37.9</td>
-      <td>160</td>
-      <td>1420</td>
-      <td>100.0</td>
-      <td>0.0</td>
-      <td>1620.0</td>
-      <td>NaN</td>
-    </tr>
-    <tr>
-      <td>2025-09-10</td>
-      <td>IWM</td>
-      <td>Iron Condor</td>
-      <td>227/229/240/242</td>
-      <td>0.0</td>
-      <td>5.9</td>
-      <td>100.0</td>
-      <td>5</td>
-      <td>5.0</td>
-      <td>80</td>
-      <td>590</td>
-      <td>100.0</td>
-      <td>0.0</td>
-      <td>590.0</td>
-      <td>NaN</td>
-    </tr>
-    <tr>
-      <td>2025-09-05</td>
-      <td>B</td>
-      <td>Vertical Bull Call</td>
-      <td>21.5/24.5</td>
-      <td>14.4</td>
-      <td>60.0</td>
-      <td>316.7</td>
-      <td>38</td>
-      <td>37.9</td>
-      <td>80</td>
-      <td>4560</td>
-      <td>316.7</td>
-      <td>-120.0</td>
-      <td>5380.0</td>
-      <td>44.8</td>
-    </tr>
-    <tr>
-      <td>2025-08-29</td>
-      <td>SPY</td>
-      <td>Iron Condor</td>
-      <td>485/559/615/650</td>
-      <td>0.0</td>
-      <td>16.4</td>
-      <td>100.0</td>
-      <td>98</td>
-      <td>98.8</td>
-      <td>8</td>
-      <td>1635</td>
-      <td>100.0</td>
-      <td>-1694.0</td>
-      <td>1635.0</td>
-      <td>1.0</td>
-    </tr>
-    <tr>
-      <td>2025-08-22</td>
-      <td>GLD</td>
-      <td>Calendar</td>
-      <td>312/312</td>
-      <td>20.9</td>
-      <td>0.0</td>
-      <td>-100.0</td>
-      <td>42</td>
-      <td>42.1</td>
-      <td>40</td>
-      <td>-2090</td>
-      <td>-100.0</td>
-      <td>-2090.0</td>
-      <td>2760.0</td>
-      <td>1.3</td>
-    </tr>
-    <tr>
-      <td>2025-08-22</td>
-      <td>DE</td>
-      <td>Iron Condor</td>
-      <td>490/492.5/520/522.5</td>
-      <td>0.0</td>
-      <td>16.5</td>
-      <td>100.0</td>
-      <td>10</td>
-      <td>10.0</td>
-      <td>80</td>
-      <td>1650</td>
-      <td>100.0</td>
-      <td>-510.0</td>
-      <td>1650.0</td>
-      <td>3.2</td>
-    </tr>
-  </tbody>
+  </tbody><tfoot><tr><td colspan='10' style='text-align:right;font-weight:700;color:#9ca3af;background:#0f172a;border-top:1px solid var(--border)'>Total Closed PnL</td><td style='font-weight:800;background:#0f172a;border-top:1px solid var(--border)' class='pos'>148,864</td><td colspan='4' style='background:#0f172a;border-top:1px solid var(--border)'></td></tr></tfoot>
 </table></div></div>
 <div class="small">Generated by Strategic Options trader</div></div>
 
 <script>
-const CLOSED_ROWS=[{"symbol": "SMH", "tags": "Vertical Bear Put", "dteOpen": 67.0, "holdDays": 67.05849537037037, "vol": 40.0, "pnl": -6300.0, "retPct": -100.0, "tradeMFE": 7950.0, "tradeMAE": -6390.0, "tradeRatio": 1.244131455399061, "openPrice": 63.0, "closePrice": 0.0, "deltaPct": -100.0}, {"symbol": "EU", "tags": "Vertical Bull Call", "dteOpen": 144.0, "holdDays": 144.02229166666666, "vol": 600.0, "pnl": 9000.0, "retPct": 120.0, "tradeMFE": 9900.0, "tradeMAE": -1950.0, "tradeRatio": 5.076923076923077, "openPrice": 75.0, "closePrice": 165.0, "deltaPct": 120.0}, {"symbol": "DNN", "tags": "Synthetic", "dteOpen": 120.0, "holdDays": 120.04980324074074, "vol": 200.0, "pnl": 5450.0, "retPct": 1090.0, "tradeMFE": 5450.0, "tradeMAE": -1700.0, "tradeRatio": 3.2058823529411766, "openPrice": 5.0, "closePrice": 59.5, "deltaPct": 1090.0}, {"symbol": "GLD", "tags": "Vertical Bull Call", "dteOpen": 56.0, "holdDays": 55.95811342592592, "vol": 20.0, "pnl": 12990.0, "retPct": 251.9884, "tradeMFE": 14695.0, "tradeMAE": -740.0, "tradeRatio": 19.85810810810811, "openPrice": 51.55, "closePrice": 181.45, "deltaPct": 251.98836081474295}, {"symbol": "CGAU", "tags": "Vertical Bull Call", "dteOpen": 204.0, "holdDays": 204.11032407407407, "vol": 120.0, "pnl": 8520.0, "retPct": 131.4815, "tradeMFE": 10020.0, "tradeMAE": -1020.0, "tradeRatio": 9.823529411764707, "openPrice": 64.8, "closePrice": 150.0, "deltaPct": 131.4814814814815}, {"symbol": "CCJ", "tags": "Vertical Bull Call", "dteOpen": 129.0, "holdDays": 128.9957638888889, "vol": 40.0, "pnl": 14760.0, "retPct": 281.6794, "tradeMFE": 16050.0, "tradeMAE": -130.0, "tradeRatio": 123.46153846153847, "openPrice": 52.4, "closePrice": 200.0, "deltaPct": 281.6793893129771}, {"symbol": "SA", "tags": "Diagonal", "dteOpen": 98.0, "holdDays": 98.93515046296297, "vol": 160.0, "pnl": 14240.0, "retPct": 273.8462, "tradeMFE": 18800.0, "tradeMAE": -2080.0, "tradeRatio": 9.038461538461538, "openPrice": 52.0, "closePrice": 194.4, "deltaPct": 273.84615384615387}, {"symbol": "EEM", "tags": "Vertical Bull Call", "dteOpen": 56.0, "holdDays": 55.95811342592592, "vol": 100.0, "pnl": 5150.0, "retPct": 219.1489, "tradeMFE": 5175.0, "tradeMAE": -1275.0, "tradeRatio": 4.0588235294117645, "openPrice": 23.5, "closePrice": 75.0, "deltaPct": 219.14893617021275}, {"symbol": "U.UN", "tags": "Vertical Bull Put", "dteOpen": 63.0, "holdDays": 63.97554398148148, "vol": 160.0, "pnl": 200.0, "retPct": 4.7619, "tradeMFE": null, "tradeMAE": null, "tradeRatio": null, "openPrice": 40.0, "closePrice": 42.0, "deltaPct": 5.0}, {"symbol": "GLD", "tags": "Vertical Bull Put", "dteOpen": 25.0, "holdDays": 24.978402777777777, "vol": 40.0, "pnl": 1900.0, "retPct": 100.0, "tradeMFE": 1900.0, "tradeMAE": 0.0, "tradeRatio": null, "openPrice": 0.0, "closePrice": 19.0, "deltaPct": 100.0}, {"symbol": "AEM", "tags": "Vertical Bull Call", "dteOpen": 112.0, "holdDays": 112.8975, "vol": 28.0, "pnl": 9520.0, "retPct": 212.5, "tradeMFE": 12194.0, "tradeMAE": -3521.0, "tradeRatio": 3.463220675944334, "openPrice": 44.8, "closePrice": 140.0, "deltaPct": 212.5}, {"symbol": "IWM", "tags": "Iron Condor", "dteOpen": 7.0, "holdDays": 7.0704976851851855, "vol": 240.0, "pnl": 990.0, "retPct": 100.0, "tradeMFE": 990.0, "tradeMAE": -300.0, "tradeRatio": 3.3, "openPrice": 0.0, "closePrice": 9.9, "deltaPct": 100.0}, {"symbol": "GC", "tags": "Vertical Bull Put", "dteOpen": 13.0, "holdDays": 13.034212962962963, "vol": 8.0, "pnl": 1000.0, "retPct": 100.0, "tradeMFE": null, "tradeMAE": null, "tradeRatio": null, "openPrice": 0.0, "closePrice": 10.0, "deltaPct": 100.0}, {"symbol": "UEC", "tags": "Vertical Bull Call", "dteOpen": 93.0, "holdDays": 93.89498842592593, "vol": 80.0, "pnl": 300.0, "retPct": 20.0, "tradeMFE": 4400.0, "tradeMAE": 0.0, "tradeRatio": null, "openPrice": 15.0, "closePrice": 18.0, "deltaPct": 20.0}, {"symbol": "NXE", "tags": "Vertical Bull Call", "dteOpen": 154.0, "holdDays": 154.8780787037037, "vol": 400.0, "pnl": -400.0, "retPct": -6.6667, "tradeMFE": 14700.0, "tradeMAE": -1800.0, "tradeRatio": 8.166666666666666, "openPrice": 60.0, "closePrice": 56.0, "deltaPct": -6.666666666666667}, {"symbol": "PYPL", "tags": "Iron Condor", "dteOpen": 14.0, "holdDays": 13.970335648148149, "vol": 160.0, "pnl": -920.0, "retPct": -104.5455, "tradeMFE": 820.0, "tradeMAE": -1500.0, "tradeRatio": 0.5466666666666666, "openPrice": 18.0, "closePrice": 8.8, "deltaPct": -51.11111111111111}, {"symbol": "CCJ", "tags": "Vertical Bull Put", "dteOpen": 43.0, "holdDays": 43.0903125, "vol": 80.0, "pnl": 6200.0, "retPct": 100.0, "tradeMFE": 6320.0, "tradeMAE": -3460.0, "tradeRatio": 1.8265895953757225, "openPrice": 0.0, "closePrice": 62.0, "deltaPct": 100.0}, {"symbol": "AMD", "tags": "Vertical Bull Call", "dteOpen": 7.0, "holdDays": 7.053668981481482, "vol": 80.0, "pnl": -2440.0, "retPct": -100.0, "tradeMFE": 0.0, "tradeMAE": -2440.0, "tradeRatio": 0.0, "openPrice": 24.4, "closePrice": 0.0, "deltaPct": -100.0}, {"symbol": "MRVL", "tags": "Diagonal", "dteOpen": 545.0, "holdDays": 100.81041666666667, "vol": 20.0, "pnl": 6910.0, "retPct": 75.1087, "tradeMFE": null, "tradeMAE": null, "tradeRatio": null, "openPrice": 92.0, "closePrice": 161.1, "deltaPct": 75.1086956521739}, {"symbol": "RTX", "tags": "Vertical Bull Put", "dteOpen": 37.0, "holdDays": 37.89340277777778, "vol": 200.0, "pnl": 4700.0, "retPct": 100.0, "tradeMFE": 6400.0, "tradeMAE": -3550.0, "tradeRatio": 1.8028169014084507, "openPrice": 0.0, "closePrice": 47.0, "deltaPct": 100.0}, {"symbol": "DE", "tags": "Iron Condor", "dteOpen": 8.0, "holdDays": 8.012453703703704, "vol": 72.0, "pnl": 594.0, "retPct": 100.0, "tradeMFE": 1827.0, "tradeMAE": -450.0, "tradeRatio": 4.06, "openPrice": 0.0, "closePrice": 5.94, "deltaPct": 100.0}, {"symbol": "UUUU", "tags": "Vertical Bull Call", "dteOpen": 204.0, "holdDays": 111.80724537037037, "vol": 400.0, "pnl": 28500.0, "retPct": 300.0, "tradeMFE": 28500.0, "tradeMAE": -7500.0, "tradeRatio": 3.8, "openPrice": 95.0, "closePrice": 380.0, "deltaPct": 300.0}, {"symbol": "SA", "tags": "Vertical Bull Call", "dteOpen": 141.0, "holdDays": 104.80155092592592, "vol": 400.0, "pnl": 18900.0, "retPct": 290.7692, "tradeMFE": 37500.0, "tradeMAE": -2000.0, "tradeRatio": 18.75, "openPrice": 65.0, "closePrice": 254.0, "deltaPct": 290.7692307692308}, {"symbol": "SLV", "tags": "Vertical Bull Put", "dteOpen": 53.0, "holdDays": 15.94787037037037, "vol": 120.0, "pnl": 2010.0, "retPct": 87.013, "tradeMFE": 2010.0, "tradeMAE": 0.0, "tradeRatio": null, "openPrice": 3.0, "closePrice": 23.1, "deltaPct": 670.0}, {"symbol": "XLV", "tags": "Iron Condor", "dteOpen": 28.0, "holdDays": 28.457928240740742, "vol": 120.0, "pnl": -2490.0, "retPct": -123.8806, "tradeMFE": 2100.0, "tradeMAE": -2550.0, "tradeRatio": 0.8235294117647058, "openPrice": 45.0, "closePrice": 20.1, "deltaPct": -55.333333333333336}, {"symbol": "SSRM", "tags": "Vertical Bull Call", "dteOpen": 86.0, "holdDays": 86.83641203703704, "vol": 400.0, "pnl": 31500.0, "retPct": 370.5882, "tradeMFE": 40800.0, "tradeMAE": -8700.0, "tradeRatio": 4.689655172413793, "openPrice": 85.0, "closePrice": 400.0, "deltaPct": 370.5882352941177}, {"symbol": "ZLAB", "tags": "Vertical Bull Call", "dteOpen": 120.0, "holdDays": 120.83641203703704, "vol": 40.0, "pnl": -1300.0, "retPct": -100.0, "tradeMFE": 2730.0, "tradeMAE": -1900.0, "tradeRatio": 1.436842105263158, "openPrice": 13.0, "closePrice": 0.0, "deltaPct": -100.0}, {"symbol": "SA", "tags": "Vertical Bull Call", "dteOpen": 39.0, "holdDays": 38.93361111111111, "vol": 160.0, "pnl": 6080.0, "retPct": 316.6667, "tradeMFE": 6080.0, "tradeMAE": -920.0, "tradeRatio": 6.608695652173913, "openPrice": 19.2, "closePrice": 80.0, "deltaPct": 316.66666666666663}, {"symbol": "ARQQ", "tags": "Calendar", "dteOpen": 101.0, "holdDays": 101.83927083333333, "vol": 50.0, "pnl": 3500.0, "retPct": 100.0, "tradeMFE": 5530.0, "tradeMAE": 0.0, "tradeRatio": null, "openPrice": 0.0, "closePrice": 35.0, "deltaPct": 100.0}, {"symbol": "PYPL", "tags": "Iron Condor", "dteOpen": 38.0, "holdDays": 37.94048611111111, "vol": 160.0, "pnl": 1420.0, "retPct": 100.0, "tradeMFE": 1620.0, "tradeMAE": 0.0, "tradeRatio": null, "openPrice": 0.0, "closePrice": 14.2, "deltaPct": 100.0}, {"symbol": "IWM", "tags": "Iron Condor", "dteOpen": 5.0, "holdDays": 5.018449074074074, "vol": 80.0, "pnl": 590.0, "retPct": 100.0, "tradeMFE": 590.0, "tradeMAE": 0.0, "tradeRatio": null, "openPrice": 0.0, "closePrice": 5.9, "deltaPct": 100.0}, {"symbol": "B", "tags": "Vertical Bull Call", "dteOpen": 38.0, "holdDays": 37.898599537037036, "vol": 80.0, "pnl": 4560.0, "retPct": 316.6667, "tradeMFE": 5380.0, "tradeMAE": -120.0, "tradeRatio": 44.833333333333336, "openPrice": 14.4, "closePrice": 60.0, "deltaPct": 316.66666666666663}, {"symbol": "SPY", "tags": "Iron Condor", "dteOpen": 98.0, "holdDays": 98.83641203703704, "vol": 8.0, "pnl": 1635.0, "retPct": 100.0, "tradeMFE": 1635.0, "tradeMAE": -1694.0, "tradeRatio": 0.9651711924439197, "openPrice": 0.0, "closePrice": 16.35, "deltaPct": 100.0}, {"symbol": "GLD", "tags": "Calendar", "dteOpen": 42.0, "holdDays": 42.06865740740741, "vol": 40.0, "pnl": -2090.0, "retPct": -100.0, "tradeMFE": 2760.0, "tradeMAE": -2090.0, "tradeRatio": 1.3205741626794258, "openPrice": 20.9, "closePrice": 0.0, "deltaPct": -100.0}, {"symbol": "DE", "tags": "Iron Condor", "dteOpen": 10.0, "holdDays": 9.977939814814814, "vol": 80.0, "pnl": 1650.0, "retPct": 100.0, "tradeMFE": 1650.0, "tradeMAE": -510.0, "tradeRatio": 3.235294117647059, "openPrice": 0.0, "closePrice": 16.5, "deltaPct": 100.0}];
-const OPEN_ROWS=[{"symbol": "SLVP", "tags": "Vertical Bull Call", "dteOpen": 211.0, "holdDays": 3.376621304733796, "vol": 100.0, "pnl": 1000.0, "retPct": 0.1012658227848101, "tradeMFE": 8250.0, "tradeMAE": -194650.0, "tradeRatio": 0.042383765733367586, "openPrice": 197.5, "closePrice": null, "deltaPct": 0.1012658227848101}, {"symbol": "CCJ", "tags": "Vertical Bull Put", "dteOpen": 116.0, "holdDays": 61.49937593436343, "vol": 20.0, "pnl": 4630.0, "retPct": 9.353535353535351, "tradeMFE": 10380.0, "tradeMAE": -113050.0, "tradeRatio": 0.09181777974347634, "openPrice": 49.5, "closePrice": null, "deltaPct": 9.353535353535351}, {"symbol": "SA", "tags": "Vertical Bull Call", "dteOpen": 133.0, "holdDays": 107.46237361954861, "vol": 200.0, "pnl": 50700.0, "retPct": 4.056, "tradeMFE": 4000.0, "tradeMAE": -352300.0, "tradeRatio": 0.011353959693443088, "openPrice": 125.0, "closePrice": null, "deltaPct": 4.056}, {"symbol": "ORLA", "tags": "Vertical Bull Call", "dteOpen": 188.0, "holdDays": 15.353114360289352, "vol": 70.0, "pnl": 3500.0, "retPct": null, "tradeMFE": 51520.0, "tradeMAE": -280.0, "tradeRatio": 184.0, "openPrice": 0.0, "closePrice": null, "deltaPct": null}, {"symbol": "ASPI", "tags": "Vertical Bull Call", "dteOpen": 176.0, "holdDays": 2.471401397326389, "vol": 200.0, "pnl": -500.0, "retPct": null, "tradeMFE": 0.0, "tradeMAE": -70300.0, "tradeRatio": 0.0, "openPrice": 100.0, "closePrice": null, "deltaPct": null}, {"symbol": "CRML", "tags": "Vertical Bull Call", "dteOpen": 140.0, "holdDays": 113.49985047140046, "vol": 80.0, "pnl": 7480.0, "retPct": null, "tradeMFE": 6280.0, "tradeMAE": -75480.0, "tradeRatio": 0.08320084790673025, "openPrice": 29.2, "closePrice": null, "deltaPct": null}, {"symbol": "MUX", "tags": "Vertical Bull Call", "dteOpen": 164.0, "holdDays": 53.54761667510417, "vol": 20.0, "pnl": 130.0, "retPct": null, "tradeMFE": 23470.0, "tradeMAE": 0.0, "tradeRatio": null, "openPrice": 0.0, "closePrice": null, "deltaPct": null}, {"symbol": "GDX", "tags": "Synthetic", "dteOpen": 157.0, "holdDays": 131.46306806399306, "vol": 20.0, "pnl": 36150.0, "retPct": null, "tradeMFE": 100010.0, "tradeMAE": -1870.0, "tradeRatio": 53.481283422459896, "openPrice": 0.0, "closePrice": null, "deltaPct": null}, {"symbol": "B", "tags": "Vertical Bull Call", "dteOpen": 143.0, "holdDays": 88.64192223065973, "vol": 60.0, "pnl": 18690.0, "retPct": null, "tradeMFE": 240.0, "tradeMAE": -151125.0, "tradeRatio": 0.001588089330024814, "openPrice": 54.0, "closePrice": null, "deltaPct": null}, {"symbol": "NEM", "tags": "Synthetic", "dteOpen": 177.0, "holdDays": 32.55324167510416, "vol": 20.0, "pnl": 18420.0, "retPct": null, "tradeMFE": 111630.0, "tradeMAE": -1990.0, "tradeRatio": 56.095477386934675, "openPrice": 0.0, "closePrice": null, "deltaPct": null}, {"symbol": "NEM", "tags": "Vertical Bull Call", "dteOpen": 151.0, "holdDays": 96.60156343436343, "vol": 20.0, "pnl": 13750.0, "retPct": 14.248704663212436, "tradeMFE": 110320.0, "tradeMAE": -9630.0, "tradeRatio": 11.455867082035306, "openPrice": 0.0, "closePrice": null, "deltaPct": 14.248704663212436}, {"symbol": "EXK", "tags": "Vertical Bull Call", "dteOpen": 121.0, "holdDays": 94.57904028621527, "vol": 80.0, "pnl": 11880.0, "retPct": 6.1875, "tradeMFE": 49520.0, "tradeMAE": -2760.0, "tradeRatio": 17.942028985507246, "openPrice": 0.0, "closePrice": null, "deltaPct": 6.1875}, {"symbol": "URA", "tags": "Vertical Bull Call", "dteOpen": 150.0, "holdDays": 68.40013982325232, "vol": 10.0, "pnl": 3280.0, "retPct": null, "tradeMFE": 24450.0, "tradeMAE": -1070.0, "tradeRatio": 22.850467289719628, "openPrice": 0.0, "closePrice": null, "deltaPct": null}, {"symbol": "SLVR", "tags": "Vertical Bull Call", "dteOpen": 108.0, "holdDays": 25.48430648991898, "vol": 40.0, "pnl": 17960.0, "retPct": 10.819277108433734, "tradeMFE": 2700.0, "tradeMAE": -145880.0, "tradeRatio": 0.01850836303811352, "openPrice": 83.0, "closePrice": null, "deltaPct": 10.819277108433734}];
+const CLOSED_ROWS=[{"symbol": "SMH", "tags": "Vertical Bear Put", "dteOpen": 67.0, "holdDays": 67.05849537037037, "vol": 40.0, "pnl": -6300.0, "retPct": -819.2458, "tradeMFE": 7950.0, "tradeMAE": -6390.0, "tradeRatio": 1.244131455399061, "openPrice": 7.69, "closePrice": 4.54, "deltaPct": -40.96228868660599, "openTs": 1762808746.0, "closeTs": 1768602600.0, "assetType": "stock_option"}, {"symbol": "EU", "tags": "Vertical Bull Call", "dteOpen": 144.0, "holdDays": 144.02229166666666, "vol": 600.0, "pnl": 9000.0, "retPct": 30000.0, "tradeMFE": 9900.0, "tradeMAE": -1950.0, "tradeRatio": 5.076923076923077, "openPrice": 0.6, "closePrice": 0.3, "deltaPct": -50.0, "openTs": 1756159074.0, "closeTs": 1768602600.0, "assetType": "stock_option"}, {"symbol": "DNN", "tags": "Synthetic", "dteOpen": 120.0, "holdDays": 120.04980324074074, "vol": 200.0, "pnl": 5450.0, "retPct": 25952.381, "tradeMFE": 5450.0, "tradeMAE": -1700.0, "tradeRatio": 3.2058823529411766, "openPrice": 0.21, "closePrice": 0.755, "deltaPct": 259.5238095238095, "openTs": 1758230297.0, "closeTs": 1768602600.0, "assetType": "stock_option"}, {"symbol": "GLD", "tags": "Vertical Bull Call", "dteOpen": 56.0, "holdDays": 55.95811342592592, "vol": 20.0, "pnl": 12990.0, "retPct": 2170.4261, "tradeMFE": 14695.0, "tradeMAE": -740.0, "tradeRatio": 19.85810810810811, "openPrice": 18.975, "closePrice": 5.985, "deltaPct": -68.45849802371542, "openTs": 1763767819.0, "closeTs": 1768602600.0, "assetType": "stock_option"}, {"symbol": "CGAU", "tags": "Vertical Bull Call", "dteOpen": 204.0, "holdDays": 204.11032407407407, "vol": 120.0, "pnl": 8520.0, "retPct": 2014.1844, "tradeMFE": 10020.0, "tradeMAE": -1020.0, "tradeRatio": 9.823529411764707, "openPrice": 4.23, "closePrice": 5.65, "deltaPct": 33.56973995271867, "openTs": 1750967468.0, "closeTs": 1768602600.0, "assetType": "stock_option"}, {"symbol": "CCJ", "tags": "Vertical Bull Call", "dteOpen": 129.0, "holdDays": 128.9957638888889, "vol": 40.0, "pnl": 14760.0, "retPct": 1236.6988, "tradeMFE": 16050.0, "tradeMAE": -130.0, "tradeRatio": 123.46153846153847, "openPrice": 11.935, "closePrice": 19.315, "deltaPct": 61.8349392542941, "openTs": 1757457366.0, "closeTs": 1768602600.0, "assetType": "stock_option"}, {"symbol": "SA", "tags": "Diagonal", "dteOpen": 98.0, "holdDays": 98.93515046296297, "vol": 160.0, "pnl": 14240.0, "retPct": 10171.4286, "tradeMFE": 18800.0, "tradeMAE": -2080.0, "tradeRatio": 9.038461538461538, "openPrice": 3.18, "closePrice": 1.4, "deltaPct": -55.974842767295605, "openTs": 1760054603.0, "closeTs": 1768602600.0, "assetType": "stock_option"}, {"symbol": "EEM", "tags": "Vertical Bull Call", "dteOpen": 56.0, "holdDays": 55.95811342592592, "vol": 100.0, "pnl": 5150.0, "retPct": 5073.8916, "tradeMFE": 5175.0, "tradeMAE": -1275.0, "tradeRatio": 4.0588235294117645, "openPrice": 2.045, "closePrice": 1.015, "deltaPct": -50.36674816625917, "openTs": 1763767819.0, "closeTs": 1768602600.0, "assetType": "stock_option"}, {"symbol": "U.UN", "tags": "Vertical Bull Put", "dteOpen": 63.0, "holdDays": 63.97554398148148, "vol": 160.0, "pnl": 200.0, "retPct": 156.8627, "tradeMFE": null, "tradeMAE": null, "tradeRatio": null, "openPrice": 1.275, "closePrice": 1.3, "deltaPct": 1.960784313725501, "openTs": 1760664646.0, "closeTs": 1766192133.0, "assetType": "stock_option"}, {"symbol": "GLD", "tags": "Vertical Bull Put", "dteOpen": 25.0, "holdDays": 24.978402777777777, "vol": 40.0, "pnl": 1900.0, "retPct": 2857.1429, "tradeMFE": 1900.0, "tradeMAE": 0.0, "tradeRatio": null, "openPrice": 1.615, "closePrice": 0.665, "deltaPct": -58.82352941176471, "openTs": 1764025266.0, "closeTs": 1766183400.0, "assetType": "stock_option"}, {"symbol": "AEM", "tags": "Vertical Bull Call", "dteOpen": 112.0, "holdDays": 112.8975, "vol": 28.0, "pnl": 9520.0, "retPct": 772.1006, "tradeMFE": 12194.0, "tradeMAE": -3521.0, "tradeRatio": 3.463220675944334, "openPrice": 19.13, "closePrice": 12.33, "deltaPct": -35.54626241505488, "openTs": 1756429056.0, "closeTs": 1766183400.0, "assetType": "stock_option"}, {"symbol": "IWM", "tags": "Iron Condor", "dteOpen": 7.0, "holdDays": 7.0704976851851855, "vol": 240.0, "pnl": 990.0, "retPct": 2848.9209, "tradeMFE": 990.0, "tradeMAE": -300.0, "tradeRatio": 3.3, "openPrice": 0.43, "closePrice": 0.3475, "deltaPct": -19.18604651162791, "openTs": 1764967709.0, "closeTs": 1765578600.0, "assetType": "stock_option"}, {"symbol": "GC", "tags": "Vertical Bull Put", "dteOpen": 13.0, "holdDays": 13.034212962962963, "vol": 8.0, "pnl": 1000.0, "retPct": 444.4444, "tradeMFE": null, "tradeMAE": null, "tradeRatio": null, "openPrice": 4.75, "closePrice": 2.25, "deltaPct": -52.63157894736842, "openTs": 1762897244.0, "closeTs": 1764023400.0, "assetType": "stock_option"}, {"symbol": "UEC", "tags": "Vertical Bull Call", "dteOpen": 93.0, "holdDays": 93.89498842592593, "vol": 80.0, "pnl": 300.0, "retPct": 500.0, "tradeMFE": 4400.0, "tradeMAE": 0.0, "tradeRatio": null, "openPrice": 0.6, "closePrice": 0.675, "deltaPct": 12.50000000000001, "openTs": 1755651673.0, "closeTs": 1763764200.0, "assetType": "stock_option"}, {"symbol": "NXE", "tags": "Vertical Bull Call", "dteOpen": 154.0, "holdDays": 154.8780787037037, "vol": 400.0, "pnl": -400.0, "retPct": -714.2857, "tradeMFE": 14700.0, "tradeMAE": -1800.0, "tradeRatio": 8.166666666666666, "openPrice": 0.56, "closePrice": 0.54, "deltaPct": -3.571428571428574, "openTs": 1750382734.0, "closeTs": 1763764200.0, "assetType": "stock_option"}, {"symbol": "PYPL", "tags": "Iron Condor", "dteOpen": 14.0, "holdDays": 13.970335648148149, "vol": 160.0, "pnl": -920.0, "retPct": -2503.4014, "tradeMFE": 820.0, "tradeMAE": -1500.0, "tradeRatio": 0.5466666666666666, "openPrice": 0.2525, "closePrice": 0.3675, "deltaPct": 45.54455445544554, "openTs": 1761952363.0, "closeTs": 1763159400.0, "assetType": "stock_option"}, {"symbol": "CCJ", "tags": "Vertical Bull Put", "dteOpen": 43.0, "holdDays": 43.0903125, "vol": 80.0, "pnl": 6200.0, "retPct": 7085.7143, "tradeMFE": 6320.0, "tradeMAE": -3460.0, "tradeRatio": 1.8265895953757225, "openPrice": 2.425, "closePrice": 0.875, "deltaPct": -63.91752577319587, "openTs": 1758831597.0, "closeTs": 1762554600.0, "assetType": "stock_option"}, {"symbol": "AMD", "tags": "Vertical Bull Call", "dteOpen": 7.0, "holdDays": 7.053668981481482, "vol": 80.0, "pnl": -2440.0, "retPct": -396.1039, "tradeMFE": 0.0, "tradeMAE": -2440.0, "tradeRatio": 0.0, "openPrice": 6.16, "closePrice": 5.55, "deltaPct": -9.902597402597408, "openTs": 1761945163.0, "closeTs": 1762554600.0, "assetType": "stock_option"}, {"symbol": "MRVL", "tags": "Diagonal", "dteOpen": 545.0, "holdDays": 100.81041666666667, "vol": 20.0, "pnl": 6910.0, "retPct": 708.7179, "tradeMFE": null, "tradeMAE": null, "tradeRatio": null, "openPrice": 16.66, "closePrice": 9.75, "deltaPct": -41.4765906362545, "openTs": 1753492185.0, "closeTs": 1762202205.0, "assetType": "stock_option"}, {"symbol": "RTX", "tags": "Vertical Bull Put", "dteOpen": 37.0, "holdDays": 37.89340277777778, "vol": 200.0, "pnl": 4700.0, "retPct": 4234.2342, "tradeMFE": 6400.0, "tradeMAE": -3550.0, "tradeRatio": 1.8028169014084507, "openPrice": 1.58, "closePrice": 1.11, "deltaPct": -29.746835443037973, "openTs": 1758672210.0, "closeTs": 1761946200.0, "assetType": "stock_option"}, {"symbol": "DE", "tags": "Iron Condor", "dteOpen": 8.0, "holdDays": 8.012453703703704, "vol": 72.0, "pnl": 594.0, "retPct": 715.6627, "tradeMFE": 1827.0, "tradeMAE": -450.0, "tradeRatio": 4.06, "openPrice": 0.995, "closePrice": 0.83, "deltaPct": -16.582914572864325, "openTs": 1761253924.0, "closeTs": 1761946200.0, "assetType": "stock_option"}, {"symbol": "UUUU", "tags": "Vertical Bull Call", "dteOpen": 204.0, "holdDays": 111.80724537037037, "vol": 400.0, "pnl": 28500.0, "retPct": 3471.3764, "tradeMFE": 28500.0, "tradeMAE": -7500.0, "tradeRatio": 3.8, "openPrice": 9.635, "closePrice": 8.21, "deltaPct": -14.789828749351313, "openTs": 1750901134.0, "closeTs": 1760561280.0, "assetType": "stock_option"}, {"symbol": "SA", "tags": "Vertical Bull Call", "dteOpen": 141.0, "holdDays": 104.80155092592592, "vol": 400.0, "pnl": 18900.0, "retPct": 4223.4637, "tradeMFE": 37500.0, "tradeMAE": -2000.0, "tradeRatio": 18.75, "openPrice": 5.42, "closePrice": 4.475, "deltaPct": -17.435424354243548, "openTs": 1751505934.0, "closeTs": 1760560788.0, "assetType": "stock_option"}, {"symbol": "SLV", "tags": "Vertical Bull Put", "dteOpen": 53.0, "holdDays": 15.94787037037037, "vol": 120.0, "pnl": 2010.0, "retPct": 4322.5806, "tradeMFE": 2010.0, "tradeMAE": 0.0, "tradeRatio": null, "openPrice": 0.8, "closePrice": 0.465, "deltaPct": -41.875, "openTs": 1759182513.0, "closeTs": 1760560409.0, "assetType": "stock_option"}, {"symbol": "XLV", "tags": "Iron Condor", "dteOpen": 28.0, "holdDays": 28.457928240740742, "vol": 120.0, "pnl": -2490.0, "retPct": -2137.3391, "tradeMFE": 2100.0, "tradeMAE": -2550.0, "tradeRatio": 0.8235294117647058, "openPrice": 0.75, "closePrice": 1.165, "deltaPct": 55.333333333333336, "openTs": 1757068235.0, "closeTs": 1759527000.0, "assetType": "stock_option"}, {"symbol": "SA", "tags": "Vertical Bull Call", "dteOpen": 39.0, "holdDays": 38.93361111111111, "vol": 160.0, "pnl": 6080.0, "retPct": 6049.7512, "tradeMFE": 6080.0, "tradeMAE": -920.0, "tradeRatio": 6.608695652173913, "openPrice": 1.765, "closePrice": 1.005, "deltaPct": -43.05949008498584, "openTs": 1754953536.0, "closeTs": 1758317400.0, "assetType": "stock_option"}, {"symbol": "ARQQ", "tags": "Calendar", "dteOpen": 101.0, "holdDays": 101.83927083333333, "vol": 50.0, "pnl": 3500.0, "retPct": 1682.6923, "tradeMFE": 5530.0, "tradeMAE": 0.0, "tradeRatio": null, "openPrice": 3.48, "closePrice": 2.08, "deltaPct": -40.22988505747126, "openTs": 1749518487.0, "closeTs": 1758317400.0, "assetType": "stock_option"}];
+const OPEN_ROWS=[{"symbol": "SOFR3", "tags": "Vertical Bull Call", "dteOpen": 385.0, "holdDays": 74.67148060314814, "vol": 20.0, "pnl": 0.0, "retPct": 0.0, "tradeMFE": null, "tradeMAE": null, "tradeRatio": null, "openPrice": 0.077, "closePrice": null, "deltaPct": 0.0, "openTs": 1763767245.0, "closeTs": 1763767245.0, "assetType": "stock_option"}, {"symbol": "SLVP", "tags": "Vertical Bull Call", "dteOpen": 211.0, "holdDays": 13.556121806851852, "vol": 100.0, "pnl": -7200.0, "retPct": -21.818181818181817, "tradeMFE": 18750.0, "tradeMAE": -150000.0, "tradeRatio": 0.125, "openPrice": 10.55, "closePrice": null, "deltaPct": -21.818181818181817, "openTs": 1769047612.0, "closeTs": 1769047612.0, "assetType": "stock_option"}, {"symbol": "CCJ", "tags": "Vertical Bull Put", "dteOpen": 116.0, "holdDays": 71.67887643648147, "vol": 20.0, "pnl": 4680.0, "retPct": 42.58416742493176, "tradeMFE": 114130.0, "tradeMAE": -5770.0, "tradeRatio": 19.779896013864818, "openPrice": 10.99, "closePrice": null, "deltaPct": 42.58416742493176, "openTs": 1764025806.0, "closeTs": 1764025806.0, "assetType": "stock_option"}, {"symbol": "SA", "tags": "Vertical Bull Call", "dteOpen": 133.0, "holdDays": 117.64187412166666, "vol": 200.0, "pnl": 2300.0, "retPct": 6.47887323943662, "tradeMFE": 253800.0, "tradeMAE": -9500.0, "tradeRatio": 26.71578947368421, "openPrice": 1.15, "closePrice": null, "deltaPct": 6.47887323943662, "openTs": 1760054603.0, "closeTs": 1760054603.0, "assetType": "stock_option"}, {"symbol": "ORLA", "tags": "Vertical Bull Call", "dteOpen": 188.0, "holdDays": 25.532614862407407, "vol": 70.0, "pnl": 1645.0, "retPct": 17.40740740740741, "tradeMFE": 42647.5, "tradeMAE": -280.0, "tradeRatio": 152.3125, "openPrice": 1.3, "closePrice": null, "deltaPct": 17.40740740740741, "openTs": 1768012843.0, "closeTs": 1768012843.0, "assetType": "stock_option"}, {"symbol": "PAAS", "tags": "", "dteOpen": 1.5877190290740741, "holdDays": 1.5877190290740741, "vol": 95.0, "pnl": 348.65, "retPct": 6.9245283018867925, "tradeMFE": 400.0, "tradeMAE": 0.0, "tradeRatio": null, "openPrice": 53.0, "closePrice": null, "deltaPct": 6.9245283018867925, "openTs": 1770081682.0, "closeTs": 1770081682.0, "assetType": "stock"}, {"symbol": "ASPI", "tags": "Vertical Bull Call", "dteOpen": 176.0, "holdDays": 12.650901899444445, "vol": 200.0, "pnl": -3800.0, "retPct": -15.447154471544716, "tradeMFE": 8100.0, "tradeMAE": -45750.0, "tradeRatio": 0.17704918032786884, "openPrice": 2.46, "closePrice": null, "deltaPct": -15.447154471544716, "openTs": 1769125823.0, "closeTs": 1769125823.0, "assetType": "stock_option"}, {"symbol": "SSRM", "tags": "", "dteOpen": 0.5940268994444444, "holdDays": 0.5940268994444444, "vol": 210.0, "pnl": 174.3, "retPct": 3.5229202037351444, "tradeMFE": null, "tradeMAE": null, "tradeRatio": null, "openPrice": 23.56, "closePrice": null, "deltaPct": 3.5229202037351444, "openTs": 1770167537.0, "closeTs": 1770167537.0, "assetType": "stock"}, {"symbol": "CRML", "tags": "Vertical Bull Call", "dteOpen": 140.0, "holdDays": 123.67935097351851, "vol": 80.0, "pnl": 5080.0, "retPct": 65.80310880829015, "tradeMFE": 6280.0, "tradeMAE": -75480.0, "tradeRatio": 0.08320084790673025, "openPrice": 2.66, "closePrice": null, "deltaPct": 65.80310880829015, "openTs": 1759532965.0, "closeTs": 1759532965.0, "assetType": "stock_option"}, {"symbol": "MUX", "tags": "Vertical Bull Call", "dteOpen": 164.0, "holdDays": 63.72711717722222, "vol": 20.0, "pnl": 3430.0, "retPct": 103.31325301204818, "tradeMFE": 20130.0, "tradeMAE": 0.0, "tradeRatio": null, "openPrice": 1.9, "closePrice": null, "deltaPct": 103.31325301204818, "openTs": 1764712838.0, "closeTs": 1764712838.0, "assetType": "stock_option"}, {"symbol": "GDX", "tags": "Synthetic", "dteOpen": 157.0, "holdDays": 141.6425685661111, "vol": 20.0, "pnl": 26510.0, "retPct": 439.63515754560535, "tradeMFE": 87220.0, "tradeMAE": -1870.0, "tradeRatio": 46.64171122994652, "openPrice": 6.03, "closePrice": null, "deltaPct": 439.63515754560535, "openTs": 1757980943.0, "closeTs": 1757980943.0, "assetType": "stock_option"}, {"symbol": "B", "tags": "Vertical Bull Call", "dteOpen": 143.0, "holdDays": 98.82142273277778, "vol": 60.0, "pnl": 19950.0, "retPct": 936.6197183098592, "tradeMFE": 131670.0, "tradeMAE": -630.0, "tradeRatio": 209.0, "openPrice": 0.71, "closePrice": null, "deltaPct": 936.6197183098592, "openTs": 1761680690.0, "closeTs": 1761680690.0, "assetType": "stock_option"}, {"symbol": "JAG", "tags": "", "dteOpen": 0.5981935661111111, "holdDays": 0.5981935661111111, "vol": 840.0, "pnl": 67.7320041, "retPct": 1.35122295804672, "tradeMFE": null, "tradeMAE": null, "tradeRatio": null, "openPrice": 5.967434, "closePrice": null, "deltaPct": 1.35122295804672, "openTs": 1770167177.0, "closeTs": 1770167177.0, "assetType": "stock"}, {"symbol": "NEM", "tags": "Synthetic", "dteOpen": 177.0, "holdDays": 42.73274217722222, "vol": 20.0, "pnl": 10240.0, "retPct": 80.69345941686367, "tradeMFE": 100160.0, "tradeMAE": -1990.0, "tradeRatio": 50.33165829145729, "openPrice": 9.51, "closePrice": null, "deltaPct": 80.69345941686367, "openTs": 1766526752.0, "closeTs": 1766526752.0, "assetType": "stock_option"}, {"symbol": "EDV", "tags": "", "dteOpen": 0.5731935661111112, "holdDays": 0.5731935661111112, "vol": 90.0, "pnl": 94.34100572, "retPct": 1.8521556144375344, "tradeMFE": null, "tradeMAE": null, "tradeRatio": null, "openPrice": 56.59532, "closePrice": null, "deltaPct": 1.8521556144375344, "openTs": 1770169337.0, "closeTs": 1770169337.0, "assetType": "stock"}, {"symbol": "AG", "tags": "", "dteOpen": -4.410197637592593, "holdDays": -4.410197637592593, "vol": 245.0, "pnl": 450.8, "retPct": 9.108910891089108, "tradeMFE": 48.0, "tradeMAE": -450.0, "tradeRatio": 0.10666666666666667, "openPrice": 20.2, "closePrice": null, "deltaPct": 9.108910891089108, "openTs": 1770599902.0, "closeTs": 1770599902.0, "assetType": "stock"}, {"symbol": "NEM", "tags": "Vertical Bull Call", "dteOpen": 151.0, "holdDays": 106.78106393648147, "vol": 20.0, "pnl": 9900.0, "retPct": 70.71428571428571, "tradeMFE": 3600.0, "tradeMAE": -108500.0, "tradeRatio": 0.03317972350230415, "openPrice": 14.0, "closePrice": null, "deltaPct": 70.71428571428571, "openTs": 1760992977.0, "closeTs": 1760992977.0, "assetType": "stock_option"}, {"symbol": "PRU", "tags": "", "dteOpen": 0.5565268994444444, "holdDays": 0.5565268994444444, "vol": 1300.0, "pnl": 85.76455065, "retPct": 1.6979518681132018, "tradeMFE": null, "tradeMAE": null, "tradeRatio": null, "openPrice": 3.88543, "closePrice": null, "deltaPct": 1.6979518681132018, "openTs": 1770170777.0, "closeTs": 1770170777.0, "assetType": "stock"}, {"symbol": "SVM", "tags": "", "dteOpen": -4.401169859814815, "holdDays": -4.401169859814815, "vol": 510.0, "pnl": 464.1, "retPct": 9.25737538148525, "tradeMFE": 86.0, "tradeMAE": -380.0, "tradeRatio": 0.22631578947368422, "openPrice": 9.83, "closePrice": null, "deltaPct": 9.25737538148525, "openTs": 1770599122.0, "closeTs": 1770599122.0, "assetType": "stock"}, {"symbol": "CDE", "tags": "", "dteOpen": -4.417142082037037, "holdDays": -4.417142082037037, "vol": 250.0, "pnl": 330.0, "retPct": 6.619859578736209, "tradeMFE": 94.0, "tradeMAE": -330.0, "tradeRatio": 0.28484848484848485, "openPrice": 19.94, "closePrice": null, "deltaPct": 6.619859578736209, "openTs": 1770600502.0, "closeTs": 1770600502.0, "assetType": "stock"}, {"symbol": "EXK", "tags": "Vertical Bull Call", "dteOpen": 121.0, "holdDays": 104.75854078833333, "vol": 80.0, "pnl": 8320.0, "retPct": 119.54022988505749, "tradeMFE": 36200.0, "tradeMAE": -2760.0, "tradeRatio": 13.115942028985508, "openPrice": 0.54, "closePrice": null, "deltaPct": 119.54022988505749, "openTs": 1761167723.0, "closeTs": 1761167723.0, "assetType": "stock_option"}, {"symbol": "URA", "tags": "Vertical Bull Call", "dteOpen": 150.0, "holdDays": 78.57964032537036, "vol": 10.0, "pnl": 3285.0, "retPct": 77.29411764705883, "tradeMFE": 450.0, "tradeMAE": -25615.0, "tradeRatio": 0.017567831348819053, "openPrice": 8.5, "closePrice": null, "deltaPct": 77.29411764705883, "openTs": 1763429580.0, "closeTs": 1763429580.0, "assetType": "stock_option"}, {"symbol": "SLVR", "tags": "Vertical Bull Call", "dteOpen": 108.0, "holdDays": 35.66380699203704, "vol": 40.0, "pnl": 2200.0, "retPct": 10.83743842364532, "tradeMFE": 2700.0, "tradeMAE": -459420.0, "tradeRatio": 0.00587697531670367, "openPrice": 10.15, "closePrice": null, "deltaPct": 10.83743842364532, "openTs": 1767137508.0, "closeTs": 1767137508.0, "assetType": "stock_option"}];
 const tagLabels=["Calendar", "Diagonal", "Iron Condor", "Synthetic", "Vertical Bull Call", "Vertical Bull Put"];
-const tagWinRates=[50.0, 100.0, 75.0, 100.0, 80.0, 100.0];
-const tagTimeToPeak=[41.9, 73.0, 7.3, 119.1, 52.5, 22.0];
+const tagWinRates=[100.0, 100.0, 50.0, 100.0, 83.3, 100.0];
+const tagTimeToPeak=[41.9, 73.0, 5.3, 119.1, 52.5, 22.0];
 let activeMode='closed';
 
+
+// Number formatter (commas, no decimals)
+// Display integers for numerical values (e.g., PnL). Percent values will append '%' manually when needed.
+const NF = new Intl.NumberFormat('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+function fmtNum(v, isPct=false){
+  if(v===null || v===undefined || !isFinite(v)) return '—';
+  return isPct ? (NF.format(v) + '%') : NF.format(v);
+}
 function activeRows(){ return (activeMode==='open') ? OPEN_ROWS : CLOSED_ROWS; }
 function getVal(r,k){ const v=r[k]; return (v===null||v===undefined||Number.isNaN(v)) ? null : Number(v); }
 function filterRows(rows){ const f=document.getElementById('symFilter').value.trim().toUpperCase(); if(!f) return rows; return rows.filter(r => (r.symbol||'').toUpperCase().includes(f)); }
@@ -779,28 +675,56 @@ function niceBounds(minV, maxV, ticksWanted){
 }
 
 let lastPlot=null;
+// Global viewBox that stores the current visible data extents for zooming. When null,
+// the scatter will compute its own extents from the data and initialize this. It is
+// updated by mouse wheel events on the chart to implement zooming.
+let viewBox=null;
 function drawScatter(data,xKey,yKey) {
   const c=document.getElementById('chart'); const ctx=c.getContext('2d'); const tt=document.getElementById('tooltip');
   const w=c.clientWidth,h=c.clientHeight,dpr=window.devicePixelRatio||1;
   c.width=Math.floor(w*dpr); c.height=Math.floor(h*dpr); ctx.setTransform(dpr,0,0,dpr,0,0); ctx.clearRect(0,0,w,h);
 
   const isPct=(yKey==='retPct'||yKey==='deltaPct');
+  const isDate=(xKey==='openTs' || xKey==='closeTs');
   const pts=[];
   for(const r of data) {
-    const x=getVal(r,xKey); const y=getVal(r,yKey);
-    if(x===null||y===null) continue;
-    pts.push({x,y,symbol:r.symbol});
+    let x = getVal(r, xKey);
+    const y = getVal(r, yKey);
+    if(y === null) continue;
+    // Always use open timestamp for stocks (non-option trades) so they appear on timeline. Also if x is null use openTs.
+    if((!r.assetType || r.assetType !== 'stock_option') && xKey !== 'openTs') {
+      const fallback = getVal(r, 'openTs');
+      x = (x === null) ? fallback : fallback;
+    }
+    if(x === null) continue;
+    // Include assetType for coloring stocks green
+    pts.push({x, y, symbol: r.symbol, assetType: r.assetType});
   }
   tt.style.display='none';
   if(!pts.length) { ctx.fillStyle='#9ca3af'; ctx.fillText('No data matches the current filter.',16,24); lastPlot=null; return; }
 
   const padL=52,padR=18,padT=18,padB=42; const pw=w-padL-padR, ph=h-padT-padB;
 
-  let xMin=Math.min(...pts.map(p=>p.x)), xMax=Math.max(...pts.map(p=>p.x));
-  let yMin=Math.min(...pts.map(p=>p.y)), yMax=Math.max(...pts.map(p=>p.y));
-
-  const xPad=(xMax-xMin)*0.05||1, yPad=(yMax-yMin)*0.08||1;
-  xMin-=xPad; xMax+=xPad; yMin-=yPad; yMax+=yPad;
+  // Determine raw data extents across all points
+  let xMinData=Math.min(...pts.map(p=>p.x)), xMaxData=Math.max(...pts.map(p=>p.x));
+  let yMinData=Math.min(...pts.map(p=>p.y)), yMaxData=Math.max(...pts.map(p=>p.y));
+  let xMin, xMax, yMin, yMax;
+  if(viewBox) {
+    // Use existing viewBox extents if a zoom has been set
+    xMin = viewBox.xMin;
+    xMax = viewBox.xMax;
+    yMin = viewBox.yMin;
+    yMax = viewBox.yMax;
+  } else {
+    // Expand data extents slightly to pad the plot and initialize viewBox
+    const xPad=(xMaxData-xMinData)*0.05||1;
+    const yPad=(yMaxData-yMinData)*0.08||1;
+    xMin = xMinData - xPad;
+    xMax = xMaxData + xPad;
+    yMin = yMinData - yPad;
+    yMax = yMaxData + yPad;
+    viewBox = { xMin: xMin, xMax: xMax, yMin: yMin, yMax: yMax };
+  }
 
   const xS=x=>padL+(x-xMin)/(xMax-xMin)*pw;
   const yS=y=>padT+(1-(y-yMin)/(yMax-yMin))*ph;
@@ -811,11 +735,24 @@ function drawScatter(data,xKey,yKey) {
   ctx.fillStyle='#9ca3af';
   ctx.font='12px -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial';
 
-  for(let i=0;i<=5;i++) {
-    const t=xMin+(xMax-xMin)*(i/5); const x=xS(t);
-    ctx.strokeStyle='rgba(255,255,255,0.06)'; ctx.beginPath(); ctx.moveTo(x,padT); ctx.lineTo(x,padT+ph); ctx.stroke();
-    ctx.fillText(t.toFixed(1), x-12, padT+ph+18);
-  }
+    for(let i=0;i<=5;i++) {
+        const t=xMin+(xMax-xMin)*(i/5);
+        const x=xS(t);
+        ctx.strokeStyle='rgba(255,255,255,0.06)'; ctx.beginPath(); ctx.moveTo(x,padT); ctx.lineTo(x,padT+ph); ctx.stroke();
+        let label;
+        if(isDate) {
+          // Format date as Mon'YY (e.g., Jan'25)
+          const d=new Date(t*1000);
+          const mons=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+          const month=mons[d.getMonth()];
+          const yr=String(d.getFullYear()).slice(-2);
+          label=`${month}'${yr}`;
+        } else {
+          label=NF.format(t);
+        }
+        const tw=ctx.measureText(label).width;
+        ctx.fillText(label, x - tw/2, padT+ph+18);
+      }
 
   const tb = niceBounds(yMin, yMax, 5);
   const y0 = tb.niceMin, y1 = tb.niceMax, step = tb.step;
@@ -823,7 +760,7 @@ function drawScatter(data,xKey,yKey) {
   for(let t=y0; t<=y1+1e-9; t+=step) {
     const y=yS(t);
     ctx.strokeStyle='rgba(255,255,255,0.06)'; ctx.beginPath(); ctx.moveTo(padL,y); ctx.lineTo(padL+pw,y); ctx.stroke();
-    const lab=isPct ? (t.toFixed(1)+'%') : (t.toFixed(1));
+    const lab = fmtNum(t, isPct);
     ctx.fillText(lab, 8, y+4);
   }
 
@@ -836,14 +773,28 @@ function drawScatter(data,xKey,yKey) {
   const plotPts=[];
   for(const p of pts) {
     const sx=xS(p.x), sy=yS(p.y);
-    ctx.fillStyle=(p.y<0) ? 'rgba(239,68,68,0.9)' : 'rgba(96,165,250,0.9)';
-    ctx.beginPath(); ctx.arc(sx,sy,3.2,0,Math.PI*2); ctx.fill();
-    plotPts.push({sx,sy,symbol:p.symbol,y:p.y});
+    // Stocks (non-option trades) are colored green; options use blue/red based on sign
+    let col;
+    if(p.assetType && p.assetType !== 'stock_option') {
+      // green color for stocks
+      col = 'rgba(34,197,94,0.9)';
+    } else {
+      col = (p.y < 0) ? 'rgba(239,68,68,0.9)' : 'rgba(96,165,250,0.9)';
+    }
+    ctx.fillStyle = col;
+    // Draw with slightly larger radius for stock points to help distinguish overlapping stocks
+    const radius = (p.assetType && p.assetType !== 'stock_option') ? 4.0 : 3.2;
+    ctx.beginPath(); ctx.arc(sx, sy, radius, 0, Math.PI*2); ctx.fill();
+    plotPts.push({sx, sy, symbol: p.symbol, y: p.y});
   }
-  lastPlot={plotPts};
+  lastPlot = {plotPts};
+  // Save the current viewBox extents onto lastPlot so other handlers can access them
+  lastPlot.viewBox = { xMin: xMin, xMax: xMax, yMin: yMin, yMax: yMax };
 }
 
 function redrawScatter() {
+  // Reset viewBox on redraw so that new selections compute fresh extents
+  viewBox = null;
   drawScatter(filterRows(activeRows()), document.getElementById('xSelect').value, document.getElementById('ySelect').value);
 }
 
@@ -864,13 +815,48 @@ canvas.addEventListener('mousemove',(ev)=>{
     tooltip.style.display='block';
     const yKey = document.getElementById('ySelect').value;
     const isPct = (yKey==='retPct' || yKey==='deltaPct');
-    const yText = (best.y==null || !isFinite(best.y)) ? '' : (isPct ? (best.y.toFixed(1)+'%') : best.y.toFixed(1));
+    const yText = (best.y==null || !isFinite(best.y)) ? '' : fmtNum(best.y, isPct);
     tooltip.textContent = (best.symbol||'') + (yText ? ('  ' + yText) : '');
     tooltip.style.left=best.sx+'px';
     tooltip.style.top=best.sy+'px';
   } else tooltip.style.display='none';
 });
 canvas.addEventListener('mouseleave',()=>tooltip.style.display='none');
+// Zoom functionality: handle scroll wheel events on the canvas. When the user scrolls
+// while hovering over the chart area, zoom in or out around the pointer. Scroll up
+// (deltaY < 0) to zoom in; scroll down (deltaY > 0) to zoom out.
+canvas.addEventListener('wheel',(ev)=>{
+  // Only proceed if we have plotted points and a viewBox defined
+  if(!lastPlot || !viewBox) return;
+  // Prevent default page scroll
+  ev.preventDefault();
+  // Determine pointer position relative to the canvas
+  const rect = canvas.getBoundingClientRect();
+  const mx = ev.clientX - rect.left;
+  const my = ev.clientY - rect.top;
+  // Plot padding values must match those in drawScatter
+  const padL=52, padR=18, padT=18, padB=42;
+  const w = canvas.clientWidth;
+  const h = canvas.clientHeight;
+  const pw = w - padL - padR;
+  const ph = h - padT - padB;
+  // Only zoom if pointer lies within the plot area
+  if(mx < padL || mx > padL + pw || my < padT || my > padT + ph) return;
+  // Convert pointer to data coordinates using the current viewBox extents
+  const xData = viewBox.xMin + ((mx - padL) / pw) * (viewBox.xMax - viewBox.xMin);
+  const yData = viewBox.yMax - ((my - padT) / ph) * (viewBox.yMax - viewBox.yMin);
+  // Choose zoom factor based on scroll direction
+  const factor = ev.deltaY < 0 ? 0.9 : 1.1;
+  // Compute new viewBox extents around the pointer
+  const newXMin = xData - (xData - viewBox.xMin) * factor;
+  const newXMax = xData + (viewBox.xMax - xData) * factor;
+  const newYMin = yData - (yData - viewBox.yMin) * factor;
+  const newYMax = yData + (viewBox.yMax - yData) * factor;
+  // Update global viewBox
+  viewBox = { xMin: newXMin, xMax: newXMax, yMin: newYMin, yMax: newYMax };
+  // Redraw scatter without resetting zoom
+  drawScatter(filterRows(activeRows()), document.getElementById('xSelect').value, document.getElementById('ySelect').value);
+});
 
 document.getElementById('xSelect').addEventListener('change',redrawScatter);
 document.getElementById('ySelect').addEventListener('change',redrawScatter);
@@ -885,12 +871,15 @@ function setActive(which) {
   activeMode=which;
   btnC.classList.remove('active'); btnO.classList.remove('active');
   closedBlock.style.display='none'; openBlock.style.display='none';
-  if(which==='closed') {
+    if(which==='closed') {
     btnC.classList.add('active'); closedBlock.style.display='';
-    pageTitle.textContent='Closed Trade Performance Statistics'; scatterTitle.textContent='Interactive scatter (closed trades)';
+    // Append portfolio label to the page title
+    pageTitle.textContent='Closed Trade Performance Statistics - $100 K Portfolio';
+    scatterTitle.textContent='Interactive scatter (closed trades)';
   } else {
     btnO.classList.add('active'); openBlock.style.display='';
-    pageTitle.textContent='Open Trade Performance Statistics'; scatterTitle.textContent='Interactive scatter (open trades)';
+    pageTitle.textContent='Open Trade Performance Statistics - $100 K Portfolio';
+    scatterTitle.textContent='Interactive scatter (open trades)';
   }
   redrawScatter();
 }
@@ -933,7 +922,7 @@ function drawBar(id,labels,values,yLabel,isPct=false) {
   for(let t=0; t<=vMax+1e-9; t+=step) {
     const y=yS(t);
     ctx.strokeStyle='rgba(255,255,255,0.06)'; ctx.beginPath(); ctx.moveTo(padL,y); ctx.lineTo(padL+pw,y); ctx.stroke();
-    ctx.fillText(isPct ? (t.toFixed(1)+'%') : t.toFixed(1), 6, y+4);
+    ctx.fillText(fmtNum(t, isPct), 6, y+4);
   }
 
   const n=labels.length, gap=10, barW=(pw-gap*(n-1))/Math.max(n,1);
@@ -956,9 +945,10 @@ function redrawBars() {
 function colorizeClosedTable() {
   const table=document.getElementById('closedTable'); if(!table) return;
   const headers=[...table.querySelectorAll('thead th')].map(th=>th.textContent.trim());
-  const idxPnL=headers.indexOf('PnL');
+  const idxPnL=headers.index_parsed = headers.indexOf('PnL');
   const idxRet=headers.indexOf('% Return');
   const idxDelta=headers.indexOf('Delta %');
+
   for(const row of table.querySelectorAll('tbody tr')) {
     const tds=row.querySelectorAll('td');
     const apply=(idx)=>{
@@ -980,4 +970,3 @@ redrawBars();
 setActive('closed');
 colorizeClosedTable();
 </script></body></html>
-
