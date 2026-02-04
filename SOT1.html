@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Risk Tolerance & Position Sizing Calculator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      max-width: 720px;
+      line-height: 1.4;
+    }
+    label {
+      display: block;
+      margin: 6px 0 2px;
+    }
+    input, select {
+      width: 100%;
+      padding: 6px;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+    .section {
+      margin-bottom: 24px;
+      padding: 16px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+    .result {
+      margin-top: 8px;
+      padding: 8px;
+      background: #f7f7f7;
+      border-radius: 4px;
+    }
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+<h1>Risk Tolerance & Position Sizing</h1>
+
+<div class="section">
+  <h3>Step 1: Define your risk unit</h3>
+  <label for="riskUnit">Maximum loss per trade (Risk Unit, in your currency)</label>
+  <input type="number" id="riskUnit" placeholder="e.g. 1000" min="0" step="0.01">
+
+  <label for="portfolioSize">Portfolio size</label>
+  <input type="number" id="portfolioSize" placeholder="e.g. 50000" min="0" step="0.01">
+
+  <label for="numTrades">How many trades you run simultaneously</label>
+  <input type="number" id="numTrades" placeholder="e.g. 5" min="1" step="1">
+
+  <div id="riskInfo" class="result"></div>
+</div>
+
+<div class="section">
+  <h3>Step 2: Position sizing calculator</h3>
+  <label for="tradeType">Trade type</label>
+  <select id="tradeType">
+    <option value="">Choose…</option>
+    <option value="stock">Stock</option>
+    <option value="longOption">Long call/put</option>
+    <option value="spread">Vertical spread</option>
+    <option value="condor">Iron condor</option>
+  </select>
+
+  <!-- Parameters for stock -->
+  <div id="stockParams" class="hidden">
+    <label for="stockEntry">Stock entry price</label>
+    <input type="number" id="stockEntry" step="0.01" min="0">
+    <label for="stockStop">Stop-loss price</label>
+    <input type="number" id="stockStop" step="0.01" min="0">
+  </div>
+
+  <!-- Parameters for long option -->
+  <div id="longOptionParams" class="hidden">
+    <label for="optionPremium">Option premium per contract</label>
+    <input type="number" id="optionPremium" step="0.01" min="0">
+  </div>
+
+  <!-- Parameters for vertical spread -->
+  <div id="spreadParams" class="hidden">
+    <label for="spreadMaxLoss">Max loss per spread</label>
+    <input type="number" id="spreadMaxLoss" step="0.01" min="0">
+  </div>
+
+  <!-- Parameters for iron condor -->
+  <div id="condorParams" class="hidden">
+    <label for="condorMaxLoss">Max loss per iron condor</label>
+    <input type="number" id="condorMaxLoss" step="0.01" min="0">
+  </div>
+
+  <div id="positionResult" class="result"></div>
+</div>
+
+<script>
+  // Elements
+  const riskUnitEl = document.getElementById('riskUnit');
+  const portfolioSizeEl = document.getElementById('portfolioSize');
+  const numTradesEl = document.getElementById('numTrades');
+  const riskInfoEl = document.getElementById('riskInfo');
+
+  const tradeTypeEl = document.getElementById('tradeType');
+  const stockParamsEl = document.getElementById('stockParams');
+  const longOptionParamsEl = document.getElementById('longOptionParams');
+  const spreadParamsEl = document.getElementById('spreadParams');
+  const condorParamsEl = document.getElementById('condorParams');
+  const positionResultEl = document.getElementById('positionResult');
+
+  // Listen for changes and updates
+  riskUnitEl.addEventListener('input', updateRiskInfo);
+  portfolioSizeEl.addEventListener('input', updateRiskInfo);
+  numTradesEl.addEventListener('input', updateRiskInfo);
+
+  tradeTypeEl.addEventListener('change', onTradeTypeChange);
+  document.getElementById('stockEntry').addEventListener('input', updatePositionSize);
+  document.getElementById('stockStop').addEventListener('input', updatePositionSize);
+  document.getElementById('optionPremium').addEventListener('input', updatePositionSize);
+  document.getElementById('spreadMaxLoss').addEventListener('input', updatePositionSize);
+  document.getElementById('condorMaxLoss').addEventListener('input', updatePositionSize);
+
+  function updateRiskInfo() {
+    const RU = parseFloat(riskUnitEl.value);
+    const portfolio = parseFloat(portfolioSizeEl.value);
+    const trades = parseInt(numTradesEl.value, 10);
+
+    if (RU > 0 && portfolio > 0 && trades > 0) {
+      const riskPct = (RU / portfolio) * 100;
+      const drawdownPct = ((RU * trades) / portfolio) * 100;
+      let category = '';
+      if (riskPct < 0.5) category = 'Very conservative';
+      else if (riskPct < 1) category = 'Conservative';
+      else if (riskPct < 2) category = 'Moderate';
+      else if (riskPct < 3) category = 'Active retail';
+      else category = 'Aggressive';
+
+      riskInfoEl.innerHTML =
+        `<strong>Risk per trade:</strong> ${riskPct.toFixed(2)}%<br>` +
+        `<strong>Max theoretical drawdown:</strong> ${drawdownPct.toFixed(2)}%<br>` +
+        `<strong>Profile:</strong> ${category}`;
+    } else {
+      riskInfoEl.innerHTML = '';
+    }
+    updatePositionSize();
+  }
+
+  function onTradeTypeChange() {
+    // Hide all param sections
+    stockParamsEl.classList.add('hidden');
+    longOptionParamsEl.classList.add('hidden');
+    spreadParamsEl.classList.add('hidden');
+    condorParamsEl.classList.add('hidden');
+    positionResultEl.textContent = '';
+
+    const type = tradeTypeEl.value;
+    if (type === 'stock') {
+      stockParamsEl.classList.remove('hidden');
+    } else if (type === 'longOption') {
+      longOptionParamsEl.classList.remove('hidden');
+    } else if (type === 'spread') {
+      spreadParamsEl.classList.remove('hidden');
+    } else if (type === 'condor') {
+      condorParamsEl.classList.remove('hidden');
+    }
+  }
+
+  function updatePositionSize() {
+    const RU = parseFloat(riskUnitEl.value);
+    const type = tradeTypeEl.value;
+    if (!type || !RU || RU <= 0) {
+      positionResultEl.textContent = '';
+      return;
+    }
+
+    let result = '';
+    if (type === 'stock') {
+      const entry = parseFloat(document.getElementById('stockEntry').value);
+      const stop = parseFloat(document.getElementById('stockStop').value);
+      if (entry && stop && entry > stop) {
+        const riskPerShare = entry - stop;
+        const shares = Math.floor(RU / riskPerShare);
+        result = `You can buy up to ${shares} shares (risk per share = ${riskPerShare.toFixed(2)}).`;
+      }
+    } else if (type === 'longOption') {
+      const premium = parseFloat(document.getElementById('optionPremium').value);
+      if (premium && premium > 0) {
+        const contracts = Math.floor(RU / (premium * 100));
+        result = `You can buy up to ${contracts} option contract(s).`;
+      }
+    } else if (type === 'spread') {
+      const maxLoss = parseFloat(document.getElementById('spreadMaxLoss').value);
+      if (maxLoss && maxLoss > 0) {
+        const spreads = Math.floor(RU / maxLoss);
+        result = `You can open up to ${spreads} spread contract(s).`;
+      }
+    } else if (type === 'condor') {
+      const maxLoss = parseFloat(document.getElementById('condorMaxLoss').value);
+      if (maxLoss && maxLoss > 0) {
+        const condors = Math.floor(RU / maxLoss);
+        result = `You can open up to ${condors} iron condor position(s).`;
+      }
+    }
+    positionResultEl.textContent = result;
+  }
+</script>
+</body>
+</html>
