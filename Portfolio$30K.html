@@ -1,0 +1,513 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Trade Performance Statistics - $30 K Portfolio</title>
+<style>
+:root{--bg:#0b0f14;--card:#111827;--text:#e5e7eb;--muted:#9ca3af;--border:#1f2937;--blue:#60a5fa;--red:#ef4444}
+body{margin:0;padding:28px;background:var(--bg);color:var(--text);font:14px/1.45 -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial}
+.wrap{max-width:1250px;margin:0 auto}
+h1{margin:0 0 6px;font-size:22px}
+.lead{margin:0 0 14px;color:var(--muted);max-width:1050px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin:12px 0}
+.cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:8px}
+@media(max-width:1050px){.cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.k{color:var(--muted);font-size:12px}
+.v{font-size:22px;margin-top:6px}
+.grid{display:grid;grid-template-columns:1.2fr 0.8fr;gap:12px}
+@media(max-width:980px){.grid{grid-template-columns:1fr}body{padding:18px}}
+.controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:8px 0 0}
+select,input,button{background:#0f172a;color:var(--text);border:1px solid var(--border);border-radius:10px;padding:8px 10px;font-size:13px}
+button{cursor:pointer}
+button.active{border-color:var(--blue);box-shadow:0 0 0 2px rgba(96,165,250,.25) inset}
+canvas{width:100%;height:420px;display:block;background:#0b1220;border-radius:12px;border:1px solid var(--border)}
+canvas.small{height:340px}
+.table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.table th,.table td{padding:9px 10px;border-bottom:1px solid var(--border);white-space:nowrap}
+.table th{text-align:left;font-weight:600;color:#d1d5db;background:#0f172a;position:sticky;top:0;z-index:1}
+.tooltip{position:absolute;pointer-events:none;background:rgba(17,24,39,.95);border:1px solid var(--border);color:var(--text);padding:4px 6px;border-radius:10px;font-size:12px;display:none;white-space:nowrap;transform:translate(10px,-10px)}
+.section-title{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.small{font-size:12px;color:var(--muted)}
+.pos{color:var(--blue);font-weight:700}
+.neg{color:var(--red);font-weight:700}
+.defs{font-size:12px;line-height:1.45;color:var(--muted)}
+.defs .term{color:var(--blue);font-weight:800}
+.defs b{color:var(--blue);font-weight:800}
+.defs .t1{color:var(--blue);font-weight:800}
+.defs .t2{color:#a7f3d0;font-weight:800}
+.defs .t3{color:#fbbf24;font-weight:800}
+.defs .t4{color:#c4b5fd;font-weight:800}
+</style></head><body><div class="wrap">
+<div class="section-title">
+  <div>
+    <h1 id="pageTitle">Closed Trade Performance Statistics - $30 K Portfolio</h1>
+    <p class="lead">Toggle between closed (realized) and open (current). The scatter updates with the toggle. The table shows closed trades only.</p>
+  </div>
+  <div class="controls" style="margin:0;">
+    <span class="date-label" style="color:var(--muted);font-size:13px;margin-right:8px;">4 Feb, 2026</span>
+    <button id="btnClosed" class="active">Closed</button>
+    <button id="btnOpen">Open</button>
+  </div>
+</div>
+
+
+<div class="cards" style="margin-top:10px">
+  <div class="card" style="grid-column: span 2;">
+    <div class="k">Equity Curve (closed trades only)</div>
+    <div style="margin-top:6px;font-size:13px">
+      <a href="https://www.tradesviz.com/viewstats/StratOptions/53ad83f03c1e9123" target="_blank" rel="noopener noreferrer" style="color:var(--blue);text-decoration:none;font-weight:700">
+        View current Equity Curve
+      </a>
+      <div class="small" style="margin-top:6px">This link reflects the current equity curve for closed trades only.</div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="k">Total Closed PnL ($)</div>
+    <div class="v">0</div>
+  </div>
+  <div class="card">
+    <div class="k">Current Unrealized Open PnL ($)</div>
+    <div class="v">6,380</div>
+  </div>
+</div>
+
+<div id="closedBlock"><div class="cards">
+  <div class="card"><div class="k">Closed trades</div><div class="v">0</div></div>
+  <div class="card"><div class="k">Win rate</div><div class="v">—</div></div>
+  <div class="card"><div class="k">Profit factor</div><div class="v">—</div></div>
+  <div class="card"><div class="k">Median time to peak (days)</div><div class="v">—</div></div>
+  <div class="card"><div class="k">Median days after peak</div><div class="v">—</div></div>
+  <div class="card"><div class="k">Median capture (PnL/MFE)</div><div class="v">—</div></div>
+  <div class="card"><div class="k">Median duration (days)</div><div class="v">—</div></div>
+  <div class="card"><div class="k">Median % return</div><div class="v">—</div></div>
+</div></div>
+
+<div id="openBlock" style="display:none;"><div class="cards">
+  <div class="card"><div class="k">Open trades</div><div class="v">6</div></div>
+  <div class="card"><div class="k">Win rate (current PnL)</div><div class="v">66.7%</div></div>
+  <div class="card"><div class="k">Profit factor (current PnL)</div><div class="v">11.3</div></div>
+  <div class="card"><div class="k">Median unrealized % return</div><div class="v">9.3%</div></div>
+</div></div>
+
+<div class="card"><div class="grid">
+  <div style="position:relative">
+    <div class="k" id="scatterTitle">Interactive scatter (closed trades)</div>
+    <div class="controls">
+      <label class="small">X-axis:</label>
+      <select id="xSelect">
+        <option value="dteOpen">DTE at Open</option>
+        <option value="holdDays">Hold / Age (days)</option>
+        <option value="vol">Total Volume</option>
+        <option value="openPrice">Open Price</option>
+        <option value="closePrice">Close Price</option>
+        <option value="deltaPct">Delta %</option>
+        <option value="openTs">Open Timestamp</option>
+        <option value="closeTs">Close Timestamp</option>
+      </select>
+      <label class="small">Y-axis:</label>
+      <select id="ySelect">
+        <option value="pnl">PnL ($)</option>
+        <option value="retPct">% Return</option>
+        <option value="tradeMFE">Trade MFE ($)</option>
+        <option value="tradeMAE">Trade MAE ($)</option>
+        <option value="tradeRatio">Trade MFE/MAE</option>
+        <option value="openPrice">Open Price</option>
+        <option value="closePrice">Close Price</option>
+        <option value="deltaPct">Delta %</option>
+      </select>
+      <label class="small">Filter symbol contains:</label>
+      <input id="symFilter" placeholder="e.g., URA"/>
+      <button id="resetBtn">Reset</button>
+    </div>
+    <canvas id="chart"></canvas>
+    <div class="tooltip" id="tooltip"></div>
+  </div>
+
+  <div>
+    <div class="k">Definitions</div>
+    <div class="defs" style="margin-top:8px">
+      <div><span class="term t1">Delta %</span> — percent change between Open Price and Close Price.</div>
+      <div style="margin-top:6px"><span class="term t2">PnL</span> — profit or loss. Closed view uses realized PnL; Open view uses current PnL.</div>
+      <div style="margin-top:6px"><span class="term t2">% Return</span> — trade return. Closed view uses realized return; Open view uses unrealized return.</div>
+      <div style="margin-top:6px"><span class="term t3">Trade MFE</span> — highest unrealized profit the trade reached while it was open.</div>
+      <div style="margin-top:6px"><span class="term t3">Trade MAE</span> — lowest unrealized profit (largest drawdown) the trade reached while it was open.</div>
+      <div style="margin-top:6px"><span class="term t4">Trade MFE/MAE</span> — Trade MFE divided by the absolute value of Trade MAE.</div>
+
+      <div style="margin-top:10px"><span class="term">Median % return</span> — middle value of % Return across trades.</div>
+      <div style="margin-top:6px"><span class="term">Median duration</span> — middle value of duration (days held) across trades.</div>
+      <div style="margin-top:6px"><span class="term">Median capture</span> — middle value of (PnL ÷ Trade MFE) on winning trades.</div>
+      <div style="margin-top:6px"><span class="term">Median time to peak</span> — middle number of days from entry until a winning trade hit its max profit (MFE).</div>
+      <div style="margin-top:6px"><span class="term">Median days after peak</span> — middle number of days a winning trade was held after it hit its max profit (MFE).</div>
+    </div>
+  </div>
+</div></div>
+
+<div class="card"><div class="grid">
+  <div><div class="k">Win rate by structure (closed trades)</div><canvas id="barWin" class="small"></canvas></div>
+  <div><div class="k">Typical time-to-peak (median MFE timing, closed trades)</div><canvas id="barPeak" class="small"></canvas></div>
+</div></div>
+
+<div class="card"><div class="k">Closed trades table</div><div id="closedTableWrap"><table border="1" class="dataframe table" id="closedTable">
+  <thead>
+    <tr style="text-align: right;">
+      <th>Close Date</th>
+      <th>Symbol</th>
+      <th>Tags</th>
+      <th>Strikes</th>
+      <th>Open Price</th>
+      <th>Close Price</th>
+      <th>Delta %</th>
+      <th>DTE (Open)</th>
+      <th>Hold (days)</th>
+      <th>Total Volume</th>
+      <th>PnL</th>
+      <th>% Return</th>
+      <th>Trade MAE</th>
+      <th>Trade MFE</th>
+      <th>Trade MFE/MAE</th>
+    </tr>
+  </thead>
+  <tbody>
+  </tbody><tfoot><tr><td colspan='10' style='text-align:right;font-weight:700;color:#9ca3af;background:#0f172a;border-top:1px solid var(--border)'>Total Closed PnL</td><td style='font-weight:800;background:#0f172a;border-top:1px solid var(--border)' class=''>0</td><td colspan='4' style='background:#0f172a;border-top:1px solid var(--border)'></td></tr></tfoot>
+</table></div></div>
+<div class="small">Generated by Strategic Options trader</div></div>
+
+<script>
+const CLOSED_ROWS=[];
+const OPEN_ROWS=[{"symbol": "NEM", "tags": "Synthetic", "dteOpen": 177.0, "holdDays": 42.77535429502315, "vol": 4.0, "pnl": 2048.0, "retPct": 80.69345941686367, "tradeMFE": 1072.0, "tradeMAE": -20668.0, "tradeRatio": 0.05186762144377782, "openPrice": 12.69, "closePrice": null, "deltaPct": 80.69345941686367, "openTs": 1766523907.0, "closeTs": 1766523907.0, "assetType": "stock_option"}, {"symbol": "VZLA", "tags": "Vertical Bull Call", "dteOpen": 122.0, "holdDays": 49.66365290613426, "vol": 50.0, "pnl": 0.0, "retPct": 0.0, "tradeMFE": 10100.0, "tradeMAE": -425.0, "tradeRatio": 23.764705882352942, "openPrice": 0.32, "closePrice": null, "deltaPct": 0.0, "openTs": 1765928758.0, "closeTs": 1765928758.0, "assetType": "stock_option"}, {"symbol": "CDE", "tags": "Vertical Bull Call", "dteOpen": 154.0, "holdDays": 53.69140753576389, "vol": 42.0, "pnl": 966.0, "retPct": 14.98371335504886, "tradeMFE": 1407.0, "tradeMAE": -36225.0, "tradeRatio": 0.03884057971014493, "openPrice": 3.88, "closePrice": null, "deltaPct": 14.98371335504886, "openTs": 1765580760.0, "closeTs": 1765580760.0, "assetType": "stock_option"}, {"symbol": "SILJ", "tags": "Vertical Bull Call", "dteOpen": 38.0, "holdDays": 22.55382651724537, "vol": 20.0, "pnl": 60.0, "retPct": 3.5928143712574854, "tradeMFE": 27985.0, "tradeMAE": -1080.0, "tradeRatio": 25.912037037037038, "openPrice": 1.67, "closePrice": null, "deltaPct": 3.5928143712574854, "openTs": 1768271047.0, "closeTs": 1768271047.0, "assetType": "stock_option"}, {"symbol": "SA", "tags": "Vertical Bull Call", "dteOpen": 151.0, "holdDays": 50.67460198020833, "vol": 18.0, "pnl": -621.0, "retPct": -11.855670103092782, "tradeMFE": 882.0, "tradeMAE": -21330.0, "tradeRatio": 0.04135021097046414, "openPrice": 5.82, "closePrice": null, "deltaPct": -11.855670103092782, "openTs": 1765841412.0, "closeTs": 1765841412.0, "assetType": "stock_option"}, {"symbol": "SLV", "tags": "Vertical Bull Call", "dteOpen": 155.0, "holdDays": 54.739034850578705, "vol": 22.0, "pnl": 3927.0, "retPct": 56.66666666666667, "tradeMFE": 110.0, "tradeMAE": -74513.89, "tradeRatio": 0.001476234833532379, "openPrice": 6.3, "closePrice": null, "deltaPct": 56.66666666666667, "openTs": 1765490245.0, "closeTs": 1765490245.0, "assetType": "stock_option"}];
+const tagLabels=[];
+const tagWinRates=[];
+const tagTimeToPeak=[];
+let activeMode='closed';
+
+
+// Number formatter (commas, no decimals)
+// Display integers for numerical values (e.g., PnL). Percent values will append '%' manually when needed.
+const NF = new Intl.NumberFormat('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+function fmtNum(v, isPct=false){
+  if(v===null || v===undefined || !isFinite(v)) return '—';
+  return isPct ? (NF.format(v) + '%') : NF.format(v);
+}
+function activeRows(){ return (activeMode==='open') ? OPEN_ROWS : CLOSED_ROWS; }
+function getVal(r,k){ const v=r[k]; return (v===null||v===undefined||Number.isNaN(v)) ? null : Number(v); }
+function filterRows(rows){ const f=document.getElementById('symFilter').value.trim().toUpperCase(); if(!f) return rows; return rows.filter(r => (r.symbol||'').toUpperCase().includes(f)); }
+
+function niceNumber(x, roundIt){
+  if(!isFinite(x) || x<=0) return 1;
+  const exp = Math.floor(Math.log10(x));
+  const f = x / Math.pow(10, exp);
+  let nf;
+  if(roundIt){
+    if(f < 1.5) nf = 1;
+    else if(f < 3) nf = 2;
+    else if(f < 7) nf = 5;
+    else nf = 10;
+  } else {
+    if(f <= 1) nf = 1;
+    else if(f <= 2) nf = 2;
+    else if(f <= 5) nf = 5;
+    else nf = 10;
+  }
+  return nf * Math.pow(10, exp);
+}
+function niceBounds(minV, maxV, ticksWanted){
+  const range = niceNumber(maxV - minV, false);
+  const step = niceNumber(range / Math.max(1, ticksWanted-1), true);
+  const niceMin = Math.floor(minV / step) * step;
+  const niceMax = Math.ceil(maxV / step) * step;
+  return {niceMin, niceMax, step};
+}
+
+let lastPlot=null;
+// Global viewBox that stores the current visible data extents for zooming. When null,
+// the scatter will compute its own extents from the data and initialize this. It is
+// updated by mouse wheel events on the chart to implement zooming.
+let viewBox=null;
+function drawScatter(data,xKey,yKey) {
+  const c=document.getElementById('chart'); const ctx=c.getContext('2d'); const tt=document.getElementById('tooltip');
+  const w=c.clientWidth,h=c.clientHeight,dpr=window.devicePixelRatio||1;
+  c.width=Math.floor(w*dpr); c.height=Math.floor(h*dpr); ctx.setTransform(dpr,0,0,dpr,0,0); ctx.clearRect(0,0,w,h);
+
+  const isPct=(yKey==='retPct'||yKey==='deltaPct');
+  const isDate=(xKey==='openTs' || xKey==='closeTs');
+  const pts=[];
+  for(const r of data) {
+    let x = getVal(r, xKey);
+    const y = getVal(r, yKey);
+    if(y === null) continue;
+    // Always use open timestamp for stocks (non-option trades) so they appear on timeline. Also if x is null use openTs.
+    if((!r.assetType || r.assetType !== 'stock_option') && xKey !== 'openTs') {
+      const fallback = getVal(r, 'openTs');
+      x = (x === null) ? fallback : fallback;
+    }
+    if(x === null) continue;
+    // Include assetType for coloring stocks green
+    pts.push({x, y, symbol: r.symbol, assetType: r.assetType});
+  }
+  tt.style.display='none';
+  if(!pts.length) { ctx.fillStyle='#9ca3af'; ctx.fillText('No data matches the current filter.',16,24); lastPlot=null; return; }
+
+  const padL=52,padR=18,padT=18,padB=42; const pw=w-padL-padR, ph=h-padT-padB;
+
+  // Determine raw data extents across all points
+  let xMinData=Math.min(...pts.map(p=>p.x)), xMaxData=Math.max(...pts.map(p=>p.x));
+  let yMinData=Math.min(...pts.map(p=>p.y)), yMaxData=Math.max(...pts.map(p=>p.y));
+  let xMin, xMax, yMin, yMax;
+  if(viewBox) {
+    // Use existing viewBox extents if a zoom has been set
+    xMin = viewBox.xMin;
+    xMax = viewBox.xMax;
+    yMin = viewBox.yMin;
+    yMax = viewBox.yMax;
+  } else {
+    // Expand data extents slightly to pad the plot and initialize viewBox
+    const xPad=(xMaxData-xMinData)*0.05||1;
+    const yPad=(yMaxData-yMinData)*0.08||1;
+    xMin = xMinData - xPad;
+    xMax = xMaxData + xPad;
+    yMin = yMinData - yPad;
+    yMax = yMaxData + yPad;
+    viewBox = { xMin: xMin, xMax: xMax, yMin: yMin, yMax: yMax };
+  }
+
+  const xS=x=>padL+(x-xMin)/(xMax-xMin)*pw;
+  const yS=y=>padT+(1-(y-yMin)/(yMax-yMin))*ph;
+
+  ctx.strokeStyle='#1f2937'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(padL,padT); ctx.lineTo(padL,padT+ph); ctx.lineTo(padL+pw,padT+ph); ctx.stroke();
+
+  ctx.fillStyle='#9ca3af';
+  ctx.font='12px -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial';
+
+    for(let i=0;i<=5;i++) {
+        const t=xMin+(xMax-xMin)*(i/5);
+        const x=xS(t);
+        ctx.strokeStyle='rgba(255,255,255,0.06)'; ctx.beginPath(); ctx.moveTo(x,padT); ctx.lineTo(x,padT+ph); ctx.stroke();
+        let label;
+        if(isDate) {
+          // Format date as Mon'YY (e.g., Jan'25)
+          const d=new Date(t*1000);
+          const mons=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+          const month=mons[d.getMonth()];
+          const yr=String(d.getFullYear()).slice(-2);
+          label=`${month}'${yr}`;
+        } else {
+          label=NF.format(t);
+        }
+        const tw=ctx.measureText(label).width;
+        ctx.fillText(label, x - tw/2, padT+ph+18);
+      }
+
+  const tb = niceBounds(yMin, yMax, 5);
+  const y0 = tb.niceMin, y1 = tb.niceMax, step = tb.step;
+
+  for(let t=y0; t<=y1+1e-9; t+=step) {
+    const y=yS(t);
+    ctx.strokeStyle='rgba(255,255,255,0.06)'; ctx.beginPath(); ctx.moveTo(padL,y); ctx.lineTo(padL+pw,y); ctx.stroke();
+    const lab = fmtNum(t, isPct);
+    ctx.fillText(lab, 8, y+4);
+  }
+
+  ctx.fillStyle='#e5e7eb';
+  const xLab=document.getElementById('xSelect').selectedOptions[0].textContent;
+  const yLab=document.getElementById('ySelect').selectedOptions[0].textContent;
+  ctx.fillText(xLab, padL+pw/2-40, padT+ph+36);
+  ctx.save(); ctx.translate(14, padT+ph/2+30); ctx.rotate(-Math.PI/2); ctx.fillText(yLab,0,0); ctx.restore();
+
+  const plotPts=[];
+  for(const p of pts) {
+    const sx=xS(p.x), sy=yS(p.y);
+    // Stocks (non-option trades) are colored green; options use blue/red based on sign
+    let col;
+    if(p.assetType && p.assetType !== 'stock_option') {
+      // green color for stocks
+      col = 'rgba(34,197,94,0.9)';
+    } else {
+      col = (p.y < 0) ? 'rgba(239,68,68,0.9)' : 'rgba(96,165,250,0.9)';
+    }
+    ctx.fillStyle = col;
+    // Draw with slightly larger radius for stock points to help distinguish overlapping stocks
+    const radius = (p.assetType && p.assetType !== 'stock_option') ? 4.0 : 3.2;
+    ctx.beginPath(); ctx.arc(sx, sy, radius, 0, Math.PI*2); ctx.fill();
+    plotPts.push({sx, sy, symbol: p.symbol, y: p.y});
+  }
+  lastPlot = {plotPts};
+  // Save the current viewBox extents onto lastPlot so other handlers can access them
+  lastPlot.viewBox = { xMin: xMin, xMax: xMax, yMin: yMin, yMax: yMax };
+}
+
+function redrawScatter() {
+  // Reset viewBox on redraw so that new selections compute fresh extents
+  viewBox = null;
+  drawScatter(filterRows(activeRows()), document.getElementById('xSelect').value, document.getElementById('ySelect').value);
+}
+
+const canvas=document.getElementById('chart');
+const tooltip=document.getElementById('tooltip');
+
+canvas.addEventListener('mousemove',(ev)=>{
+  if(!lastPlot) return;
+  const r=canvas.getBoundingClientRect();
+  const mx=ev.clientX-r.left, my=ev.clientY-r.top;
+  let best=null, bestD=9999;
+  for(const p of lastPlot.plotPts) {
+    const dx=p.sx-mx, dy=p.sy-my;
+    const d=Math.sqrt(dx*dx+dy*dy);
+    if(d<bestD) { bestD=d; best=p; }
+  }
+  if(best && bestD<=8) {
+    tooltip.style.display='block';
+    const yKey = document.getElementById('ySelect').value;
+    const isPct = (yKey==='retPct' || yKey==='deltaPct');
+    const yText = (best.y==null || !isFinite(best.y)) ? '' : fmtNum(best.y, isPct);
+    tooltip.textContent = (best.symbol||'') + (yText ? ('  ' + yText) : '');
+    tooltip.style.left=best.sx+'px';
+    tooltip.style.top=best.sy+'px';
+  } else tooltip.style.display='none';
+});
+canvas.addEventListener('mouseleave',()=>tooltip.style.display='none');
+// Zoom functionality: handle scroll wheel events on the canvas. When the user scrolls
+// while hovering over the chart area, zoom in or out around the pointer. Scroll up
+// (deltaY < 0) to zoom in; scroll down (deltaY > 0) to zoom out.
+canvas.addEventListener('wheel',(ev)=>{
+  // Only proceed if we have plotted points and a viewBox defined
+  if(!lastPlot || !viewBox) return;
+  // Prevent default page scroll
+  ev.preventDefault();
+  // Determine pointer position relative to the canvas
+  const rect = canvas.getBoundingClientRect();
+  const mx = ev.clientX - rect.left;
+  const my = ev.clientY - rect.top;
+  // Plot padding values must match those in drawScatter
+  const padL=52, padR=18, padT=18, padB=42;
+  const w = canvas.clientWidth;
+  const h = canvas.clientHeight;
+  const pw = w - padL - padR;
+  const ph = h - padT - padB;
+  // Only zoom if pointer lies within the plot area
+  if(mx < padL || mx > padL + pw || my < padT || my > padT + ph) return;
+  // Convert pointer to data coordinates using the current viewBox extents
+  const xData = viewBox.xMin + ((mx - padL) / pw) * (viewBox.xMax - viewBox.xMin);
+  const yData = viewBox.yMax - ((my - padT) / ph) * (viewBox.yMax - viewBox.yMin);
+  // Choose zoom factor based on scroll direction
+  const factor = ev.deltaY < 0 ? 0.9 : 1.1;
+  // Compute new viewBox extents around the pointer
+  const newXMin = xData - (xData - viewBox.xMin) * factor;
+  const newXMax = xData + (viewBox.xMax - xData) * factor;
+  const newYMin = yData - (yData - viewBox.yMin) * factor;
+  const newYMax = yData + (viewBox.yMax - yData) * factor;
+  // Update global viewBox
+  viewBox = { xMin: newXMin, xMax: newXMax, yMin: newYMin, yMax: newYMax };
+  // Redraw scatter without resetting zoom
+  drawScatter(filterRows(activeRows()), document.getElementById('xSelect').value, document.getElementById('ySelect').value);
+});
+
+document.getElementById('xSelect').addEventListener('change',redrawScatter);
+document.getElementById('ySelect').addEventListener('change',redrawScatter);
+document.getElementById('symFilter').addEventListener('input',redrawScatter);
+document.getElementById('resetBtn').addEventListener('click',()=>{ document.getElementById('xSelect').value='dteOpen'; document.getElementById('ySelect').value='pnl'; document.getElementById('symFilter').value=''; redrawScatter(); });
+
+const btnC=document.getElementById('btnClosed'), btnO=document.getElementById('btnOpen');
+const closedBlock=document.getElementById('closedBlock'), openBlock=document.getElementById('openBlock');
+const pageTitle=document.getElementById('pageTitle'), scatterTitle=document.getElementById('scatterTitle');
+
+function setActive(which) {
+  activeMode=which;
+  btnC.classList.remove('active'); btnO.classList.remove('active');
+  closedBlock.style.display='none'; openBlock.style.display='none';
+    if(which==='closed') {
+    btnC.classList.add('active'); closedBlock.style.display='';
+    // Append portfolio label to the page title
+    pageTitle.textContent='Closed Trade Performance Statistics - $30 K Portfolio';
+    scatterTitle.textContent='Interactive scatter (closed trades)';
+  } else {
+    btnO.classList.add('active'); openBlock.style.display='';
+    pageTitle.textContent='Open Trade Performance Statistics - $30 K Portfolio';
+    scatterTitle.textContent='Interactive scatter (open trades)';
+  }
+  redrawScatter();
+}
+
+btnC.addEventListener('click',()=>setActive('closed'));
+btnO.addEventListener('click',()=>setActive('open'));
+
+function wrapLines(ctx,text,maxW) {
+  const words=(text||'').split(/\s+/).filter(Boolean);
+  if(words.length<=1) return [text];
+  const lines=[]; let line=words[0];
+  for(let i=1;i<words.length;i++) {
+    const test=line+' '+words[i];
+    if(ctx.measureText(test).width<=maxW) line=test;
+    else { lines.push(line); line=words[i]; if(lines.length>=2) break; }
+  }
+  lines.push(line);
+  if(lines.length>2) { lines.length=2; lines[1]=lines[1].slice(0,Math.max(0,lines[1].length-1))+'…'; }
+  return lines;
+}
+
+function drawBar(id,labels,values,yLabel,isPct=false) {
+  const c=document.getElementById(id), ctx=c.getContext('2d');
+  const w=c.clientWidth,h=c.clientHeight,dpr=window.devicePixelRatio||1;
+  c.width=Math.floor(w*dpr); c.height=Math.floor(h*dpr);
+  ctx.setTransform(dpr,0,0,dpr,0,0); ctx.clearRect(0,0,w,h);
+
+  const padL=46,padR=14,padT=18,padB=88, pw=w-padL-padR, ph=h-padT-padB;
+  const vals=values.map(v => (v==null ? 0 : Number(v)));
+  let vMax=Math.max(...vals,1);
+  if(isPct) vMax=Math.max(vMax,100);
+
+  const tb = niceBounds(0, vMax, 5);
+  const step = tb.step;
+  const yS=v => padT + (1 - (v/vMax))*ph;
+
+  ctx.strokeStyle='#1f2937'; ctx.beginPath(); ctx.moveTo(padL,padT); ctx.lineTo(padL,padT+ph); ctx.lineTo(padL+pw,padT+ph); ctx.stroke();
+  ctx.fillStyle='#9ca3af'; ctx.font='12px -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial';
+
+  for(let t=0; t<=vMax+1e-9; t+=step) {
+    const y=yS(t);
+    ctx.strokeStyle='rgba(255,255,255,0.06)'; ctx.beginPath(); ctx.moveTo(padL,y); ctx.lineTo(padL+pw,y); ctx.stroke();
+    ctx.fillText(fmtNum(t, isPct), 6, y+4);
+  }
+
+  const n=labels.length, gap=10, barW=(pw-gap*(n-1))/Math.max(n,1);
+  for(let i=0;i<n;i++) {
+    const v=vals[i]; const x=padL+i*(barW+gap); const y=yS(v); const hh=(padT+ph)-y;
+    ctx.fillStyle='rgba(96,165,250,0.9)'; ctx.fillRect(x,y,barW,hh);
+    const lines=wrapLines(ctx,labels[i],Math.max(barW+gap-2,40));
+    ctx.fillStyle='#9ca3af'; ctx.textAlign='center';
+    const base=padT+ph+22;
+    for(let li=0; li<lines.length; li++) ctx.fillText(lines[li], x+barW/2, base+li*14);
+  }
+  ctx.fillStyle='#e5e7eb'; ctx.textAlign='left'; ctx.fillText(yLabel, padL+6, 12);
+}
+
+function redrawBars() {
+  drawBar('barWin', tagLabels, tagWinRates, 'Win rate', true);
+  drawBar('barPeak', tagLabels, tagTimeToPeak, 'Days to peak', false);
+}
+
+function colorizeClosedTable() {
+  const table=document.getElementById('closedTable'); if(!table) return;
+  const headers=[...table.querySelectorAll('thead th')].map(th=>th.textContent.trim());
+  const idxPnL=headers.index_parsed = headers.indexOf('PnL');
+  const idxRet=headers.indexOf('% Return');
+  const idxDelta=headers.indexOf('Delta %');
+
+  for(const row of table.querySelectorAll('tbody tr')) {
+    const tds=row.querySelectorAll('td');
+    const apply=(idx)=>{
+      if(idx<0 || idx>=tds.length) return;
+      const cell=tds[idx];
+      const raw=(cell.textContent||'').replace(/,/g,'').trim();
+      const v=parseFloat(raw);
+      if(!Number.isFinite(v)) return;
+      cell.classList.remove('pos','neg');
+      if(v<0) cell.classList.add('neg');
+      else if(v>0) cell.classList.add('pos');
+    };
+    apply(idxPnL); apply(idxRet); apply(idxDelta);
+  }
+}
+
+window.addEventListener('resize',()=>{ redrawScatter(); redrawBars(); });
+redrawBars();
+setActive('closed');
+colorizeClosedTable();
+</script></body></html>
