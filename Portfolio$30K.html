@@ -41,7 +41,7 @@ canvas.small{height:340px}
     <p class="lead">Toggle between closed (realized) and open (current). The scatter updates with the toggle. The table shows closed trades only.</p>
   </div>
   <div class="controls" style="margin:0;">
-    <span class="date-label" style="color:var(--muted);font-size:13px;margin-right:8px;">5 Feb, 2026</span>
+    <span class="date-label" style="color:var(--muted);font-size:13px;margin-right:8px;">14 Feb, 2026</span>
     <button id="btnClosed" class="active">Closed</button>
     <button id="btnOpen">Open</button>
   </div>
@@ -64,7 +64,7 @@ canvas.small{height:340px}
   </div>
   <div class="card">
     <div class="k">Current Unrealized Open PnL ($)</div>
-    <div class="v">5,301</div>
+    <div class="v">11,603</div>
   </div>
 </div>
 
@@ -81,9 +81,9 @@ canvas.small{height:340px}
 
 <div id="openBlock" style="display:none;"><div class="cards">
   <div class="card"><div class="k">Open trades</div><div class="v">6</div></div>
-  <div class="card"><div class="k">Win rate (current PnL)</div><div class="v">66.7%</div></div>
-  <div class="card"><div class="k">Profit factor (current PnL)</div><div class="v">7.8</div></div>
-  <div class="card"><div class="k">Median unrealized % return</div><div class="v">25.4%</div></div>
+  <div class="card"><div class="k">Win rate (current PnL)</div><div class="v">83.3%</div></div>
+  <div class="card"><div class="k">Profit factor (current PnL)</div><div class="v">9.9</div></div>
+  <div class="card"><div class="k">Median unrealized % return</div><div class="v">32.8%</div></div>
 </div></div>
 
 <div class="card"><div class="grid">
@@ -171,7 +171,7 @@ canvas.small{height:340px}
 
 <script>
 const CLOSED_ROWS=[];
-const OPEN_ROWS=[{"symbol": "NEM", "tags": "Synthetic", "dteOpen": 177.0, "holdDays": 43.727562080451385, "vol": 4.0, "pnl": 2364.0, "retPct": 124.29022082018928, "tradeMFE": 1072.0, "tradeMAE": -21467.0, "tradeRatio": 0.049937112777751896, "openPrice": 12.69, "closePrice": null, "deltaPct": 124.29022082018928, "openTs": 1766523907.0, "closeTs": 1766523907.0, "assetType": "stock_option"}, {"symbol": "VZLA", "tags": "Vertical Bull Call", "dteOpen": 122.0, "holdDays": 50.615860691562496, "vol": 50.0, "pnl": -200.0, "retPct": -25.0, "tradeMFE": 9800.0, "tradeMAE": -500.0, "tradeRatio": 19.6, "openPrice": 0.32, "closePrice": null, "deltaPct": -25.0, "openTs": 1765928758.0, "closeTs": 1765928758.0, "assetType": "stock_option"}, {"symbol": "CDE", "tags": "Vertical Bull Call", "dteOpen": 154.0, "holdDays": 54.64361532119213, "vol": 42.0, "pnl": 1113.0, "retPct": 13.65979381443299, "tradeMFE": 1407.0, "tradeMAE": -37170.0, "tradeRatio": 0.03785310734463277, "openPrice": 3.88, "closePrice": null, "deltaPct": 13.65979381443299, "openTs": 1765580760.0, "closeTs": 1765580760.0, "assetType": "stock_option"}, {"symbol": "SILJ", "tags": "Vertical Bull Call", "dteOpen": 38.0, "holdDays": 23.506034302673612, "vol": 20.0, "pnl": 620.0, "retPct": 37.125748502994014, "tradeMFE": 29960.0, "tradeMAE": -1080.0, "tradeRatio": 27.74074074074074, "openPrice": 1.67, "closePrice": null, "deltaPct": 37.125748502994014, "openTs": 1768271047.0, "closeTs": 1768271047.0, "assetType": "stock_option"}, {"symbol": "SA", "tags": "Vertical Bull Call", "dteOpen": 151.0, "holdDays": 51.62680976563657, "vol": 18.0, "pnl": -576.0, "retPct": -10.996563573883162, "tradeMFE": 882.0, "tradeMAE": -22941.0, "tradeRatio": 0.03844644958807376, "openPrice": 5.82, "closePrice": null, "deltaPct": -10.996563573883162, "openTs": 1765841412.0, "closeTs": 1765841412.0, "assetType": "stock_option"}, {"symbol": "SLV", "tags": "Vertical Bull Call", "dteOpen": 155.0, "holdDays": 55.69124263600694, "vol": 22.0, "pnl": 1980.0, "retPct": 38.29787234042553, "tradeMFE": 110.0, "tradeMAE": -81917.0, "tradeRatio": 0.0013428226131328052, "openPrice": 6.3, "closePrice": null, "deltaPct": 38.29787234042553, "openTs": 1765490245.0, "closeTs": 1765490245.0, "assetType": "stock_option"}];
+const OPEN_ROWS=[{"symbol": "NEM", "tags": "Synthetic", "dteOpen": 177.0, "holdDays": 52.49567774892361, "vol": 4.0, "pnl": 3434.0, "retPct": 135.30338849487785, "tradeMFE": 21084.0, "tradeMAE": -398.0, "tradeRatio": 52.97487437185929, "openPrice": 9.51, "closePrice": null, "deltaPct": 135.30338849487785, "openTs": 1766523907.0, "closeTs": 1766523907.0, "assetType": "stock_option"}, {"symbol": "VZLA", "tags": "Vertical Bull Call", "dteOpen": 122.0, "holdDays": 59.38397636003472, "vol": 50.0, "pnl": -1300.0, "retPct": -162.5, "tradeMFE": 6537.5, "tradeMAE": -2125.0, "tradeRatio": 3.0764705882352943, "openPrice": 0.32, "closePrice": null, "deltaPct": -162.5, "openTs": 1765928758.0, "closeTs": 1765928758.0, "assetType": "stock_option"}, {"symbol": "CDE", "tags": "Vertical Bull Call", "dteOpen": 154.0, "holdDays": 63.41173098966435, "vol": 42.0, "pnl": 1449.0, "retPct": 22.47557003257329, "tradeMFE": 35805.0, "tradeMAE": -1281.0, "tradeRatio": 27.950819672131146, "openPrice": 3.07, "closePrice": null, "deltaPct": 22.47557003257329, "openTs": 1765580760.0, "closeTs": 1765580760.0, "assetType": "stock_option"}, {"symbol": "SILJ", "tags": "Vertical Bull Call", "dteOpen": 38.0, "holdDays": 32.27414997114583, "vol": 20.0, "pnl": 720.0, "retPct": 43.11377245508982, "tradeMFE": 28475.0, "tradeMAE": -1830.0, "tradeRatio": 15.560109289617486, "openPrice": 1.67, "closePrice": null, "deltaPct": 43.11377245508982, "openTs": 1768271047.0, "closeTs": 1768271047.0, "assetType": "stock_option"}, {"symbol": "SA", "tags": "Vertical Bull Call", "dteOpen": 151.0, "holdDays": 60.39492543410879, "vol": 18.0, "pnl": 117.0, "retPct": 3.186274509803922, "tradeMFE": 882.0, "tradeMAE": -24840.0, "tradeRatio": 0.035507246376811595, "openPrice": 5.82, "closePrice": null, "deltaPct": 3.186274509803922, "openTs": 1765841412.0, "closeTs": 1765841412.0, "assetType": "stock_option"}, {"symbol": "SLV", "tags": "Vertical Bull Call", "dteOpen": 155.0, "holdDays": 64.45935830447917, "vol": 22.0, "pnl": 7183.0, "retPct": 103.65079365079366, "tradeMFE": 110.0, "tradeMAE": -69256.0, "tradeRatio": 0.0015883100381194409, "openPrice": 6.3, "closePrice": null, "deltaPct": 103.65079365079366, "openTs": 1765490245.0, "closeTs": 1765490245.0, "assetType": "stock_option"}];
 const tagLabels=[];
 const tagWinRates=[];
 const tagTimeToPeak=[];
