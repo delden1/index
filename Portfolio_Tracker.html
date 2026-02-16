@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Portfolio Tracker – HTML Demo (Broker Imports)</title>
+  <title>Portfolio Tracker – HTML Demo (Broker Imports + Manual + Yahoo Demo)</title>
 
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
@@ -13,7 +13,7 @@
     * { box-sizing: border-box; }
     body { margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
            background: linear-gradient(180deg, #070a10, #0b0f14); color: var(--text); }
-    header { padding: 18px 20px; border-bottom: 1px solid var(--line); position: sticky; top:0; background: rgba(11,15,20,.9); backdrop-filter: blur(10px); }
+    header { padding: 18px 20px; border-bottom: 1px solid var(--line); position: sticky; top:0; background: rgba(11,15,20,.9); backdrop-filter: blur(10px); z-index: 10;}
     header h1 { margin:0; font-size: 16px; letter-spacing:.2px; }
     header p { margin:6px 0 0; color: var(--muted); font-size: 12px; }
 
@@ -27,7 +27,7 @@
     .card h2 { margin:0 0 10px; font-size: 13px; color: #f3f4f6; }
     .row { display:flex; gap:10px; flex-wrap: wrap; align-items: center; }
     label { font-size: 12px; color: var(--muted); display:block; margin-bottom: 6px; }
-    select, input[type="text"], input[type="file"] {
+    select, input[type="text"], input[type="number"], input[type="date"], input[type="file"] {
       background: #0b1220; border: 1px solid var(--line); color: var(--text);
       border-radius: 10px; padding: 10px; font-size: 13px; outline:none;
     }
@@ -38,6 +38,7 @@
       color: white; border-radius: 12px; padding: 10px 12px; font-weight: 600; cursor:pointer;
     }
     button.secondary { background: #0b1220; border: 1px solid var(--line); color: var(--text); }
+    button.danger { background: linear-gradient(180deg, #ef4444, #dc2626); }
     button:disabled { opacity: .55; cursor:not-allowed; }
 
     .kpis { display:grid; gap: 10px; grid-template-columns: repeat(4, minmax(0,1fr)); }
@@ -47,7 +48,7 @@
     .kpi .l { font-size: 11px; color: var(--muted); margin-top: 4px; }
 
     table { width:100%; border-collapse: collapse; font-size: 12px; }
-    th, td { border-bottom: 1px solid var(--line); padding: 8px 6px; text-align: left; }
+    th, td { border-bottom: 1px solid var(--line); padding: 8px 6px; text-align: left; vertical-align: top; }
     th { color: #cbd5e1; font-weight: 650; }
     td { color: #e5e7eb; }
     .muted { color: var(--muted); }
@@ -55,87 +56,182 @@
     .warn { color: #fbbf24; }
     .ok { color: #34d399; }
     .bad { color: #fb7185; }
+    .small { font-size: 11px; }
 
     .mapgrid { display:grid; gap:10px; grid-template-columns: repeat(4, minmax(0,1fr)); }
     @media (max-width: 980px) { .mapgrid { grid-template-columns: repeat(2, minmax(0,1fr)); } }
+
+    .split { display:grid; gap:10px; grid-template-columns: 1.2fr .8fr; }
+    @media (max-width: 980px) { .split { grid-template-columns: 1fr; } }
+
+    .inline { display:flex; gap:8px; align-items:center; flex-wrap: wrap; }
+    .right { margin-left:auto; }
+
+    .notice {
+      border: 1px solid var(--line);
+      background: rgba(10,16,28,.55);
+      padding: 10px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      color: #cbd5e1;
+    }
   </style>
 </head>
 
 <body>
 <header>
-  <h1>Portfolio Tracker – HTML Import Demo</h1>
-  <p>Upload a broker CSV, map columns, preview normalized transactions, holdings, allocation & dividends. (No backend; runs locally.)</p>
+  <h1>Portfolio Tracker – Import + Manual + Yahoo Demo</h1>
+  <p>Upload broker CSV, or add transactions manually. “Yahoo demo” tries to fetch prices/dividends for AAPL, URA, GOLD (Barrick Gold).</p>
 </header>
 
 <div class="wrap grid" style="gap:14px;">
   <div class="card">
-    <h2>1) Import</h2>
+    <h2>0) Quick actions</h2>
     <div class="row">
-      <div style="min-width:240px; flex: 1;">
-        <label>Broker preset</label>
-        <select id="preset">
-          <option value="degiro">DEGIRO (transaction/account statement CSV)</option>
-          <option value="ibkr">Interactive Brokers (Activity Statement CSV)</option>
-          <option value="t212">Trading 212 (History export CSV)</option>
-          <option value="saxo">Saxo (Transactions/Reports exported as CSV)</option>
-          <option value="generic" selected>Generic CSV (manual mapping)</option>
-        </select>
+      <button id="loadYahooDemoBtn">Load Yahoo demo (AAPL, URA, GOLD)</button>
+      <button class="secondary" id="clearAllBtn">Clear all data</button>
+      <div class="right muted small" id="persistHint">Saved locally in your browser (localStorage).</div>
+    </div>
+    <div class="notice" style="margin-top:10px;">
+      <span class="warn">Skeptical note:</span> Yahoo endpoints can be blocked by CORS/rate limits. If the demo fetch fails, you can still
+      enter manual prices in transactions (or use your broker CSV) and the dashboard will work.
+    </div>
+  </div>
+
+  <div class="grid cols-3">
+    <div class="card">
+      <h2>1) Import (CSV)</h2>
+      <div class="row">
+        <div style="min-width:240px; flex: 1;">
+          <label>Broker preset</label>
+          <select id="preset">
+            <option value="degiro">DEGIRO</option>
+            <option value="ibkr">Interactive Brokers</option>
+            <option value="t212">Trading 212</option>
+            <option value="saxo">Saxo</option>
+            <option value="generic" selected>Generic CSV</option>
+          </select>
+        </div>
+
+        <div style="min-width:260px; flex: 2;">
+          <label>CSV file</label>
+          <input id="file" type="file" accept=".csv,text/csv" />
+        </div>
+
+        <div style="min-width:200px; flex: 1;">
+          <label>Portfolio name</label>
+          <input id="portfolioName" type="text" placeholder="Main" value="Main" />
+        </div>
+
+        <div style="display:flex; gap:10px; align-items:flex-end;">
+          <button id="parseBtn" disabled>Parse & Map</button>
+          <button class="secondary" id="loadSampleBtn">Load sample CSV</button>
+        </div>
       </div>
 
-      <div style="min-width:280px; flex: 2;">
-        <label>CSV file</label>
-        <input id="file" type="file" accept=".csv,text/csv" />
-      </div>
-
-      <div style="min-width:220px; flex: 1;">
-        <label>Portfolio name</label>
-        <input id="portfolioName" type="text" placeholder="Main" value="Main" />
-      </div>
-
-      <div style="display:flex; gap:10px; align-items:flex-end;">
-        <button id="parseBtn" disabled>Parse & Map</button>
-        <button class="secondary" id="loadSampleBtn">Load sample data</button>
+      <div style="margin-top:12px;" class="muted small">
+        Normalized schema: <span class="pill">date</span> <span class="pill">ticker</span> <span class="pill">action</span>
+        <span class="pill">quantity</span> <span class="pill">price</span> <span class="pill">currency</span> <span class="pill">amount</span>.
       </div>
     </div>
 
-    <div style="margin-top:12px;" class="muted">
-      This demo normalizes everything into: <span class="pill">date</span> <span class="pill">ticker</span> <span class="pill">action</span>
-      <span class="pill">quantity</span> <span class="pill">price</span> <span class="pill">currency</span> <span class="pill">amount</span>.
-      <br><span class="warn">Reality check:</span> CSV headers vary per broker/locale; the fallback manual mapper is what makes “any broker” feasible.
+    <div class="card">
+      <h2>2) Column mapping</h2>
+      <div id="mappingEmpty" class="muted">Upload/parse a CSV (or load sample) to map columns.</div>
+      <div id="mappingUI" style="display:none;">
+        <div class="mapgrid" id="mapGrid"></div>
+        <div class="row" style="margin-top: 12px;">
+          <button id="applyBtn">Apply mapping</button>
+          <button class="secondary" id="resetMapBtn">Reset</button>
+          <span id="mapStatus" class="muted"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>3) Dashboard</h2>
+      <div class="kpis">
+        <div class="kpi"><div class="v" id="kpiValue">—</div><div class="l">Market value (uses “price” from tx or Yahoo demo)</div></div>
+        <div class="kpi"><div class="v" id="kpiInvested">—</div><div class="l">Invested (BUY cash outflow)</div></div>
+        <div class="kpi"><div class="v" id="kpiPL">—</div><div class="l">Unrealized P/L (rough)</div></div>
+        <div class="kpi"><div class="v" id="kpiDiv">—</div><div class="l">Dividends received</div></div>
+      </div>
+      <div class="grid cols-2" style="margin-top:12px;">
+        <div class="card" style="margin:0;">
+          <h2>Allocation</h2>
+          <canvas id="allocChart" height="120"></canvas>
+        </div>
+        <div class="card" style="margin:0;">
+          <h2>Dividends (by month)</h2>
+          <canvas id="divChart" height="120"></canvas>
+        </div>
+      </div>
+      <div class="muted small" style="margin-top:8px;" id="dataStatus">—</div>
     </div>
   </div>
 
   <div class="card">
-    <h2>2) Column mapping</h2>
-    <div id="mappingEmpty" class="muted">Upload/parse a CSV (or load sample) to map columns.</div>
-    <div id="mappingUI" style="display:none;">
-      <div class="mapgrid" id="mapGrid"></div>
-      <div class="row" style="margin-top: 12px;">
-        <button id="applyBtn">Apply mapping</button>
-        <button class="secondary" id="resetBtn">Reset</button>
-        <span id="mapStatus" class="muted"></span>
-      </div>
-    </div>
-  </div>
+    <h2>4) Manual input</h2>
+    <div class="split">
+      <div>
+        <div class="row">
+          <div style="min-width:170px;">
+            <label>Date</label>
+            <input id="mDate" type="date" />
+          </div>
+          <div style="min-width:130px;">
+            <label>Ticker</label>
+            <input id="mTicker" type="text" placeholder="AAPL" />
+          </div>
+          <div style="min-width:140px;">
+            <label>Action</label>
+            <select id="mAction">
+              <option>BUY</option>
+              <option>SELL</option>
+              <option>DIV</option>
+              <option>FEE</option>
+              <option>CASHIN</option>
+              <option>CASHOUT</option>
+            </select>
+          </div>
+          <div style="min-width:120px;">
+            <label>Quantity</label>
+            <input id="mQty" type="number" step="any" placeholder="e.g. 5" />
+          </div>
+          <div style="min-width:120px;">
+            <label>Price</label>
+            <input id="mPrice" type="number" step="any" placeholder="e.g. 180" />
+          </div>
+          <div style="min-width:110px;">
+            <label>Currency</label>
+            <input id="mCur" type="text" value="USD" />
+          </div>
+          <div style="min-width:140px;">
+            <label>Amount (cashflow)</label>
+            <input id="mAmt" type="number" step="any" placeholder="auto if blank" />
+          </div>
 
-  <div class="card">
-    <h2>3) Dashboard</h2>
-    <div class="kpis">
-      <div class="kpi"><div class="v" id="kpiValue">—</div><div class="l">Market value (demo uses last trade price)</div></div>
-      <div class="kpi"><div class="v" id="kpiInvested">—</div><div class="l">Invested (BUY cash outflow)</div></div>
-      <div class="kpi"><div class="v" id="kpiPL">—</div><div class="l">Unrealized P/L (rough)</div></div>
-      <div class="kpi"><div class="v" id="kpiDiv">—</div><div class="l">Dividends received</div></div>
-    </div>
-    <div class="grid cols-2" style="margin-top:12px;">
-      <div class="card" style="margin:0;">
-        <h2>Allocation (by market value)</h2>
-        <canvas id="allocChart" height="120"></canvas>
+          <div style="display:flex; gap:10px; align-items:flex-end;">
+            <button id="addManualBtn">Add</button>
+            <button class="secondary" id="recalcBtn">Recalc dashboard</button>
+          </div>
+        </div>
+
+        <div class="muted small" style="margin-top:8px;">
+          Amount convention: BUY negative, SELL positive, DIV positive, FEE negative, CASHIN positive, CASHOUT negative.
+          If Amount is blank, it will auto-calc for BUY/SELL as ±(qty×price).
+        </div>
       </div>
-      <div class="card" style="margin:0;">
-        <h2>Dividends (by month)</h2>
-        <canvas id="divChart" height="120"></canvas>
+
+      <div>
+        <div class="notice">
+          <div><span class="pill">Barrick</span> is usually traded as <span class="pill">GOLD</span> (NYSE). “Barrick Mining” isn’t a standard ticker.</div>
+          <div class="muted small" style="margin-top:8px;" id="yahooMsg">Yahoo demo not loaded.</div>
+        </div>
       </div>
     </div>
+
+    <div style="margin-top:12px;" id="manualTableWrap" class="muted">—</div>
   </div>
 
   <div class="grid cols-2">
@@ -153,11 +249,9 @@
 
 <script>
   // -----------------------------
-  // Presets (best-effort heuristics)
+  // Presets (best-effort)
   // -----------------------------
   const PRESETS = {
-    // DEGIRO exports commonly include Date/Time/Product/ISIN/Quantity/Price/Value/etc (varies by locale/export type).
-    // We'll try to match by contains() patterns.
     degiro: {
       hints: {
         date: [/^date$/i, /datum/i],
@@ -170,8 +264,6 @@
       },
       actionMap: (raw) => mapAction(raw)
     },
-
-    // IBKR Activity Statements can be exported as CSV; sections vary (Trades/Dividends/Fees).
     ibkr: {
       hints: {
         date: [/date/i, /trade date/i],
@@ -184,8 +276,6 @@
       },
       actionMap: (raw) => mapAction(raw)
     },
-
-    // Trading 212 lets users export history to CSV (Invest; not CFD).
     t212: {
       hints: {
         date: [/time/i, /date/i, /execution time/i],
@@ -198,8 +288,6 @@
       },
       actionMap: (raw) => mapAction(raw)
     },
-
-    // Saxo exports often come via "Transactions" or "Reports" (Excel/PDF; sometimes CSV).
     saxo: {
       hints: {
         date: [/date/i, /trade date/i, /value date/i],
@@ -212,7 +300,6 @@
       },
       actionMap: (raw) => mapAction(raw)
     },
-
     generic: {
       hints: {
         date: [/date/i],
@@ -228,14 +315,15 @@
   };
 
   const REQUIRED = ["date","ticker","action","quantity","price","currency","amount"];
-
   const el = (id) => document.getElementById(id);
 
   let rawRows = [];
   let rawHeaders = [];
   let mapping = {};
-  let normalized = [];
+  let normalized = []; // all tx (CSV + manual)
   let allocChart, divChart;
+
+  const STORAGE_KEY = "pt_demo_v2_tx";
 
   const sampleCSV = `Date,Ticker,Action,Quantity,Price,Currency,Amount,Notes
 2025-01-10,AAPL,BUY,5,180,USD,-900,initial buy
@@ -253,7 +341,6 @@
     if (s.includes("FEE") || s.includes("COMM")) return "FEE";
     if (s.includes("DEPOSIT") || s.includes("CASHIN")) return "CASHIN";
     if (s.includes("WITHDRAW") || s.includes("CASHOUT")) return "CASHOUT";
-    // fallback:
     return s || "UNKNOWN";
   }
 
@@ -303,20 +390,16 @@
       });
 
       if (mapping[field]) sel.value = mapping[field];
-
       wrap.appendChild(sel);
       grid.appendChild(wrap);
     }
 
-    el("mapStatus").textContent = `Auto-mapped ${Object.keys(auto).length}/${REQUIRED.length}. Fix anything that looks wrong, then Apply.`;
+    el("mapStatus").textContent = `Auto-mapped ${Object.keys(auto).length}/${REQUIRED.length}. Fix anything wrong, then Apply.`;
   }
 
-  function normalizeRows() {
-    // Read mapping from UI
-    document.querySelectorAll("#mapGrid select").forEach(s => {
-      mapping[s.dataset.field] = s.value || "";
-    });
-
+  function normalizeFromCSVIntoTx() {
+    // read mapping
+    document.querySelectorAll("#mapGrid select").forEach(s => { mapping[s.dataset.field] = s.value || ""; });
     const missing = REQUIRED.filter(f => !mapping[f]);
     if (missing.length) {
       el("mapStatus").innerHTML = `<span class="bad">Missing mapping:</span> ${missing.join(", ")}`;
@@ -326,7 +409,7 @@
     const presetKey = el("preset").value;
     const actionMap = (PRESETS[presetKey] || PRESETS.generic).actionMap;
 
-    normalized = rawRows
+    const txFromCsv = rawRows
       .filter(r => Object.values(r).some(v => String(v ?? "").trim() !== ""))
       .map(r => {
         const dateRaw = r[mapping.date];
@@ -339,6 +422,8 @@
         const cur = String(r[mapping.currency] ?? "").trim().toUpperCase() || "EUR";
 
         return {
+          id: crypto.randomUUID(),
+          source: "CSV",
           portfolio: el("portfolioName").value || "Main",
           date: new Date(dateRaw),
           ticker: String(tickerRaw ?? "").trim(),
@@ -351,9 +436,12 @@
       })
       .filter(x => x.ticker && !isNaN(x.date.getTime()));
 
-    el("mapStatus").innerHTML = `<span class="ok">Normalized:</span> ${normalized.length} rows`;
-
+    // replace all CSV-sourced tx (keep manual)
+    normalized = normalized.filter(t => t.source !== "CSV").concat(txFromCsv);
+    persist();
+    el("mapStatus").innerHTML = `<span class="ok">Imported:</span> ${txFromCsv.length} rows (CSV).`;
     renderAll();
+    renderManualTable();
   }
 
   function fmt(n) {
@@ -371,93 +459,53 @@
   }
 
   function computeHoldings(tx) {
-    // Demo logic:
-    // - shares: BUY +quantity, SELL -quantity
-    // - "last price": most recent trade price for that ticker (BUY/SELL)
-    // - invested: sum of BUY cash outflows (assumes amount is negative for buys)
+    // Shares: BUY +qty, SELL -qty
+    // "last price": last non-zero price seen in BUY/SELL; if missing, last known from any row with price>0
     const byTicker = groupBy(tx, x => x.ticker);
     const rows = [];
     for (const [ticker, txx] of byTicker.entries()) {
-      let shares = 0;
-      let invested = 0;
-      let divs = 0;
-      let lastTradePrice = null;
-      let lastTradeDate = 0;
+      let shares = 0, invested = 0, divs = 0;
+      let lastPrice = null, lastTs = 0;
 
       for (const t of txx) {
         const ts = t.date.getTime();
         if (t.action === "BUY") { shares += t.quantity; invested += -t.amount; }
         if (t.action === "SELL") { shares -= t.quantity; }
-        if (t.action === "DIV") { divs += t.amount; }
-        if ((t.action === "BUY" || t.action === "SELL") && t.price > 0 && ts >= lastTradeDate) {
-          lastTradeDate = ts;
-          lastTradePrice = t.price;
-        }
+        if (t.action === "DIV") { divs += (t.amount || 0); }
+        if (t.price > 0 && ts >= lastTs) { lastTs = ts; lastPrice = t.price; }
       }
-
       if (Math.abs(shares) < 1e-12) continue;
-      const mv = (lastTradePrice || 0) * shares;
+      const mv = (lastPrice || 0) * shares;
       const upl = mv - invested;
-      rows.push({ ticker, shares, lastTradePrice, mv, invested, upl, divs });
+      rows.push({ ticker, shares, lastPrice, mv, invested, upl, divs });
     }
     rows.sort((a,b)=> b.mv - a.mv);
     return rows;
   }
 
-  function renderTables(holdings, tx) {
-    // Holdings table
-    const h = [];
-    h.push(`<table><thead><tr>
-      <th>Ticker</th><th>Shares</th><th>Last trade px</th><th>Market value*</th><th>Invested*</th><th>Unrealized P/L*</th>
-    </tr></thead><tbody>`);
-    holdings.forEach(r => {
-      const cls = r.upl >= 0 ? "ok" : "bad";
-      h.push(`<tr>
-        <td>${r.ticker}</td>
-        <td>${fmt(r.shares)}</td>
-        <td>${fmt(r.lastTradePrice)}</td>
-        <td>${fmt(r.mv)}</td>
-        <td>${fmt(r.invested)}</td>
-        <td class="${cls}">${fmt(r.upl)}</td>
-      </tr>`);
-    });
-    h.push(`</tbody></table><div class="muted" style="margin-top:8px;">* Demo uses last trade price, not live quotes.</div>`);
-    el("holdingsWrap").innerHTML = holdings.length ? h.join("") : `<span class="muted">No open positions detected.</span>`;
+  function renderKPIs(holdings, tx) {
+    const mv = holdings.reduce((s,r)=>s+r.mv,0);
+    const invested = holdings.reduce((s,r)=>s+r.invested,0);
+    const upl = mv - invested;
+    const divs = tx.filter(t=>t.action==="DIV").reduce((s,t)=>s+(t.amount||0),0);
 
-    // Transactions preview
-    const preview = tx.slice(0, 50);
-    const t = [];
-    t.push(`<table><thead><tr>
-      <th>Date</th><th>Ticker</th><th>Action</th><th>Qty</th><th>Price</th><th>Cur</th><th>Amount</th>
-    </tr></thead><tbody>`);
-    preview.forEach(r => {
-      t.push(`<tr>
-        <td>${r.date.toISOString().slice(0,10)}</td>
-        <td>${r.ticker}</td>
-        <td><span class="pill">${r.action}</span></td>
-        <td>${fmt(r.quantity)}</td>
-        <td>${fmt(r.price)}</td>
-        <td>${r.currency}</td>
-        <td>${fmt(r.amount)}</td>
-      </tr>`);
-    });
-    t.push(`</tbody></table>`);
-    el("txWrap").innerHTML = t.join("");
+    el("kpiValue").textContent = fmt(mv);
+    el("kpiInvested").textContent = fmt(invested);
+    el("kpiPL").textContent = fmt(upl);
+    el("kpiDiv").textContent = fmt(divs);
   }
 
   function renderCharts(holdings, tx) {
-    // Allocation chart
     const labels = holdings.map(r => r.ticker);
     const data = holdings.map(r => r.mv);
 
     if (allocChart) allocChart.destroy();
     allocChart = new Chart(el("allocChart"), {
       type: "bar",
-      data: { labels, datasets: [{ label: "Market value (demo)", data }] },
+      data: { labels, datasets: [{ label: "Market value", data }] },
       options: { responsive:true, plugins:{ legend:{ display:false } } }
     });
 
-    // Dividends by month
     const divs = tx.filter(t => t.action === "DIV");
     const byMonth = {};
     for (const d of divs) {
@@ -475,39 +523,308 @@
     });
   }
 
-  function renderKPIs(holdings, tx) {
-    const mv = holdings.reduce((s,r)=>s+r.mv,0);
-    const invested = holdings.reduce((s,r)=>s+r.invested,0);
-    const upl = mv - invested;
-    const divs = tx.filter(t=>t.action==="DIV").reduce((s,t)=>s+(t.amount||0),0);
+  function renderTables(holdings, tx) {
+    // holdings
+    const h = [];
+    h.push(`<table><thead><tr>
+      <th>Ticker</th><th>Shares</th><th>Last px</th><th>Market value</th><th>Invested</th><th>Unrealized P/L</th>
+    </tr></thead><tbody>`);
+    holdings.forEach(r => {
+      const cls = r.upl >= 0 ? "ok" : "bad";
+      h.push(`<tr>
+        <td>${r.ticker}</td>
+        <td>${fmt(r.shares)}</td>
+        <td>${fmt(r.lastPrice)}</td>
+        <td>${fmt(r.mv)}</td>
+        <td>${fmt(r.invested)}</td>
+        <td class="${cls}">${fmt(r.upl)}</td>
+      </tr>`);
+    });
+    h.push(`</tbody></table>`);
+    el("holdingsWrap").innerHTML = holdings.length ? h.join("") : `<span class="muted">No open positions detected.</span>`;
 
-    el("kpiValue").textContent = fmt(mv);
-    el("kpiInvested").textContent = fmt(invested);
-    el("kpiPL").textContent = fmt(upl);
-    el("kpiDiv").textContent = fmt(divs);
+    // tx preview
+    const sorted = [...tx].sort((a,b)=> b.date - a.date);
+    const preview = sorted.slice(0, 60);
+    const t = [];
+    t.push(`<table><thead><tr>
+      <th>Date</th><th>Ticker</th><th>Action</th><th>Qty</th><th>Price</th><th>Cur</th><th>Amount</th><th>Src</th>
+    </tr></thead><tbody>`);
+    preview.forEach(r => {
+      t.push(`<tr>
+        <td>${r.date.toISOString().slice(0,10)}</td>
+        <td>${r.ticker}</td>
+        <td><span class="pill">${r.action}</span></td>
+        <td>${fmt(r.quantity)}</td>
+        <td>${fmt(r.price)}</td>
+        <td>${r.currency}</td>
+        <td>${fmt(r.amount)}</td>
+        <td class="muted">${r.source || "—"}</td>
+      </tr>`);
+    });
+    t.push(`</tbody></table>`);
+    el("txWrap").innerHTML = t.join("");
   }
 
   function renderAll() {
-    const holdings = computeHoldings(normalized);
-    renderKPIs(holdings, normalized);
-    renderCharts(holdings, normalized);
-    renderTables(holdings, normalized);
+    const clean = normalized.filter(t => t.ticker && !isNaN(t.date.getTime()));
+    const holdings = computeHoldings(clean);
+    renderKPIs(holdings, clean);
+    renderCharts(holdings, clean);
+    renderTables(holdings, clean);
+
+    const tickers = [...new Set(clean.map(t=>t.ticker))].sort().join(", ");
+    el("dataStatus").textContent = `Transactions: ${clean.length} | Tickers: ${tickers || "—"}`;
   }
 
+  // -----------------------------
+  // Manual input
+  // -----------------------------
+  function addManualTx() {
+    const portfolio = el("portfolioName").value || "Main";
+    const dateStr = el("mDate").value;
+    const ticker = (el("mTicker").value || "").trim().toUpperCase();
+    const action = el("mAction").value;
+    const qty = parseFloat(el("mQty").value || "0") || 0;
+    const price = parseFloat(el("mPrice").value || "0") || 0;
+    const cur = (el("mCur").value || "EUR").trim().toUpperCase();
+    let amt = el("mAmt").value === "" ? null : (parseFloat(el("mAmt").value) || 0);
+
+    if (!dateStr || !ticker) {
+      alert("Date and Ticker are required.");
+      return;
+    }
+
+    // auto amount if blank
+    if (amt === null) {
+      if (action === "BUY") amt = -(qty * price);
+      else if (action === "SELL") amt = +(qty * price);
+      else if (action === "FEE") amt = -Math.abs(qty || price || 0) || 0;
+      else if (action === "CASHIN") amt = Math.abs(qty || price || 0) || 0;
+      else if (action === "CASHOUT") amt = -(Math.abs(qty || price || 0) || 0);
+      else amt = 0;
+    }
+
+    const tx = {
+      id: crypto.randomUUID(),
+      source: "MANUAL",
+      portfolio,
+      date: new Date(dateStr),
+      ticker,
+      action,
+      quantity: qty,
+      price,
+      currency: cur,
+      amount: amt
+    };
+
+    normalized.push(tx);
+    persist();
+    renderAll();
+    renderManualTable();
+
+    // keep date/ticker, clear numeric fields for speed
+    el("mQty").value = "";
+    el("mPrice").value = "";
+    el("mAmt").value = "";
+  }
+
+  function renderManualTable() {
+    const manual = normalized.filter(t => t.source === "MANUAL");
+    if (!manual.length) {
+      el("manualTableWrap").innerHTML = `<span class="muted">No manual transactions yet.</span>`;
+      return;
+    }
+    const rows = [...manual].sort((a,b)=> b.date - a.date);
+    const html = [];
+    html.push(`<table><thead><tr>
+      <th>Date</th><th>Ticker</th><th>Action</th><th>Qty</th><th>Price</th><th>Cur</th><th>Amount</th><th></th>
+    </tr></thead><tbody>`);
+    rows.forEach(r => {
+      html.push(`<tr>
+        <td>${r.date.toISOString().slice(0,10)}</td>
+        <td>${r.ticker}</td>
+        <td><span class="pill">${r.action}</span></td>
+        <td>${fmt(r.quantity)}</td>
+        <td>${fmt(r.price)}</td>
+        <td>${r.currency}</td>
+        <td>${fmt(r.amount)}</td>
+        <td><button class="danger" onclick="deleteTx('${r.id}')">Delete</button></td>
+      </tr>`);
+    });
+    html.push(`</tbody></table>`);
+    el("manualTableWrap").innerHTML = html.join("");
+  }
+
+  window.deleteTx = function(id) {
+    normalized = normalized.filter(t => t.id !== id);
+    persist();
+    renderAll();
+    renderManualTable();
+  }
+
+  // -----------------------------
+  // CSV parsing
+  // -----------------------------
   function parseCSVText(csvText) {
     const res = Papa.parse(csvText, { header:true, skipEmptyLines:true });
-    if (res.errors?.length) console.warn(res.errors);
     rawRows = res.data || [];
     rawHeaders = res.meta?.fields || Object.keys(rawRows[0] || {});
     buildMappingUI(rawHeaders, el("preset").value);
   }
 
   // -----------------------------
+  // Persistence
+  // -----------------------------
+  function persist() {
+    const safe = normalized.map(t => ({...t, date: t.date.toISOString()}));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(safe));
+  }
+
+  function loadPersisted() {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    try {
+      const arr = JSON.parse(raw);
+      normalized = (arr || []).map(t => ({...t, date: new Date(t.date)}));
+    } catch { /* ignore */ }
+  }
+
+  // -----------------------------
+  // Yahoo demo fetch (best-effort)
+  // -----------------------------
+  async function yahooChart(symbol, range="1y", interval="1d") {
+    // Often works, sometimes blocked. If blocked, we catch and fall back.
+    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?range=${range}&interval=${interval}&events=div%2Csplits`;
+    const r = await fetch(url, { mode: "cors" });
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    return r.json();
+  }
+
+  function extractLastClose(chartJson) {
+    const res = chartJson?.chart?.result?.[0];
+    const closes = res?.indicators?.quote?.[0]?.close;
+    if (!closes || !closes.length) return null;
+    for (let i = closes.length - 1; i >= 0; i--) {
+      if (typeof closes[i] === "number" && isFinite(closes[i])) return closes[i];
+    }
+    return null;
+  }
+
+  function extractDividendsSum(chartJson) {
+    const res = chartJson?.chart?.result?.[0];
+    const div = res?.events?.dividends;
+    if (!div) return 0;
+    const vals = Object.values(div).map(x => x?.amount).filter(x => typeof x === "number" && isFinite(x));
+    return vals.reduce((s,x)=>s+x,0);
+  }
+
+  async function loadYahooDemo() {
+    const portfolio = el("portfolioName").value || "Main";
+    const tickers = [
+      { t: "AAPL", cur: "USD" },
+      { t: "URA", cur: "USD" },   // Global X Uranium ETF
+      { t: "GOLD", cur: "USD" }   // Barrick Gold (commonly “GOLD”)
+    ];
+
+    el("yahooMsg").innerHTML = `Fetching Yahoo demo data for ${tickers.map(x=>x.t).join(", ")}…`;
+
+    const results = [];
+    const errors = [];
+
+    for (const x of tickers) {
+      try {
+        const j = await yahooChart(x.t, "1y", "1d");
+        const px = extractLastClose(j);
+        const divSum = extractDividendsSum(j); // trailing ~1y based on chart events
+        results.push({ ...x, price: px, ttmDiv: divSum });
+      } catch (e) {
+        errors.push(`${x.t}: ${String(e.message || e)}`);
+        results.push({ ...x, price: null, ttmDiv: 0 });
+      }
+    }
+
+    // Create demo transactions:
+    // - Buy each ticker 10 shares 6 months ago at 95% of current price (or placeholder)
+    // - Add a DIV entry today for the ticker based on ttmDiv * shares / 4 (rough quarterly proxy)
+    const today = new Date();
+    const sixMonthsAgo = new Date(today);
+    sixMonthsAgo.setMonth(today.getMonth() - 6);
+
+    // wipe prior "YAHOO_DEMO" tx
+    normalized = normalized.filter(t => t.source !== "YAHOO_DEMO");
+
+    let okCount = 0;
+    for (const r of results) {
+      const shares = 10;
+      const px = r.price ?? 100; // fallback placeholder if Yahoo failed
+      const buyPx = px * 0.95;
+
+      if (r.price !== null) okCount++;
+
+      normalized.push({
+        id: crypto.randomUUID(),
+        source: "YAHOO_DEMO",
+        portfolio,
+        date: sixMonthsAgo,
+        ticker: r.t,
+        action: "BUY",
+        quantity: shares,
+        price: buyPx,
+        currency: r.cur,
+        amount: -(shares * buyPx)
+      });
+
+      // Dividend proxy: if ttmDiv exists, allocate ~quarter share of it
+      const divAmt = r.ttmDiv > 0 ? (r.ttmDiv * shares / 4) : 0;
+      if (divAmt > 0.0001) {
+        normalized.push({
+          id: crypto.randomUUID(),
+          source: "YAHOO_DEMO",
+          portfolio,
+          date: today,
+          ticker: r.t,
+          action: "DIV",
+          quantity: 0,
+          price: 0,
+          currency: r.cur,
+          amount: divAmt
+        });
+      } else {
+        // still add a zero DIV row? no, keep clean
+      }
+
+      // Add a “price marker” transaction today so holdings use current price for MV:
+      // (This is a hack for this HTML demo; the real app would fetch live prices.)
+      normalized.push({
+        id: crypto.randomUUID(),
+        source: "YAHOO_DEMO",
+        portfolio,
+        date: today,
+        ticker: r.t,
+        action: "FEE",
+        quantity: 0,
+        price: px,         // store the “last price” in price column
+        currency: r.cur,
+        amount: 0
+      });
+    }
+
+    persist();
+    renderAll();
+    renderManualTable();
+
+    const msgParts = [];
+    msgParts.push(`Yahoo fetch success for ${okCount}/${results.length} tickers.`);
+    if (errors.length) msgParts.push(`<div class="warn small">Fetch issues: ${errors.join(" | ")}</div>`);
+    msgParts.push(`<div class="muted small">If a ticker failed, the demo used placeholder prices. You can override by adding a manual BUY/SELL with your own price.</div>`);
+    el("yahooMsg").innerHTML = msgParts.join("<br/>");
+  }
+
+  // -----------------------------
   // Wire up UI
   // -----------------------------
-  el("file").addEventListener("change", () => {
-    el("parseBtn").disabled = !el("file").files?.length;
-  });
+  el("file").addEventListener("change", () => { el("parseBtn").disabled = !el("file").files?.length; });
 
   el("parseBtn").addEventListener("click", async () => {
     const f = el("file").files[0];
@@ -516,30 +833,44 @@
     parseCSVText(text);
   });
 
-  el("loadSampleBtn").addEventListener("click", () => {
-    parseCSVText(sampleCSV);
-  });
+  el("loadSampleBtn").addEventListener("click", () => { parseCSVText(sampleCSV); });
 
-  el("applyBtn").addEventListener("click", () => normalizeRows());
+  el("applyBtn").addEventListener("click", () => normalizeFromCSVIntoTx());
 
-  el("resetBtn").addEventListener("click", () => {
+  el("resetMapBtn").addEventListener("click", () => {
     mapping = {};
-    normalized = [];
     if (rawHeaders.length) buildMappingUI(rawHeaders, el("preset").value);
     el("mapStatus").textContent = "";
-    el("holdingsWrap").textContent = "—";
-    el("txWrap").textContent = "—";
-    el("kpiValue").textContent = "—";
-    el("kpiInvested").textContent = "—";
-    el("kpiPL").textContent = "—";
-    el("kpiDiv").textContent = "—";
-    if (allocChart) allocChart.destroy();
-    if (divChart) divChart.destroy();
   });
 
   el("preset").addEventListener("change", () => {
     if (rawHeaders.length) buildMappingUI(rawHeaders, el("preset").value);
   });
+
+  el("addManualBtn").addEventListener("click", addManualTx);
+  el("recalcBtn").addEventListener("click", () => { persist(); renderAll(); renderManualTable(); });
+
+  el("loadYahooDemoBtn").addEventListener("click", loadYahooDemo);
+
+  el("clearAllBtn").addEventListener("click", () => {
+    if (!confirm("Clear all stored transactions (CSV + manual + demo) from this browser?")) return;
+    normalized = [];
+    localStorage.removeItem(STORAGE_KEY);
+    renderAll();
+    renderManualTable();
+    el("yahooMsg").textContent = "Yahoo demo not loaded.";
+  });
+
+  // init defaults
+  (function init() {
+    // date default = today
+    const today = new Date();
+    el("mDate").value = today.toISOString().slice(0,10);
+
+    loadPersisted();
+    renderAll();
+    renderManualTable();
+  })();
 </script>
 </body>
 </html>
