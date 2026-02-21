@@ -1,245 +1,862 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Risk Tolerance & Position Sizing Calculator</title>
-  <style>
-    :root {
-      --primary: #0a2540;
-      --secondary: #335d92;
-      --background: #f4f7fc;
-      --card-bg: #ffffff;
-      --border-color: #e0e6ed;
-      --accent: #1d4ed8;
-      --text: #333333;
-      --warning-bg: #fffbeb;
-      --warning-border: #facc15;
-      --warning-text: #92400e;
-    }
-    * {
-      box-sizing: border-box;
-    }
-    body {
-      margin: 0;
-      padding: 20px;
-      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-      background-color: var(--background);
-      color: var(--text);
-    }
-    h1 {
-      margin-top: 0;
-      color: var(--primary);
-    }
-    .section {
-      margin-bottom: 24px;
-      padding: 20px;
-      background: var(--card-bg);
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
-    }
-    label {
-      display: block;
-      margin: 12px 0 4px;
-      font-weight: 600;
-    }
-    input, select {
-      width: 100%;
-      padding: 8px;
-      border: 1px solid var(--border-color);
-      border-radius: 4px;
-      font-size: 14px;
-      background-color: #fafafa;
-      transition: border 0.2s;
-    }
-    input:focus, select:focus {
-      outline: none;
-      border-color: var(--accent);
-    }
-    .result {
-      margin-top: 10px;
-      padding: 10px;
-      background: #f0f4fa;
-      border-radius: 4px;
-      font-size: 14px;
-    }
-    .hidden {
-      display: none;
-    }
-    .disclaimer {
-      margin-top: 30px;
-      padding: 12px;
-      background-color: var(--warning-bg);
-      border-left: 4px solid var(--warning-border);
-      color: var(--warning-text);
-      font-size: 13px;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Risk &amp; Reward Calculator — Strategic Options Trader</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0b0f14;--card:#111827;--card2:#0f172a;--text:#e5e7eb;--muted:#9ca3af;
+  --border:#1f2937;--accent:#60a5fa;--green:#22c55e;--red:#ef4444;--amber:#f59e0b;
+  --purple:#a78bfa;--cyan:#06b6d4;--orange:#f97316;
+  --font:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+}
+body{background:var(--bg);color:var(--text);font:14px/1.5 var(--font);padding:0}
+.wrap{max-width:1300px;margin:0 auto;padding:24px 20px}
+
+/* Header */
+.header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:24px}
+.header h1{font-size:22px;font-weight:700;color:#fff}
+.header .sub{color:var(--muted);font-size:13px;margin-top:2px}
+
+/* Cards */
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px 20px;margin-bottom:16px}
+.card h2{font-size:15px;font-weight:700;color:#d1d5db;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.card h2 .step{background:var(--accent);color:#0b0f14;font-size:11px;font-weight:800;padding:2px 8px;border-radius:20px}
+
+/* Form grid */
+.form-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px}
+.form-group{display:flex;flex-direction:column;gap:4px}
+.form-group label{font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.4px}
+.form-group input,.form-group select{
+  background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:8px;
+  padding:10px 12px;font-size:14px;font-family:var(--font);transition:border .2s}
+.form-group input:focus,.form-group select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 2px rgba(96,165,250,.15)}
+.form-group select option{background:var(--card2);color:var(--text)}
+
+/* Preset buttons */
+.presets{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.presets button{
+  background:var(--card2);color:var(--muted);border:1px solid var(--border);border-radius:8px;
+  padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s}
+.presets button:hover{border-color:var(--accent);color:var(--text)}
+.presets button.active{background:rgba(96,165,250,.12);border-color:var(--accent);color:var(--accent)}
+
+/* KPI row */
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px;margin:16px 0}
+.kpi{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:14px 16px}
+.kpi .label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+.kpi .value{font-size:24px;font-weight:800;margin-top:4px}
+.kpi .detail{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.35}
+.pos{color:var(--green)}.neg{color:var(--red)}.warn{color:var(--amber)}.neutral{color:var(--accent)}
+
+/* Risk meter */
+.meter-wrap{margin:16px 0}
+.meter-bar{height:10px;background:var(--card2);border-radius:5px;overflow:hidden;position:relative}
+.meter-fill{height:100%;border-radius:5px;transition:width .4s}
+.meter-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-top:4px}
+.meter-pointer{position:absolute;top:-6px;width:3px;height:22px;background:#fff;border-radius:2px;transition:left .4s}
+
+/* Scenario table */
+.scenario-table{width:100%;border-collapse:collapse;margin-top:12px}
+.scenario-table th{text-align:left;padding:8px 10px;border-bottom:2px solid var(--border);color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.4px;font-weight:700}
+.scenario-table td{padding:8px 10px;border-bottom:1px solid var(--border);font-size:13px}
+.scenario-table tr:last-child td{border-bottom:none}
+.scenario-table tr:hover td{background:rgba(255,255,255,.02)}
+
+/* Strategy cards grid */
+.strat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:14px;margin-top:14px}
+.strat-card{background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:16px;transition:border .2s;cursor:pointer}
+.strat-card:hover,.strat-card.selected{border-color:var(--accent)}
+.strat-card.selected{box-shadow:0 0 0 2px rgba(96,165,250,.2)}
+.strat-card h3{font-size:14px;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.strat-card h3 .dot{width:10px;height:10px;border-radius:50%;display:inline-block}
+.strat-card .desc{font-size:12px;color:var(--muted);line-height:1.4;margin-bottom:10px}
+.strat-card .meta{display:flex;gap:16px;font-size:11px;color:var(--muted)}
+.strat-card .meta span{display:flex;align-items:center;gap:4px}
+
+/* Payoff chart */
+.payoff-wrap{margin-top:16px}
+canvas.payoff{width:100%;height:320px;display:block;background:var(--card2);border-radius:12px;border:1px solid var(--border)}
+
+/* Position detail */
+.pos-detail{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-top:14px}
+.pos-item{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:12px 14px}
+.pos-item .label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.3px}
+.pos-item .val{font-size:20px;font-weight:800;margin-top:2px}
+
+/* Hidden */
+.hidden{display:none}
+
+/* Inputs inline */
+.inline-inputs{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-top:12px}
+
+/* Disclaimer */
+.disclaimer{margin-top:24px;padding:14px 18px;background:rgba(250,204,21,.06);border-left:3px solid var(--amber);border-radius:0 8px 8px 0;font-size:12px;color:var(--amber);line-height:1.45}
+
+/* Responsive */
+@media(max-width:768px){
+  .form-grid{grid-template-columns:1fr}
+  .strat-grid{grid-template-columns:1fr}
+  .kpi-row{grid-template-columns:repeat(2,1fr)}
+  .wrap{padding:16px 12px}
+}
+</style>
 </head>
 <body>
-<h1>Risk Tolerance & Position Sizing</h1>
+<div class="wrap">
 
-<div class="section">
-  <h3>Step 1: Define your risk unit</h3>
-  <label for="riskUnit">Maximum loss per trade (Risk Unit)</label>
-  <input type="number" id="riskUnit" placeholder="e.g. 1000" min="0" step="0.01">
-
-  <label for="portfolioSize">Portfolio size</label>
-  <input type="number" id="portfolioSize" placeholder="e.g. 50000" min="0" step="0.01">
-
-  <label for="numTrades">Number of concurrent trades</label>
-  <input type="number" id="numTrades" placeholder="e.g. 5" min="1" step="1">
-
-  <div id="riskInfo" class="result"></div>
+<div class="header">
+  <div>
+    <h1>Risk &amp; Reward Calculator</h1>
+    <div class="sub">Understand your risk tolerance for options trading — personalized to your portfolio size</div>
+  </div>
 </div>
 
-<div class="section">
-  <h3>Step 2: Position sizing calculator</h3>
-  <label for="tradeType">Trade type</label>
-  <select id="tradeType">
-    <option value="">Select a trade type</option>
-    <option value="stock">Stock</option>
-    <option value="longOption">Long call/put</option>
-    <option value="spread">Vertical spread</option>
-    <option value="condor">Iron condor</option>
-  </select>
-
-  <div id="stockParams" class="hidden">
-    <label for="stockEntry">Stock entry price</label>
-    <input type="number" id="stockEntry" step="0.01" min="0">
-    <label for="stockStop">Stop-loss price</label>
-    <input type="number" id="stockStop" step="0.01" min="0">
+<!-- ═══════════════════════════ STEP 1: PORTFOLIO ═══════════════════════════ -->
+<div class="card" id="step1">
+  <h2><span class="step">1</span> Your Portfolio</h2>
+  <div class="form-grid">
+    <div class="form-group">
+      <label>Portfolio Size ($)</label>
+      <input type="number" id="portfolio" placeholder="e.g. 100000" min="0" step="100">
+      <div class="presets">
+        <button onclick="setPortfolio(10000)">$10K</button>
+        <button onclick="setPortfolio(30000)">$30K</button>
+        <button onclick="setPortfolio(50000)">$50K</button>
+        <button onclick="setPortfolio(100000)" class="active">$100K</button>
+        <button onclick="setPortfolio(250000)">$250K</button>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Risk per Trade (%)</label>
+      <input type="number" id="riskPct" value="2" min="0.1" max="25" step="0.1">
+    </div>
+    <div class="form-group">
+      <label>Max Concurrent Trades</label>
+      <input type="number" id="maxTrades" value="5" min="1" max="50" step="1">
+    </div>
+    <div class="form-group">
+      <label>Commission per Contract ($)</label>
+      <input type="number" id="commission" value="1.30" min="0" step="0.01">
+    </div>
   </div>
 
-  <div id="longOptionParams" class="hidden">
-    <label for="optionPremium">Option premium per contract</label>
-    <input type="number" id="optionPremium" step="0.01" min="0">
+  <!-- Risk Profile -->
+  <div class="kpi-row" id="riskKpis"></div>
+  <div class="meter-wrap" id="meterWrap">
+    <div style="font-size:12px;color:var(--muted);margin-bottom:6px;font-weight:600">RISK PROFILE</div>
+    <div class="meter-bar">
+      <div class="meter-fill" id="meterFill"></div>
+      <div class="meter-pointer" id="meterPointer"></div>
+    </div>
+    <div class="meter-labels">
+      <span>Very Conservative</span><span>Conservative</span><span>Moderate</span><span>Active</span><span>Aggressive</span>
+    </div>
   </div>
 
-  <div id="spreadParams" class="hidden">
-    <label for="spreadMaxLoss">Max loss per spread</label>
-    <input type="number" id="spreadMaxLoss" step="0.01" min="0">
+  <!-- Scenario table -->
+  <div style="margin-top:16px">
+    <div style="font-size:12px;color:var(--muted);margin-bottom:8px;font-weight:600">WORST-CASE SCENARIOS — What happens if trades go against you?</div>
+    <div style="overflow-x:auto">
+      <table class="scenario-table" id="scenarioTable">
+        <thead><tr>
+          <th>Scenario</th><th>Losing Trades</th><th>$ Lost</th><th>% of Portfolio</th><th>Remaining</th><th>Assessment</th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
   </div>
+</div>
 
-  <div id="condorParams" class="hidden">
-    <label for="condorMaxLoss">Max loss per iron condor</label>
-    <input type="number" id="condorMaxLoss" step="0.01" min="0">
+<!-- ═══════════════════════════ STEP 2: STRATEGY ═══════════════════════════ -->
+<div class="card" id="step2">
+  <h2><span class="step">2</span> Choose a Strategy</h2>
+  <div style="font-size:12px;color:var(--muted);margin-bottom:8px">Select a strategy to calculate position sizing, risk/reward, and see the payoff diagram.</div>
+  <div class="strat-grid" id="stratGrid"></div>
+</div>
+
+<!-- ═══════════════════════════ STEP 3: PARAMETERS ═══════════════════════════ -->
+<div class="card hidden" id="step3">
+  <h2><span class="step">3</span> Trade Parameters</h2>
+  <div id="paramInputs"></div>
+</div>
+
+<!-- ═══════════════════════════ STEP 4: RESULTS ═══════════════════════════ -->
+<div class="card hidden" id="step4">
+  <h2><span class="step">4</span> Position Sizing &amp; Risk/Reward</h2>
+  <div class="pos-detail" id="posDetail"></div>
+  <div class="payoff-wrap">
+    <div style="font-size:12px;color:var(--muted);margin-bottom:8px;font-weight:600">PAYOFF DIAGRAM AT EXPIRY</div>
+    <canvas id="payoffCanvas" class="payoff"></canvas>
   </div>
-
-  <div id="positionResult" class="result"></div>
 </div>
 
 <div class="disclaimer">
-  Disclaimer: This calculator is for educational purposes only by ~ Strategic Options Trader.
+  This calculator is for educational purposes only by Strategic Options Trader. All calculations assume
+  holding to expiry with no early assignment or adjustment. Real-world results may differ due to slippage,
+  assignment risk, margin requirements, and changing volatility. Always conduct your own research and/or
+  consult with a financial advisor before placing trades.
 </div>
 
+</div><!-- .wrap -->
+
 <script>
-  // Grab elements
-  const riskUnitEl = document.getElementById('riskUnit');
-  const portfolioSizeEl = document.getElementById('portfolioSize');
-  const numTradesEl = document.getElementById('numTrades');
-  const riskInfoEl = document.getElementById('riskInfo');
+// ════════════════════════════════════════════════════════════════════
+// DATA: Strategy definitions
+// ════════════════════════════════════════════════════════════════════
+const STRATEGIES = [
+  {
+    id:'bull_call', name:'Bull Call Spread', color:'#60a5fa',
+    desc:'Buy a lower-strike call, sell a higher-strike call. Defined risk, limited reward. Bullish outlook.',
+    risk:'Defined',sentiment:'Bullish',legs:2,
+    params:[
+      {id:'underlying',label:'Underlying Price',placeholder:'e.g. 450',step:0.01},
+      {id:'longStrike',label:'Long Call Strike',placeholder:'e.g. 440',step:0.5},
+      {id:'shortStrike',label:'Short Call Strike',placeholder:'e.g. 460',step:0.5},
+      {id:'longPrem',label:'Long Call Premium',placeholder:'e.g. 18.50',step:0.01},
+      {id:'shortPrem',label:'Short Call Premium',placeholder:'e.g. 8.20',step:0.01},
+    ],
+    calc(p,qty){
+      const width=p.shortStrike-p.longStrike;
+      const netDebit=p.longPrem-p.shortPrem;
+      const maxLoss=netDebit*100*qty;
+      const maxProfit=(width-netDebit)*100*qty;
+      const be=p.longStrike+netDebit;
+      return{maxLoss,maxProfit,be:[be],netDebit,perContract:netDebit*100,
+        payoff(s){const v=Math.max(0,s-p.longStrike)-Math.max(0,s-p.shortStrike)-netDebit;return v*100*qty}}
+    }
+  },
+  {
+    id:'bear_put', name:'Bear Put Spread', color:'#a78bfa',
+    desc:'Buy a higher-strike put, sell a lower-strike put. Defined risk, limited reward. Bearish outlook.',
+    risk:'Defined',sentiment:'Bearish',legs:2,
+    params:[
+      {id:'underlying',label:'Underlying Price',placeholder:'e.g. 450',step:0.01},
+      {id:'longStrike',label:'Long Put Strike',placeholder:'e.g. 460',step:0.5},
+      {id:'shortStrike',label:'Short Put Strike',placeholder:'e.g. 440',step:0.5},
+      {id:'longPrem',label:'Long Put Premium',placeholder:'e.g. 16.00',step:0.01},
+      {id:'shortPrem',label:'Short Put Premium',placeholder:'e.g. 7.50',step:0.01},
+    ],
+    calc(p,qty){
+      const width=p.longStrike-p.shortStrike;
+      const netDebit=p.longPrem-p.shortPrem;
+      const maxLoss=netDebit*100*qty;
+      const maxProfit=(width-netDebit)*100*qty;
+      const be=p.longStrike-netDebit;
+      return{maxLoss,maxProfit,be:[be],netDebit,perContract:netDebit*100,
+        payoff(s){const v=Math.max(0,p.longStrike-s)-Math.max(0,p.shortStrike-s)-netDebit;return v*100*qty}}
+    }
+  },
+  {
+    id:'credit_spread', name:'Credit Spread (Bull Put)', color:'#22c55e',
+    desc:'Sell a higher-strike put, buy a lower-strike put for credit. Profit if stock stays above short strike.',
+    risk:'Defined',sentiment:'Neutral-Bullish',legs:2,
+    params:[
+      {id:'underlying',label:'Underlying Price',placeholder:'e.g. 450',step:0.01},
+      {id:'shortStrike',label:'Short Put Strike',placeholder:'e.g. 430',step:0.5},
+      {id:'longStrike',label:'Long Put Strike',placeholder:'e.g. 420',step:0.5},
+      {id:'shortPrem',label:'Short Put Premium',placeholder:'e.g. 5.50',step:0.01},
+      {id:'longPrem',label:'Long Put Premium',placeholder:'e.g. 3.00',step:0.01},
+    ],
+    calc(p,qty){
+      const width=p.shortStrike-p.longStrike;
+      const netCredit=p.shortPrem-p.longPrem;
+      const maxLoss=(width-netCredit)*100*qty;
+      const maxProfit=netCredit*100*qty;
+      const be=p.shortStrike-netCredit;
+      return{maxLoss,maxProfit,be:[be],netCredit,perContract:(width-netCredit)*100,
+        payoff(s){const v=netCredit-Math.max(0,p.shortStrike-s)+Math.max(0,p.longStrike-s);return v*100*qty}}
+    }
+  },
+  {
+    id:'bear_call_credit', name:'Credit Spread (Bear Call)', color:'#06b6d4',
+    desc:'Sell a lower-strike call, buy a higher-strike call for credit. Profit if stock stays below short strike.',
+    risk:'Defined',sentiment:'Neutral-Bearish',legs:2,
+    params:[
+      {id:'underlying',label:'Underlying Price',placeholder:'e.g. 450',step:0.01},
+      {id:'shortStrike',label:'Short Call Strike',placeholder:'e.g. 470',step:0.5},
+      {id:'longStrike',label:'Long Call Strike',placeholder:'e.g. 480',step:0.5},
+      {id:'shortPrem',label:'Short Call Premium',placeholder:'e.g. 4.00',step:0.01},
+      {id:'longPrem',label:'Long Call Premium',placeholder:'e.g. 1.80',step:0.01},
+    ],
+    calc(p,qty){
+      const width=p.longStrike-p.shortStrike;
+      const netCredit=p.shortPrem-p.longPrem;
+      const maxLoss=(width-netCredit)*100*qty;
+      const maxProfit=netCredit*100*qty;
+      const be=p.shortStrike+netCredit;
+      return{maxLoss,maxProfit,be:[be],netCredit,perContract:(width-netCredit)*100,
+        payoff(s){const v=netCredit-Math.max(0,s-p.shortStrike)+Math.max(0,s-p.longStrike);return v*100*qty}}
+    }
+  },
+  {
+    id:'iron_condor', name:'Iron Condor', color:'#a78bfa',
+    desc:'Sell a put spread + call spread simultaneously. Profit from low volatility / range-bound stock.',
+    risk:'Defined',sentiment:'Neutral',legs:4,
+    params:[
+      {id:'underlying',label:'Underlying Price',placeholder:'e.g. 450',step:0.01},
+      {id:'longPutStrike',label:'Long Put Strike (lowest)',placeholder:'e.g. 410',step:0.5},
+      {id:'shortPutStrike',label:'Short Put Strike',placeholder:'e.g. 420',step:0.5},
+      {id:'shortCallStrike',label:'Short Call Strike',placeholder:'e.g. 480',step:0.5},
+      {id:'longCallStrike',label:'Long Call Strike (highest)',placeholder:'e.g. 490',step:0.5},
+      {id:'netCredit',label:'Net Credit Received',placeholder:'e.g. 3.20',step:0.01},
+    ],
+    calc(p,qty){
+      const putWidth=p.shortPutStrike-p.longPutStrike;
+      const callWidth=p.longCallStrike-p.shortCallStrike;
+      const widthMax=Math.max(putWidth,callWidth);
+      const maxLoss=(widthMax-p.netCredit)*100*qty;
+      const maxProfit=p.netCredit*100*qty;
+      const beLow=p.shortPutStrike-p.netCredit;
+      const beHigh=p.shortCallStrike+p.netCredit;
+      return{maxLoss,maxProfit,be:[beLow,beHigh],netCredit:p.netCredit,perContract:(widthMax-p.netCredit)*100,
+        payoff(s){
+          const putLeg=-Math.max(0,p.shortPutStrike-s)+Math.max(0,p.longPutStrike-s);
+          const callLeg=-Math.max(0,s-p.shortCallStrike)+Math.max(0,s-p.longCallStrike);
+          return(p.netCredit+putLeg+callLeg)*100*qty;
+        }}
+    }
+  },
+  {
+    id:'iron_butterfly', name:'Iron Butterfly', color:'#f59e0b',
+    desc:'Sell ATM call + put, buy OTM wings. Higher premium than condor but narrower profit zone.',
+    risk:'Defined',sentiment:'Neutral',legs:4,
+    params:[
+      {id:'underlying',label:'Underlying Price',placeholder:'e.g. 450',step:0.01},
+      {id:'longPutStrike',label:'Long Put Strike',placeholder:'e.g. 430',step:0.5},
+      {id:'centerStrike',label:'Center (ATM) Strike',placeholder:'e.g. 450',step:0.5},
+      {id:'longCallStrike',label:'Long Call Strike',placeholder:'e.g. 470',step:0.5},
+      {id:'netCredit',label:'Net Credit Received',placeholder:'e.g. 12.00',step:0.01},
+    ],
+    calc(p,qty){
+      const width=p.centerStrike-p.longPutStrike;
+      const maxLoss=(width-p.netCredit)*100*qty;
+      const maxProfit=p.netCredit*100*qty;
+      const beLow=p.centerStrike-p.netCredit;
+      const beHigh=p.centerStrike+p.netCredit;
+      return{maxLoss,maxProfit,be:[beLow,beHigh],netCredit:p.netCredit,perContract:(width-p.netCredit)*100,
+        payoff(s){
+          const putLeg=-Math.max(0,p.centerStrike-s)+Math.max(0,p.longPutStrike-s);
+          const callLeg=-Math.max(0,s-p.centerStrike)+Math.max(0,s-p.longCallStrike);
+          return(p.netCredit+putLeg+callLeg)*100*qty;
+        }}
+    }
+  },
+  {
+    id:'straddle', name:'Long Straddle', color:'#f97316',
+    desc:'Buy ATM call + ATM put. Profit from large moves in either direction. High cost, needs big move.',
+    risk:'Defined',sentiment:'Volatile',legs:2,
+    params:[
+      {id:'underlying',label:'Underlying Price',placeholder:'e.g. 450',step:0.01},
+      {id:'strike',label:'ATM Strike',placeholder:'e.g. 450',step:0.5},
+      {id:'callPrem',label:'Call Premium',placeholder:'e.g. 12.00',step:0.01},
+      {id:'putPrem',label:'Put Premium',placeholder:'e.g. 11.50',step:0.01},
+    ],
+    calc(p,qty){
+      const totalPrem=p.callPrem+p.putPrem;
+      const maxLoss=totalPrem*100*qty;
+      const beLow=p.strike-totalPrem;
+      const beHigh=p.strike+totalPrem;
+      return{maxLoss,maxProfit:Infinity,be:[beLow,beHigh],netDebit:totalPrem,perContract:totalPrem*100,
+        payoff(s){return(Math.max(0,s-p.strike)+Math.max(0,p.strike-s)-totalPrem)*100*qty}}
+    }
+  },
+  {
+    id:'strangle', name:'Long Strangle', color:'#ec4899',
+    desc:'Buy OTM call + OTM put. Cheaper than straddle but needs an even larger move to profit.',
+    risk:'Defined',sentiment:'Volatile',legs:2,
+    params:[
+      {id:'underlying',label:'Underlying Price',placeholder:'e.g. 450',step:0.01},
+      {id:'putStrike',label:'OTM Put Strike',placeholder:'e.g. 430',step:0.5},
+      {id:'callStrike',label:'OTM Call Strike',placeholder:'e.g. 470',step:0.5},
+      {id:'callPrem',label:'Call Premium',placeholder:'e.g. 5.00',step:0.01},
+      {id:'putPrem',label:'Put Premium',placeholder:'e.g. 4.50',step:0.01},
+    ],
+    calc(p,qty){
+      const totalPrem=p.callPrem+p.putPrem;
+      const maxLoss=totalPrem*100*qty;
+      const beLow=p.putStrike-totalPrem;
+      const beHigh=p.callStrike+totalPrem;
+      return{maxLoss,maxProfit:Infinity,be:[beLow,beHigh],netDebit:totalPrem,perContract:totalPrem*100,
+        payoff(s){return(Math.max(0,s-p.callStrike)+Math.max(0,p.putStrike-s)-totalPrem)*100*qty}}
+    }
+  },
+  {
+    id:'naked_put', name:'Naked Put (Cash-Secured)', color:'#facc15',
+    desc:'Sell a put collecting premium. Obligated to buy stock if assigned. Requires capital to cover.',
+    risk:'Substantial',sentiment:'Bullish',legs:1,
+    params:[
+      {id:'underlying',label:'Underlying Price',placeholder:'e.g. 450',step:0.01},
+      {id:'strike',label:'Put Strike',placeholder:'e.g. 430',step:0.5},
+      {id:'premium',label:'Premium Received',placeholder:'e.g. 6.50',step:0.01},
+    ],
+    calc(p,qty){
+      const maxLoss=(p.strike-p.premium)*100*qty;
+      const maxProfit=p.premium*100*qty;
+      const be=p.strike-p.premium;
+      return{maxLoss,maxProfit,be:[be],netCredit:p.premium,perContract:p.strike*100,
+        payoff(s){return(p.premium-Math.max(0,p.strike-s))*100*qty}}
+    }
+  },
+  {
+    id:'naked_call', name:'Naked Call (Covered)', color:'#ef4444',
+    desc:'Sell a call against stock you own. Limited upside, premium income. Must own 100 shares per contract.',
+    risk:'Capped upside',sentiment:'Neutral-Bullish',legs:1,
+    params:[
+      {id:'underlying',label:'Underlying Price / Cost Basis',placeholder:'e.g. 450',step:0.01},
+      {id:'strike',label:'Call Strike',placeholder:'e.g. 470',step:0.5},
+      {id:'premium',label:'Premium Received',placeholder:'e.g. 5.00',step:0.01},
+    ],
+    calc(p,qty){
+      const maxProfit=(p.strike-p.underlying+p.premium)*100*qty;
+      const maxLoss=(p.underlying-p.premium)*100*qty; // stock goes to zero
+      const be=p.underlying-p.premium;
+      return{maxLoss,maxProfit,be:[be],netCredit:p.premium,perContract:p.underlying*100,
+        payoff(s){
+          const stockPnl=s-p.underlying;
+          const callPnl=p.premium-Math.max(0,s-p.strike);
+          return(stockPnl+callPnl)*100*qty;
+        }}
+    }
+  },
+  {
+    id:'calendar', name:'Calendar Spread', color:'#06b6d4',
+    desc:'Sell near-term option, buy same-strike longer-term option. Profits from time decay differential.',
+    risk:'Defined',sentiment:'Neutral',legs:2,
+    params:[
+      {id:'underlying',label:'Underlying Price',placeholder:'e.g. 450',step:0.01},
+      {id:'strike',label:'Strike Price',placeholder:'e.g. 450',step:0.5},
+      {id:'nearPrem',label:'Near-term Premium (sold)',placeholder:'e.g. 5.00',step:0.01},
+      {id:'farPrem',label:'Far-term Premium (bought)',placeholder:'e.g. 9.00',step:0.01},
+    ],
+    calc(p,qty){
+      const netDebit=p.farPrem-p.nearPrem;
+      const maxLoss=netDebit*100*qty;
+      return{maxLoss,maxProfit:null,be:[],netDebit,perContract:netDebit*100,
+        payoff(s){
+          // Simplified: at near-term expiry, far option retains some value
+          const nearLoss=Math.max(0,s-p.strike);
+          const farEstimate=Math.max(netDebit*0.3,p.farPrem-nearLoss*0.7);
+          return(farEstimate-nearLoss-netDebit+p.nearPrem)*100*qty;
+        }}
+    }
+  },
+  {
+    id:'stock', name:'Stock Position', color:'#9ca3af',
+    desc:'Direct stock purchase with a stop-loss. Simplest form of defined risk when stop is honored.',
+    risk:'Stop-defined',sentiment:'Bullish',legs:0,
+    params:[
+      {id:'entry',label:'Entry Price',placeholder:'e.g. 450.00',step:0.01},
+      {id:'stop',label:'Stop-Loss Price',placeholder:'e.g. 430.00',step:0.01},
+      {id:'target',label:'Target Price',placeholder:'e.g. 500.00',step:0.01},
+    ],
+    calc(p,qty){
+      // qty here = number of shares
+      const riskPerShare=p.entry-p.stop;
+      const maxLoss=riskPerShare*qty;
+      const maxProfit=(p.target-p.entry)*qty;
+      return{maxLoss,maxProfit,be:[p.entry],riskPerShare,perUnit:p.entry,isStock:true,
+        payoff(s){return(s-p.entry)*qty}}
+    }
+  }
+];
 
-  const tradeTypeEl = document.getElementById('tradeType');
-  const stockParams = document.getElementById('stockParams');
-  const longOptionParams = document.getElementById('longOptionParams');
-  const spreadParams = document.getElementById('spreadParams');
-  const condorParams = document.getElementById('condorParams');
-  const positionResultEl = document.getElementById('positionResult');
+// ════════════════════════════════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════════════════════════════════
+let state={
+  portfolio:100000, riskPct:2, maxTrades:5, commission:1.30,
+  selectedStrategy:null, params:{}, qty:0
+};
 
-  // Update risk info when inputs change
-  [riskUnitEl, portfolioSizeEl, numTradesEl].forEach(el =>
-    el.addEventListener('input', updateRiskInfo)
-  );
+// ════════════════════════════════════════════════════════════════════
+// FORMATTING
+// ════════════════════════════════════════════════════════════════════
+const NF=new Intl.NumberFormat('en-US',{minimumFractionDigits:0,maximumFractionDigits:0});
+function $(v){return NF.format(v)}
+function $d(v,d=2){return new Intl.NumberFormat('en-US',{minimumFractionDigits:d,maximumFractionDigits:d}).format(v)}
 
-  tradeTypeEl.addEventListener('change', handleTradeTypeChange);
-  document.getElementById('stockEntry').addEventListener('input', updatePositionSize);
-  document.getElementById('stockStop').addEventListener('input', updatePositionSize);
-  document.getElementById('optionPremium').addEventListener('input', updatePositionSize);
-  document.getElementById('spreadMaxLoss').addEventListener('input', updatePositionSize);
-  document.getElementById('condorMaxLoss').addEventListener('input', updatePositionSize);
+// ════════════════════════════════════════════════════════════════════
+// STEP 1: Portfolio & Risk
+// ════════════════════════════════════════════════════════════════════
+function setPortfolio(v){
+  document.getElementById('portfolio').value=v;
+  document.querySelectorAll('.presets button').forEach(b=>{
+    b.classList.toggle('active',parseInt(b.textContent.replace(/[$K,]/g,''))*1000===v||
+      (b.textContent==='$250K'&&v===250000)||(b.textContent==='$10K'&&v===10000));
+  });
+  readStep1();
+}
 
-  function updateRiskInfo() {
-    const RU = parseFloat(riskUnitEl.value);
-    const portfolio = parseFloat(portfolioSizeEl.value);
-    const trades = parseInt(numTradesEl.value, 10);
+function readStep1(){
+  state.portfolio=parseFloat(document.getElementById('portfolio').value)||0;
+  state.riskPct=parseFloat(document.getElementById('riskPct').value)||2;
+  state.maxTrades=parseInt(document.getElementById('maxTrades').value)||5;
+  state.commission=parseFloat(document.getElementById('commission').value)||1.30;
+  renderStep1();
+  if(state.selectedStrategy) renderStep4();
+}
 
-    if (RU > 0 && portfolio > 0 && trades > 0) {
-      const riskPct = (RU / portfolio) * 100;
-      const drawdownPct = ((RU * trades) / portfolio) * 100;
-      let category = '';
-      if (riskPct < 0.5) category = 'Very conservative';
-      else if (riskPct < 1) category = 'Conservative';
-      else if (riskPct < 2) category = 'Moderate';
-      else if (riskPct < 3) category = 'Active retail';
-      else category = 'Aggressive';
+function renderStep1(){
+  const p=state.portfolio, rp=state.riskPct, mt=state.maxTrades;
+  if(!p) return;
+  const riskDollar=p*rp/100;
+  const maxExposure=riskDollar*mt;
+  const maxDrawdownPct=rp*mt;
+  const remaining=p-maxExposure;
 
-      riskInfoEl.innerHTML =
-        `<strong>Risk per trade:</strong> ${riskPct.toFixed(2)}%<br>` +
-        `<strong>Max theoretical drawdown:</strong> ${drawdownPct.toFixed(2)}%<br>` +
-        `<strong>Profile:</strong> ${category}`;
+  // Risk profile label
+  let profile,profileColor;
+  if(rp<0.5){profile='Very Conservative';profileColor='var(--cyan)'}
+  else if(rp<1){profile='Conservative';profileColor='var(--green)'}
+  else if(rp<2){profile='Moderate';profileColor='var(--accent)'}
+  else if(rp<3){profile='Active';profileColor='var(--amber)'}
+  else{profile='Aggressive';profileColor='var(--red)'}
+
+  // KPIs
+  document.getElementById('riskKpis').innerHTML=`
+    <div class="kpi"><div class="label">Risk per Trade</div>
+      <div class="value neutral">$${$(riskDollar)}</div>
+      <div class="detail">${$d(rp,1)}% of portfolio</div></div>
+    <div class="kpi"><div class="label">Max Exposure</div>
+      <div class="value warn">$${$(maxExposure)}</div>
+      <div class="detail">${mt} trades × $${$(riskDollar)}</div></div>
+    <div class="kpi"><div class="label">Max Drawdown</div>
+      <div class="value" style="color:${maxDrawdownPct>15?'var(--red)':maxDrawdownPct>8?'var(--amber)':'var(--green)'}">${$d(maxDrawdownPct,1)}%</div>
+      <div class="detail">If all ${mt} trades hit max loss</div></div>
+    <div class="kpi"><div class="label">Risk Profile</div>
+      <div class="value" style="color:${profileColor}">${profile}</div>
+      <div class="detail">${rp<1?'Low risk tolerance':''}${rp>=1&&rp<2?'Balanced approach':''}${rp>=2&&rp<3?'Standard for active traders':''}${rp>=3?'High risk — ensure you can tolerate losses':''}</div></div>
+  `;
+
+  // Meter
+  const pct=Math.min(rp/5*100,100);
+  const grad=`linear-gradient(90deg,var(--cyan) 0%,var(--green) 20%,var(--accent) 40%,var(--amber) 60%,var(--red) 100%)`;
+  document.getElementById('meterFill').style.cssText=`width:100%;background:${grad}`;
+  document.getElementById('meterPointer').style.left=`${pct}%`;
+
+  // Scenario table
+  const scenarios=[
+    {name:'1 max loss',loses:1},
+    {name:'2 consecutive losses',loses:2},
+    {name:'3 consecutive losses',loses:3},
+    {name:'All trades lose (worst case)',loses:mt},
+    {name:'50% of trades lose',loses:Math.ceil(mt/2)},
+  ];
+  const tbody=document.querySelector('#scenarioTable tbody');
+  tbody.innerHTML=scenarios.map(sc=>{
+    const lost=riskDollar*sc.loses;
+    const lostPct=lost/p*100;
+    const rem=p-lost;
+    let assess,cls;
+    if(lostPct<5){assess='Manageable';cls='pos'}
+    else if(lostPct<10){assess='Moderate hit';cls='neutral'}
+    else if(lostPct<20){assess='Significant';cls='warn'}
+    else{assess='Severe — reassess';cls='neg'}
+    return`<tr>
+      <td>${sc.name}</td><td>${sc.loses}</td>
+      <td class="neg">-$${$(lost)}</td><td class="${cls}">${$d(lostPct,1)}%</td>
+      <td>$${$(rem)}</td><td class="${cls}">${assess}</td></tr>`;
+  }).join('');
+}
+
+// ════════════════════════════════════════════════════════════════════
+// STEP 2: Strategy selection
+// ════════════════════════════════════════════════════════════════════
+function renderStrategyCards(){
+  const grid=document.getElementById('stratGrid');
+  grid.innerHTML=STRATEGIES.map(s=>`
+    <div class="strat-card" data-id="${s.id}" onclick="selectStrategy('${s.id}')">
+      <h3><span class="dot" style="background:${s.color}"></span>${s.name}</h3>
+      <div class="desc">${s.desc}</div>
+      <div class="meta">
+        <span>Risk: ${s.risk}</span>
+        <span>Outlook: ${s.sentiment}</span>
+        <span>Legs: ${s.legs||'—'}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+function selectStrategy(id){
+  state.selectedStrategy=STRATEGIES.find(s=>s.id===id);
+  state.params={};
+  document.querySelectorAll('.strat-card').forEach(c=>{
+    c.classList.toggle('selected',c.dataset.id===id);
+  });
+  renderStep3();
+}
+
+// ════════════════════════════════════════════════════════════════════
+// STEP 3: Parameters
+// ════════════════════════════════════════════════════════════════════
+function renderStep3(){
+  const s=state.selectedStrategy;
+  if(!s) return;
+  const step3=document.getElementById('step3');
+  step3.classList.remove('hidden');
+  const div=document.getElementById('paramInputs');
+  div.innerHTML=`
+    <div class="inline-inputs">
+      ${s.params.map(p=>`
+        <div class="form-group">
+          <label>${p.label}</label>
+          <input type="number" id="param_${p.id}" placeholder="${p.placeholder}" step="${p.step}" min="0" oninput="readParams()">
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+function readParams(){
+  const s=state.selectedStrategy;
+  if(!s) return;
+  const p={};
+  let allFilled=true;
+  s.params.forEach(param=>{
+    const v=parseFloat(document.getElementById('param_'+param.id).value);
+    if(isNaN(v)||v<=0) allFilled=false;
+    p[param.id]=v||0;
+  });
+  state.params=p;
+  if(allFilled) renderStep4();
+  else document.getElementById('step4').classList.add('hidden');
+}
+
+// ════════════════════════════════════════════════════════════════════
+// STEP 4: Results & Payoff
+// ════════════════════════════════════════════════════════════════════
+function renderStep4(){
+  const s=state.selectedStrategy;
+  const p=state.params;
+  if(!s||!p) return;
+
+  const riskDollar=state.portfolio*state.riskPct/100;
+  const step4=document.getElementById('step4');
+  step4.classList.remove('hidden');
+
+  // Calculate for 1 contract/share first to get per-unit risk
+  const single=s.calc(p,1);
+
+  // Position sizing
+  let qty,qtyLabel;
+  if(single.isStock){
+    qty=Math.floor(riskDollar/single.riskPerShare);
+    qtyLabel='shares';
+  } else {
+    const riskPerContract=single.maxLoss+state.commission*s.legs;
+    qty=Math.max(1,Math.floor(riskDollar/riskPerContract));
+    qtyLabel='contract'+(qty!==1?'s':'');
+  }
+  state.qty=qty;
+
+  // Recalculate with actual qty
+  const r=s.calc(p,qty);
+  const commTotal=state.commission*s.legs*qty;
+  const adjMaxLoss=r.maxLoss+commTotal;
+  const adjMaxProfit=r.maxProfit===Infinity?Infinity:r.maxProfit-commTotal;
+  const rr=adjMaxProfit===Infinity?'Unlimited':$d(adjMaxProfit/adjMaxLoss,2);
+  const riskOfPortfolio=adjMaxLoss/state.portfolio*100;
+
+  // Detail cards
+  const detail=document.getElementById('posDetail');
+  detail.innerHTML=`
+    <div class="pos-item"><div class="label">Position Size</div><div class="val neutral">${qty} ${qtyLabel}</div></div>
+    <div class="pos-item"><div class="label">Max Loss</div><div class="val neg">-$${$(adjMaxLoss)}</div></div>
+    <div class="pos-item"><div class="label">Max Profit</div><div class="val pos">${adjMaxProfit===Infinity?'Unlimited':'$'+$(adjMaxProfit)}</div></div>
+    <div class="pos-item"><div class="label">Risk/Reward</div><div class="val" style="color:${parseFloat(rr)>=2?'var(--green)':parseFloat(rr)>=1?'var(--amber)':'var(--red)'}">${rr==='Unlimited'?'Unlimited':'1 : '+rr}</div></div>
+    <div class="pos-item"><div class="label">Breakeven</div><div class="val neutral">${r.be.length?r.be.map(b=>'$'+$d(b,2)).join(' / '):'Varies'}</div></div>
+    <div class="pos-item"><div class="label">% of Portfolio at Risk</div><div class="val" style="color:${riskOfPortfolio>3?'var(--red)':riskOfPortfolio>2?'var(--amber)':'var(--green)'}">${$d(riskOfPortfolio,1)}%</div></div>
+    <div class="pos-item"><div class="label">Commission</div><div class="val" style="color:var(--muted)">$${$d(commTotal,2)}</div></div>
+    <div class="pos-item"><div class="label">Capital Required</div><div class="val neutral">$${$(single.perContract?single.perContract*qty:single.perUnit*qty)}</div></div>
+  `;
+
+  // Draw payoff
+  drawPayoff(s,p,qty,r);
+}
+
+// ════════════════════════════════════════════════════════════════════
+// PAYOFF DIAGRAM
+// ════════════════════════════════════════════════════════════════════
+function drawPayoff(strategy,params,qty,result){
+  const c=document.getElementById('payoffCanvas');
+  const ctx=c.getContext('2d');
+  const w=c.clientWidth,h=c.clientHeight,dpr=window.devicePixelRatio||1;
+  c.width=Math.floor(w*dpr);c.height=Math.floor(h*dpr);
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,w,h);
+
+  // Determine price range
+  const underlying=params.underlying||params.entry||0;
+  const allStrikes=strategy.params.filter(p=>p.id.includes('trike')||p.id==='entry').map(p=>params[p.id]).filter(v=>v>0);
+  const minStrike=Math.min(...allStrikes,underlying);
+  const maxStrike=Math.max(...allStrikes,underlying);
+  const range=maxStrike-minStrike||underlying*0.1;
+  const pad=range*0.6;
+  const lo=Math.max(0,minStrike-pad),hi=maxStrike+pad;
+
+  // Generate payoff points
+  const steps=200;
+  const prices=[],payoffs=[];
+  for(let i=0;i<=steps;i++){
+    const s=lo+(hi-lo)*i/steps;
+    prices.push(s);
+    payoffs.push(result.payoff(s));
+  }
+
+  const maxPay=Math.max(...payoffs,1);
+  const minPay=Math.min(...payoffs,-1);
+  const payRange=maxPay-minPay;
+
+  const padL=70,padR=20,padT=30,padB=50;
+  const pw=w-padL-padR,ph=h-padT-padB;
+  const xS=v=>padL+(v-lo)/(hi-lo)*pw;
+  const yS=v=>padT+(1-(v-minPay)/payRange)*ph;
+  const zeroY=yS(0);
+
+  // Grid
+  ctx.strokeStyle='rgba(255,255,255,0.06)';
+  ctx.lineWidth=1;
+
+  // Y grid
+  const yTicks=6;
+  const yStep=payRange/yTicks;
+  ctx.fillStyle='#9ca3af';
+  ctx.font='11px -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial';
+  for(let i=0;i<=yTicks;i++){
+    const v=minPay+yStep*i;
+    const y=yS(v);
+    ctx.beginPath();ctx.moveTo(padL,y);ctx.lineTo(padL+pw,y);ctx.stroke();
+    ctx.textAlign='right';
+    ctx.fillText('$'+$(v),padL-8,y+4);
+  }
+
+  // X grid
+  const xTicks=6;
+  for(let i=0;i<=xTicks;i++){
+    const v=lo+(hi-lo)*i/xTicks;
+    const x=xS(v);
+    ctx.beginPath();ctx.moveTo(x,padT);ctx.lineTo(x,padT+ph);ctx.stroke();
+    ctx.textAlign='center';
+    ctx.fillText('$'+$(v),x,padT+ph+18);
+  }
+
+  // Axes
+  ctx.strokeStyle='#374151';
+  ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(padL,padT);ctx.lineTo(padL,padT+ph);ctx.lineTo(padL+pw,padT+ph);ctx.stroke();
+
+  // Zero line
+  if(minPay<0&&maxPay>0){
+    ctx.strokeStyle='rgba(255,255,255,0.2)';
+    ctx.setLineDash([4,4]);
+    ctx.beginPath();ctx.moveTo(padL,zeroY);ctx.lineTo(padL+pw,zeroY);ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  // Breakeven lines
+  ctx.setLineDash([6,4]);
+  ctx.strokeStyle='rgba(250,204,21,0.5)';
+  result.be.forEach(be=>{
+    if(be>=lo&&be<=hi){
+      const x=xS(be);
+      ctx.beginPath();ctx.moveTo(x,padT);ctx.lineTo(x,padT+ph);ctx.stroke();
+      ctx.fillStyle='#facc15';ctx.textAlign='center';
+      ctx.fillText('BE $'+$d(be,0),x,padT-6);
+    }
+  });
+  ctx.setLineDash([]);
+
+  // Current price line
+  if(underlying>lo&&underlying<hi){
+    ctx.setLineDash([3,3]);
+    ctx.strokeStyle='rgba(96,165,250,0.4)';
+    const ux=xS(underlying);
+    ctx.beginPath();ctx.moveTo(ux,padT);ctx.lineTo(ux,padT+ph);ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle='#60a5fa';ctx.textAlign='center';
+    ctx.fillText('Current $'+$d(underlying,0),ux,padT+ph+34);
+  }
+
+  // Profit zone fill
+  ctx.beginPath();
+  let firstAbove=null;
+  for(let i=0;i<=steps;i++){
+    const x=xS(prices[i]),y=yS(payoffs[i]);
+    if(i===0) ctx.moveTo(x,Math.min(y,zeroY));
+    if(payoffs[i]>=0){
+      if(firstAbove===null) firstAbove=i;
+      ctx.lineTo(x,y);
     } else {
-      riskInfoEl.innerHTML = '';
-    }
-    updatePositionSize();
-  }
-
-  function handleTradeTypeChange() {
-    stockParams.classList.add('hidden');
-    longOptionParams.classList.add('hidden');
-    spreadParams.classList.add('hidden');
-    condorParams.classList.add('hidden');
-    positionResultEl.textContent = '';
-    const type = tradeTypeEl.value;
-    if (type === 'stock') {
-      stockParams.classList.remove('hidden');
-    } else if (type === 'longOption') {
-      longOptionParams.classList.remove('hidden');
-    } else if (type === 'spread') {
-      spreadParams.classList.remove('hidden');
-    } else if (type === 'condor') {
-      condorParams.classList.remove('hidden');
+      ctx.lineTo(x,zeroY);
     }
   }
+  ctx.lineTo(xS(prices[steps]),zeroY);
+  if(firstAbove!==null) ctx.lineTo(xS(prices[firstAbove]),zeroY);
+  ctx.closePath();
+  ctx.fillStyle='rgba(34,197,94,0.08)';
+  ctx.fill();
 
-  function updatePositionSize() {
-    const RU = parseFloat(riskUnitEl.value);
-    const type = tradeTypeEl.value;
-    if (!RU || !type) {
-      positionResultEl.textContent = '';
-      return;
+  // Loss zone fill
+  ctx.beginPath();
+  let firstBelow=null;
+  for(let i=0;i<=steps;i++){
+    const x=xS(prices[i]),y=yS(payoffs[i]);
+    if(payoffs[i]<0){
+      if(firstBelow===null){ctx.moveTo(x,zeroY);firstBelow=i}
+      ctx.lineTo(x,y);
+    } else if(firstBelow!==null){
+      ctx.lineTo(x,zeroY);
+      firstBelow=null;
     }
-
-    let result = '';
-    if (type === 'stock') {
-      const entry = parseFloat(document.getElementById('stockEntry').value);
-      const stop = parseFloat(document.getElementById('stockStop').value);
-      if (entry > 0 && stop >= 0 && entry > stop) {
-        const riskPerShare = entry - stop;
-        const shares = Math.floor(RU / riskPerShare);
-        result = `You can buy up to ${shares} share(s) (risk per share = ${riskPerShare.toFixed(2)}).`;
-      }
-    } else if (type === 'longOption') {
-      const premium = parseFloat(document.getElementById('optionPremium').value);
-      if (premium > 0) {
-        const contracts = Math.floor(RU / (premium * 100));
-        result = `You can buy up to ${contracts} contract(s) (100 shares per contract).`;
-      }
-    } else if (type === 'spread') {
-      const maxLoss = parseFloat(document.getElementById('spreadMaxLoss').value);
-      if (maxLoss > 0) {
-        const spreads = Math.floor(RU / maxLoss);
-        result = `You can open up to ${spreads} spread contract(s).`;
-      }
-    } else if (type === 'condor') {
-      const maxLoss = parseFloat(document.getElementById('condorMaxLoss').value);
-      if (maxLoss > 0) {
-        const condors = Math.floor(RU / maxLoss);
-        result = `You can open up to ${condors} iron condor position(s).`;
-      }
-    }
-    positionResultEl.textContent = result;
   }
+  if(firstBelow!==null) ctx.lineTo(xS(prices[steps]),zeroY);
+  ctx.closePath();
+  ctx.fillStyle='rgba(239,68,68,0.08)';
+  ctx.fill();
+
+  // Payoff line
+  ctx.beginPath();
+  for(let i=0;i<=steps;i++){
+    const x=xS(prices[i]),y=yS(payoffs[i]);
+    if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+  }
+  ctx.strokeStyle=strategy.color;
+  ctx.lineWidth=2.5;
+  ctx.stroke();
+
+  // Labels
+  ctx.fillStyle='#e5e7eb';ctx.font='12px -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial';
+  ctx.textAlign='left';
+  ctx.fillText('Profit / Loss ($)',padL,padT-10);
+  ctx.textAlign='center';
+  ctx.fillText('Stock Price at Expiry',padL+pw/2,padT+ph+46);
+
+  // Max profit / loss annotations
+  ctx.font='11px -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial';
+  const maxProfitDisplay=result.maxProfit===Infinity?'Unlimited':'$'+$(result.maxProfit);
+  ctx.fillStyle='#22c55e';ctx.textAlign='right';
+  ctx.fillText('Max Profit: '+maxProfitDisplay,padL+pw,padT+14);
+  ctx.fillStyle='#ef4444';
+  ctx.fillText('Max Loss: -$'+$(result.maxLoss),padL+pw,padT+28);
+}
+
+// ════════════════════════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════════════════════════
+document.getElementById('portfolio').value=100000;
+['portfolio','riskPct','maxTrades','commission'].forEach(id=>{
+  document.getElementById(id).addEventListener('input',readStep1);
+});
+renderStrategyCards();
+readStep1();
+
+// Redraw payoff on resize
+window.addEventListener('resize',()=>{
+  if(state.selectedStrategy&&Object.keys(state.params).length) renderStep4();
+});
 </script>
 </body>
 </html>
