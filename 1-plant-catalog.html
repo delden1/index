@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Moraira × Crete Mediterranean Plant Catalog</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#0a0f1a;color:#e0e0e0;overflow-x:hidden}
+.header{background:linear-gradient(135deg,#1a3a2a 0%,#0d2233 50%,#1a2a3a 100%);padding:30px 40px;border-bottom:2px solid #2a5a3a}
+.header h1{font-size:28px;color:#7fdbca;letter-spacing:1px}
+.header p{color:#8ab4a8;margin-top:8px;font-size:14px}
+.nav{display:flex;gap:8px;padding:16px 40px;background:#0d1520;border-bottom:1px solid #1a2a35;flex-wrap:wrap}
+.nav button{padding:10px 20px;border:1px solid #2a3a4a;border-radius:8px;background:#121d2e;color:#8ab4a8;cursor:pointer;font-size:13px;transition:all .3s}
+.nav button:hover,.nav button.active{background:#1a3a2a;border-color:#4a8a6a;color:#7fdbca}
+.search-bar{padding:12px 40px;background:#0d1520}
+.search-bar input{width:100%;max-width:500px;padding:10px 16px;border-radius:8px;border:1px solid #2a3a4a;background:#121d2e;color:#e0e0e0;font-size:14px;outline:none}
+.search-bar input:focus{border-color:#4a8a6a}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;padding:20px 40px}
+.card{background:linear-gradient(145deg,#121d2e,#0d1822);border:1px solid #1a2a3a;border-radius:12px;overflow:hidden;transition:all .3s;cursor:pointer}
+.card:hover{transform:translateY(-4px);border-color:#4a8a6a;box-shadow:0 8px 30px rgba(0,0,0,.4)}
+.card-img{height:160px;display:flex;align-items:center;justify-content:center;font-size:64px;position:relative}
+.card-badge{position:absolute;top:10px;right:10px;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:1px}
+.cat-trees .card-img{background:linear-gradient(135deg,#1a3a1a,#0d2a1a)}
+.cat-trees .card-badge{background:#2a5a2a;color:#7fdb7f}
+.cat-shrubs .card-img{background:linear-gradient(135deg,#3a1a3a,#2a0d2a)}
+.cat-shrubs .card-badge{background:#5a2a5a;color:#db7fdb}
+.cat-plants .card-img{background:linear-gradient(135deg,#1a2a3a,#0d1a2a)}
+.cat-plants .card-badge{background:#2a4a6a;color:#7fbfff}
+.cat-herbs .card-img{background:linear-gradient(135deg,#3a3a1a,#2a2a0d)}
+.cat-herbs .card-badge{background:#5a5a2a;color:#dbdb7f}
+.cat-cacti .card-img{background:linear-gradient(135deg,#3a2a1a,#2a1a0d)}
+.cat-cacti .card-badge{background:#5a3a2a;color:#dbaa7f}
+.card-body{padding:16px}
+.card-body h3{font-size:15px;color:#7fdbca;margin-bottom:4px}
+.card-body .latin{font-style:italic;color:#6a8a7a;font-size:12px;margin-bottom:10px}
+.card-body .tags{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px}
+.card-body .tag{padding:2px 8px;border-radius:4px;font-size:10px;background:#1a2a3a;color:#8ab4a8;border:1px solid #2a3a4a}
+.card-body .desc{font-size:12px;color:#8a9aaa;line-height:1.5}
+.stats{display:flex;gap:16px;padding:16px 40px;background:#0a0f1a;flex-wrap:wrap}
+.stat-box{background:#121d2e;border:1px solid #1a2a3a;border-radius:8px;padding:12px 20px;min-width:120px}
+.stat-box .num{font-size:24px;font-weight:700;color:#7fdbca}
+.stat-box .lbl{font-size:11px;color:#6a8a7a;text-transform:uppercase;letter-spacing:1px}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;align-items:center;justify-content:center}
+.modal-overlay.show{display:flex}
+.modal{background:#121d2e;border:1px solid #2a4a3a;border-radius:16px;max-width:600px;width:90%;max-height:80vh;overflow-y:auto;padding:30px}
+.modal h2{color:#7fdbca;margin-bottom:4px}
+.modal .latin2{color:#6a8a7a;font-style:italic;margin-bottom:16px}
+.modal .detail-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #1a2a3a;font-size:13px}
+.modal .detail-row .label{color:#6a8a7a}
+.modal .detail-row .value{color:#c0d0c0}
+.modal .close-btn{margin-top:20px;padding:8px 24px;background:#1a3a2a;border:1px solid #4a8a6a;color:#7fdbca;border-radius:8px;cursor:pointer}
+.crete-tag{background:#2a3a5a!important;color:#7fa8db!important;border-color:#3a4a6a!important}
+.footer{padding:20px 40px;background:#0d1520;border-top:1px solid #1a2a35;text-align:center;color:#4a5a6a;font-size:12px}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🌿 Moraira × Crete — Mediterranean Plant Catalog</h1>
+  <p>100 plants across 5 categories — species that flourish in both the Costa Blanca and Cretan climates</p>
+</div>
+
+<div class="stats">
+  <div class="stat-box"><div class="num">20</div><div class="lbl">Trees</div></div>
+  <div class="stat-box"><div class="num">20</div><div class="lbl">Shrubs</div></div>
+  <div class="stat-box"><div class="num">20</div><div class="lbl">Perennials</div></div>
+  <div class="stat-box"><div class="num">20</div><div class="lbl">Herbs</div></div>
+  <div class="stat-box"><div class="num">20</div><div class="lbl">Cacti & Succulents</div></div>
+  <div class="stat-box"><div class="num">100</div><div class="lbl">Total Species</div></div>
+</div>
+
+<div class="nav" id="nav">
+  <button class="active" data-cat="all">All Plants (100)</button>
+  <button data-cat="trees">🌳 Trees (20)</button>
+  <button data-cat="shrubs">🌺 Shrubs (20)</button>
+  <button data-cat="plants">🌸 Perennials (20)</button>
+  <button data-cat="herbs">🌿 Herbs (20)</button>
+  <button data-cat="cacti">🌵 Cacti & Succulents (20)</button>
+  <button data-cat="crete">🏛️ Crete Specials</button>
+</div>
+
+<div class="search-bar">
+  <input type="text" id="search" placeholder="Search by name, latin name, or tag...">
+</div>
+
+<div class="grid" id="grid"></div>
+
+<div class="modal-overlay" id="modal">
+  <div class="modal" id="modalContent"></div>
+</div>
+
+<div class="footer">
+  Moraira × Crete Garden Planner — Plants suitable for USDA Zone 10a / Mediterranean Csa climate<br>
+  Sources: Botanical Park & Gardens of Crete, Mediterranean Garden Society, Costa Blanca horticultural data
+</div>
+
+<script>
+const plants = [
+  // === TREES (20) ===
+  {cat:"trees",name:"Olive Tree",latin:"Olea europaea",emoji:"🫒",h:"6-12m",water:"Low",sun:"Full",bloom:"-",tags:["evergreen","fruit","iconic"],crete:true,desc:"Ancient Mediterranean staple. Gnarled trunks, silver-green foliage. Produces olives after 5-7 years. Drought champion."},
+  {cat:"trees",name:"Italian Cypress",latin:"Cupressus sempervirens",emoji:"🌲",h:"12-20m",water:"Low",sun:"Full",bloom:"-",tags:["columnar","evergreen","windbreak"],crete:true,desc:"Iconic pencil-shaped silhouette. Perfect for dramatic vertical accents and windbreaks along boundaries."},
+  {cat:"trees",name:"Carob Tree",latin:"Ceratonia siliqua",emoji:"🌳",h:"8-12m",water:"Low",sun:"Full",bloom:"Autumn",tags:["evergreen","fruit","shade"],crete:true,desc:"Native to eastern Mediterranean. Produces sweet pods. Dense canopy provides excellent shade. Found throughout Crete."},
+  {cat:"trees",name:"Lemon Tree",latin:"Citrus × limon",emoji:"🍋",h:"3-5m",water:"Medium",sun:"Full",bloom:"Spring",tags:["fruit","fragrant","evergreen"],crete:true,desc:"Year-round fruit and fragrant blossoms. Essential in both Cretan and Spanish coastal gardens."},
+  {cat:"trees",name:"Orange Tree",latin:"Citrus × sinensis",emoji:"🍊",h:"4-8m",water:"Medium",sun:"Full",bloom:"Spring",tags:["fruit","fragrant","shade"],crete:true,desc:"Sweet oranges thrive in Moraira's frost-free winters. Glossy foliage and heavenly blossom scent."},
+  {cat:"trees",name:"Pomegranate",latin:"Punica granatum",emoji:"🌳",h:"3-5m",water:"Low",sun:"Full",bloom:"Summer",tags:["fruit","deciduous","ornamental"],crete:true,desc:"Brilliant orange-red flowers followed by jewel-like fruit. Extremely drought tolerant once established."},
+  {cat:"trees",name:"Fig Tree",latin:"Ficus carica",emoji:"🌳",h:"4-8m",water:"Low",sun:"Full",bloom:"Spring",tags:["fruit","deciduous","shade"],crete:true,desc:"Sculptural branching, large lobed leaves. Two crops per year in Moraira's warm climate."},
+  {cat:"trees",name:"Canary Island Date Palm",latin:"Phoenix canariensis",emoji:"🌴",h:"10-20m",water:"Low",sun:"Full",bloom:"-",tags:["palm","tropical","statement"],crete:false,desc:"Majestic crown of arching fronds. The quintessential Ibiza-style villa palm. Salt-tolerant."},
+  {cat:"trees",name:"European Fan Palm",latin:"Chamaerops humilis",emoji:"🌴",h:"2-5m",water:"Low",sun:"Full/Part",bloom:"Spring",tags:["palm","native","compact"],crete:true,desc:"Only palm native to Europe. Multi-stemmed, compact. Perfect for coastal Mediterranean gardens."},
+  {cat:"trees",name:"White Mulberry",latin:"Morus alba",emoji:"🌳",h:"8-12m",water:"Medium",sun:"Full",bloom:"Spring",tags:["fruit","deciduous","fast-growing"],crete:true,desc:"Fast shade provider with sweet berries. Found in Cretan village squares for centuries."},
+  {cat:"trees",name:"Strawberry Tree",latin:"Arbutus unedo",emoji:"🍓",h:"5-8m",water:"Low",sun:"Full/Part",bloom:"Autumn",tags:["evergreen","fruit","ornamental"],crete:true,desc:"Unique autumn blooms alongside red berry-like fruits. Attractive peeling bark. Native Mediterranean."},
+  {cat:"trees",name:"Jacaranda",latin:"Jacaranda mimosifolia",emoji:"💜",h:"8-15m",water:"Medium",sun:"Full",bloom:"May-Jun",tags:["deciduous","spectacular","purple"],crete:false,desc:"Spectacular purple-blue flower canopy in late spring. A showstopper for any Ibiza-style villa entrance."},
+  {cat:"trees",name:"Pepper Tree",latin:"Schinus molle",emoji:"🌳",h:"8-15m",water:"Low",sun:"Full",bloom:"Spring",tags:["evergreen","weeping","drought"],crete:false,desc:"Graceful weeping habit with feathery foliage. Pink peppercorns in autumn. Extremely drought-hardy."},
+  {cat:"trees",name:"Almond Tree",latin:"Prunus dulcis",emoji:"🌸",h:"4-8m",water:"Low",sun:"Full",bloom:"Jan-Feb",tags:["deciduous","blossom","nut"],crete:true,desc:"First tree to bloom in late winter with pink-white blossoms. Iconic in both Crete and Moraira hillsides."},
+  {cat:"trees",name:"Judas Tree",latin:"Cercis siliquastrum",emoji:"💗",h:"6-10m",water:"Low",sun:"Full",bloom:"Apr",tags:["deciduous","pink","spring"],crete:true,desc:"Shocking magenta flowers burst directly from bare branches in spring. Native to the eastern Mediterranean."},
+  {cat:"trees",name:"Tamarisk",latin:"Tamarix gallica",emoji:"🌳",h:"4-8m",water:"Low",sun:"Full",bloom:"Spring",tags:["coastal","salt-tolerant","feathery"],crete:true,desc:"Feathery pink flower plumes. Thrives right on the coastline. Salt and wind resistant champion."},
+  {cat:"trees",name:"Aleppo Pine",latin:"Pinus halepensis",emoji:"🌲",h:"15-25m",water:"Low",sun:"Full",bloom:"-",tags:["evergreen","native","coastal"],crete:true,desc:"Dominant coastal pine of the Mediterranean. Provides filtered shade and pine scent. Fire-adapted."},
+  {cat:"trees",name:"Loquat",latin:"Eriobotrya japonica",emoji:"🌳",h:"4-8m",water:"Medium",sun:"Full/Part",bloom:"Autumn",tags:["evergreen","fruit","ornamental"],crete:true,desc:"Large textured leaves, fragrant autumn flowers, sweet spring fruit. Dual-purpose ornamental and fruiting tree."},
+  {cat:"trees",name:"Mexican Fan Palm",latin:"Washingtonia robusta",emoji:"🌴",h:"15-25m",water:"Low",sun:"Full",bloom:"-",tags:["palm","tall","statement"],crete:false,desc:"Tall, slender trunk topped with fan-shaped fronds. Creates that classic Ibiza skyline silhouette."},
+  {cat:"trees",name:"Dragon Tree",latin:"Dracaena draco",emoji:"🐉",h:"5-10m",water:"Low",sun:"Full/Part",bloom:"-",tags:["succulent","sculptural","ancient"],crete:false,desc:"Prehistoric-looking umbrella canopy. Incredibly slow-growing but spectacular focal point. Canary Island native."},
+
+  // === SHRUBS (20) ===
+  {cat:"shrubs",name:"Oleander",latin:"Nerium oleander",emoji:"🌺",h:"2-5m",water:"Low",sun:"Full",bloom:"May-Oct",tags:["evergreen","flowering","hedge"],crete:true,desc:"Mediterranean workhorse. Continuous pink/white/red blooms all summer. Perfect for hedging. Salt-tolerant."},
+  {cat:"shrubs",name:"Bougainvillea",latin:"Bougainvillea glabra",emoji:"🌺",h:"3-8m",water:"Low",sun:"Full",bloom:"Mar-Nov",tags:["climbing","vibrant","tropical"],crete:true,desc:"Explosive magenta, purple, orange or white bracts. The defining plant of Ibiza-style architecture."},
+  {cat:"shrubs",name:"Lantana",latin:"Lantana camara",emoji:"🌼",h:"1-2m",water:"Low",sun:"Full",bloom:"Year-round",tags:["butterfly","colorful","groundcover"],crete:false,desc:"Multi-colored flower clusters attract butterflies non-stop. Virtually indestructible in coastal heat."},
+  {cat:"shrubs",name:"Hibiscus",latin:"Hibiscus rosa-sinensis",emoji:"🌺",h:"1-3m",water:"Medium",sun:"Full",bloom:"May-Oct",tags:["tropical","large-flower","pool-side"],crete:false,desc:"Large trumpet flowers in red, pink, yellow. Perfect poolside tropical accent for the Ibiza villa aesthetic."},
+  {cat:"shrubs",name:"Mastic",latin:"Pistacia lentiscus",emoji:"🌿",h:"2-4m",water:"Low",sun:"Full",bloom:"Spring",tags:["native","aromatic","evergreen"],crete:true,desc:"Ancient aromatic shrub producing mastic resin. Dense evergreen foliage. Staple of Cretan maquis landscape."},
+  {cat:"shrubs",name:"Common Myrtle",latin:"Myrtus communis",emoji:"🌿",h:"2-4m",water:"Low",sun:"Full/Part",bloom:"Summer",tags:["aromatic","native","berries"],crete:true,desc:"Fragrant white flowers, dark berries. Sacred in Greek mythology. Aromatic evergreen foliage year-round."},
+  {cat:"shrubs",name:"Cretan Rock Rose",latin:"Cistus creticus",emoji:"🌸",h:"0.5-1m",water:"Low",sun:"Full",bloom:"Apr-Jun",tags:["native","medicinal","cretan"],crete:true,desc:"Papery pink flowers, sticky aromatic leaves producing labdanum resin. Endemic to Crete, thrives in Moraira."},
+  {cat:"shrubs",name:"Chaste Tree",latin:"Vitex agnus-castus",emoji:"💜",h:"3-5m",water:"Low",sun:"Full",bloom:"Jul-Sep",tags:["deciduous","purple","medicinal"],crete:true,desc:"Spikes of purple-blue flowers in late summer. Aromatic palmate leaves. Common along Cretan streams."},
+  {cat:"shrubs",name:"Tree Germander",latin:"Teucrium fruticans",emoji:"💙",h:"1-2m",water:"Low",sun:"Full",bloom:"Spring",tags:["silver","blue-flower","hedge"],crete:false,desc:"Silver-leaved with pale blue flowers. Excellent low hedge alternative to lavender. Very salt-tolerant."},
+  {cat:"shrubs",name:"Cape Leadwort",latin:"Plumbago auriculata",emoji:"💙",h:"1-3m",water:"Low",sun:"Full",bloom:"Apr-Nov",tags:["blue","cascading","wall-cover"],crete:false,desc:"Cascading powder-blue flowers for 8 months. Stunning over white walls — pure Ibiza aesthetic."},
+  {cat:"shrubs",name:"Sweet Pea Shrub",latin:"Polygala myrtifolia",emoji:"💜",h:"1-2m",water:"Low",sun:"Full",bloom:"Year-round",tags:["compact","purple","continuous"],crete:false,desc:"Non-stop purple pea-like flowers. Compact, neat habit. Ideal for borders and containers."},
+  {cat:"shrubs",name:"Bottlebrush",latin:"Callistemon citrinus",emoji:"🔴",h:"2-4m",water:"Low",sun:"Full",bloom:"Spring-Summer",tags:["red","bird-attracting","australian"],crete:false,desc:"Vivid red bottlebrush-shaped flowers. Tough as nails. Adds exotic flair to Mediterranean plantings."},
+  {cat:"shrubs",name:"Japanese Pittosporum",latin:"Pittosporum tobira",emoji:"🌿",h:"2-4m",water:"Low",sun:"Full/Part",bloom:"Spring",tags:["evergreen","fragrant","hedge"],crete:false,desc:"Dense glossy foliage, intensely fragrant cream flowers. Superb formal or informal hedge."},
+  {cat:"shrubs",name:"Spanish Broom",latin:"Spartium junceum",emoji:"💛",h:"2-4m",water:"Low",sun:"Full",bloom:"May-Jul",tags:["yellow","native","fragrant"],crete:true,desc:"Bright yellow fragrant flowers on arching green stems. Native to hillsides of both Spain and Crete."},
+  {cat:"shrubs",name:"Mock Privet",latin:"Phillyrea angustifolia",emoji:"🌿",h:"2-4m",water:"Low",sun:"Full/Part",bloom:"Spring",tags:["native","evergreen","hedge"],crete:true,desc:"Elegant fine-textured evergreen. Classic Mediterranean hedge plant. Tiny fragrant flowers in spring."},
+  {cat:"shrubs",name:"Italian Buckthorn",latin:"Rhamnus alaternus",emoji:"🌿",h:"2-5m",water:"Low",sun:"Full/Part",bloom:"Spring",tags:["native","evergreen","berries"],crete:true,desc:"Tough native shrub with glossy leaves and black berries. Excellent screening plant for coastal gardens."},
+  {cat:"shrubs",name:"Mediterranean Spurge",latin:"Euphorbia characias",emoji:"💚",h:"1-1.5m",water:"Low",sun:"Full",bloom:"Mar-May",tags:["architectural","lime-green","drought"],crete:true,desc:"Dramatic lime-green flower heads on blue-green stems. Architectural statement. Virtually no water needed."},
+  {cat:"shrubs",name:"Coastal Rosemary",latin:"Westringia fruticosa",emoji:"🌿",h:"1-2m",water:"Low",sun:"Full",bloom:"Year-round",tags:["silver","compact","coastal"],crete:false,desc:"Soft silver foliage resembling rosemary with white flowers. Excellent topiary and hedging subject."},
+  {cat:"shrubs",name:"False Dittany",latin:"Ballota pseudodictamnus",emoji:"🏛️",h:"0.5m",water:"Low",sun:"Full",bloom:"Summer",tags:["cretan-endemic","silver","woolly"],crete:true,desc:"White-woolly Cretan endemic. Rounded silver leaves. A botanical treasure from Crete's mountains — thrives in Moraira."},
+  {cat:"shrubs",name:"Rose of Sharon",latin:"Hibiscus syriacus",emoji:"🌸",h:"2-4m",water:"Medium",sun:"Full",bloom:"Jul-Oct",tags:["deciduous","late-summer","elegant"],crete:true,desc:"Late-season flowers in blue, purple, white or pink when little else blooms. Hardy and elegant."},
+
+  // === PERENNIALS (20) ===
+  {cat:"plants",name:"Lily of the Nile",latin:"Agapanthus africanus",emoji:"💙",h:"0.6-1m",water:"Low",sun:"Full/Part",bloom:"Jun-Aug",tags:["blue","clumping","poolside"],crete:false,desc:"Globes of blue/white flowers on tall stems. Stunning mass-planted along pool edges and pathways."},
+  {cat:"plants",name:"Star Jasmine",latin:"Trachelospermum jasminoides",emoji:"⭐",h:"3-6m climb",water:"Medium",sun:"Full/Part",bloom:"May-Jul",tags:["climber","fragrant","evergreen"],crete:false,desc:"Intensely fragrant white stars. Best wall/pergola cover. Honey-scented evenings by the pool."},
+  {cat:"plants",name:"Bird of Paradise",latin:"Strelitzia reginae",emoji:"🧡",h:"1-1.5m",water:"Medium",sun:"Full",bloom:"Year-round",tags:["tropical","sculptural","pool-side"],crete:false,desc:"Exotic bird-shaped orange flowers. Bold tropical statement essential for the Ibiza villa pool terrace."},
+  {cat:"plants",name:"Gazania",latin:"Gazania rigens",emoji:"🌼",h:"0.2-0.3m",water:"Low",sun:"Full",bloom:"Mar-Nov",tags:["groundcover","vivid","coastal"],crete:false,desc:"Daisy-like flowers in vivid orange, yellow, pink. Closes at dusk. Perfect sun-baked groundcover."},
+  {cat:"plants",name:"Geranium",latin:"Pelargonium × hortorum",emoji:"🔴",h:"0.3-0.6m",water:"Low",sun:"Full",bloom:"Year-round",tags:["container","colorful","traditional"],crete:true,desc:"Red, pink, white blooms in terracotta pots — the defining Mediterranean window plant."},
+  {cat:"plants",name:"Silverbush",latin:"Convolvulus cneorum",emoji:"🤍",h:"0.3-0.6m",water:"Low",sun:"Full",bloom:"Apr-Sep",tags:["silver","compact","elegant"],crete:true,desc:"Silky silver leaves and white trumpet flowers. Compact mound shape. Mediterranean native beauty."},
+  {cat:"plants",name:"Mexican Daisy",latin:"Erigeron karvinskianus",emoji:"🌼",h:"0.2-0.4m",water:"Low",sun:"Full/Part",bloom:"Apr-Oct",tags:["cascading","dainty","wall-plant"],crete:false,desc:"Clouds of tiny white-to-pink daisies cascading over walls and steps. Self-seeds charmingly."},
+  {cat:"plants",name:"Red Valerian",latin:"Centranthus ruber",emoji:"❤️",h:"0.6-1m",water:"Low",sun:"Full",bloom:"May-Sep",tags:["native","butterfly","self-seeds"],crete:true,desc:"Clusters of deep pink-red flowers. Thrives in poor soil and old walls. Butterfly magnet."},
+  {cat:"plants",name:"Cretan Pink",latin:"Dianthus creticus",emoji:"🌸",h:"0.2m",water:"Low",sun:"Full",bloom:"Spring",tags:["cretan-endemic","fragrant","alpine"],crete:true,desc:"Fragrant white-pink flowers native to Crete's mountains. A rare collector's plant that loves Moraira's climate."},
+  {cat:"plants",name:"Jerusalem Sage",latin:"Phlomis fruticosa",emoji:"💛",h:"0.6-1.2m",water:"Low",sun:"Full",bloom:"May-Jul",tags:["native","yellow","architectural"],crete:true,desc:"Whorls of butter-yellow flowers on grey-felted stems. Architectural silhouette. Native to both regions."},
+  {cat:"plants",name:"Winter Iris",latin:"Iris unguicularis",emoji:"💜",h:"0.3m",water:"Low",sun:"Full",bloom:"Dec-Mar",tags:["winter","fragrant","blue"],crete:true,desc:"Precious winter flowers — lavender-blue and fragrant when nothing else blooms. Native to Mediterranean."},
+  {cat:"plants",name:"Sea Lavender",latin:"Limonium perezii",emoji:"💜",h:"0.3-0.6m",water:"Low",sun:"Full",bloom:"Spring-Summer",tags:["coastal","purple","everlasting"],crete:false,desc:"Purple cloud-like flower sprays. Salt-spray tolerant. Excellent dried flower. Made for coastal gardens."},
+  {cat:"plants",name:"Pride of Madeira",latin:"Echium candicans",emoji:"💙",h:"1-2m",water:"Low",sun:"Full",bloom:"Apr-Jun",tags:["spectacular","blue-spike","bee"],crete:false,desc:"Massive blue-purple flower spikes to 2m. Bee heaven. Dramatic focal point that shouts Mediterranean."},
+  {cat:"plants",name:"Purpletop Vervain",latin:"Verbena bonariensis",emoji:"💜",h:"1-1.5m",water:"Low",sun:"Full",bloom:"Jun-Oct",tags:["tall","airy","butterfly"],crete:false,desc:"Floating purple clouds on tall wiry stems. See-through plant that adds depth without bulk."},
+  {cat:"plants",name:"African Daisy",latin:"Osteospermum ecklonis",emoji:"🌸",h:"0.3-0.5m",water:"Low",sun:"Full",bloom:"Mar-Nov",tags:["daisy","prolific","coastal"],crete:false,desc:"Non-stop daisy flowers in white, purple, pink. Ground-hugging. Coastal tough."},
+  {cat:"plants",name:"Spanish Dagger",latin:"Yucca gloriosa",emoji:"🗡️",h:"1-2.5m",water:"Low",sun:"Full",bloom:"Autumn",tags:["architectural","evergreen","dramatic"],crete:false,desc:"Sword-like leaves and towering white flower spike. Bold architectural punctuation for dry gardens."},
+  {cat:"plants",name:"New Zealand Flax",latin:"Phormium tenax",emoji:"🌿",h:"1-3m",water:"Low",sun:"Full",bloom:"Summer",tags:["architectural","colorful","clumping"],crete:false,desc:"Dramatic sword leaves in green, bronze, or striped. Strong structural accent for modern Mediterranean design."},
+  {cat:"plants",name:"Canna Lily",latin:"Canna indica",emoji:"🔥",h:"1-2m",water:"Medium",sun:"Full",bloom:"Jun-Oct",tags:["tropical","bold","poolside"],crete:false,desc:"Large tropical leaves and fiery red/orange/yellow flowers. Lush poolside drama."},
+  {cat:"plants",name:"Ginger Lily",latin:"Hedychium gardnerianum",emoji:"🌿",h:"1.5-2m",water:"Medium",sun:"Part",bloom:"Aug-Oct",tags:["fragrant","tropical","shade"],crete:false,desc:"Intensely fragrant yellow flowers, lush green foliage. Tropical luxury in a shaded corner."},
+  {cat:"plants",name:"Cretan Cyclamen",latin:"Cyclamen creticum",emoji:"🏛️",h:"0.1-0.15m",water:"Low",sun:"Shade/Part",bloom:"Mar-May",tags:["cretan-endemic","woodland","delicate"],crete:true,desc:"Delicate white fragrant flowers. Cretan endemic woodland gem. Perfect under trees and in shaded rockeries."},
+
+  // === HERBS (20) ===
+  {cat:"herbs",name:"English Lavender",latin:"Lavandula angustifolia",emoji:"💜",h:"0.4-0.8m",water:"Low",sun:"Full",bloom:"Jun-Aug",tags:["aromatic","bee","essential-oil"],crete:true,desc:"Iconic purple spikes and calming fragrance. Attracts bees and butterflies. Hedging and borders."},
+  {cat:"herbs",name:"Rosemary",latin:"Salvia rosmarinus",emoji:"🌿",h:"0.5-1.5m",water:"Low",sun:"Full",bloom:"Winter-Spring",tags:["culinary","aromatic","evergreen"],crete:true,desc:"Essential Mediterranean herb. Blue flowers in winter. Culinary, aromatic and ornamental."},
+  {cat:"herbs",name:"Common Thyme",latin:"Thymus vulgaris",emoji:"🌿",h:"0.15-0.3m",water:"Low",sun:"Full",bloom:"Summer",tags:["culinary","groundcover","bee"],crete:true,desc:"Cretan thyme honey is world-famous. Low aromatic mat ideal between stepping stones."},
+  {cat:"herbs",name:"Sage",latin:"Salvia officinalis",emoji:"🌿",h:"0.4-0.6m",water:"Low",sun:"Full",bloom:"May-Jun",tags:["culinary","medicinal","silver"],crete:true,desc:"Soft grey-green leaves, purple flower spikes. Medicinal and culinary staple since ancient Greece."},
+  {cat:"herbs",name:"Greek Oregano",latin:"Origanum vulgare hirtum",emoji:"🌿",h:"0.3-0.5m",water:"Low",sun:"Full",bloom:"Summer",tags:["culinary","essential","greek"],crete:true,desc:"Superior flavour of Greek mountain oregano. Essential for both Cretan and Spanish cuisine."},
+  {cat:"herbs",name:"Spearmint",latin:"Mentha spicata",emoji:"🌿",h:"0.3-0.6m",water:"Medium",sun:"Part/Full",bloom:"Summer",tags:["culinary","tea","spreading"],crete:true,desc:"Fresh mint for teas and salads. Grows vigorously — best contained in pots near the kitchen."},
+  {cat:"herbs",name:"Sweet Basil",latin:"Ocimum basilicum",emoji:"🌿",h:"0.3-0.6m",water:"Medium",sun:"Full",bloom:"Summer",tags:["culinary","annual","fragrant"],crete:true,desc:"Tender aromatic annual. Essential for Mediterranean cooking. Grow fresh near the villa kitchen."},
+  {cat:"herbs",name:"Dittany of Crete",latin:"Origanum dictamnus",emoji:"🏛️",h:"0.2-0.3m",water:"Low",sun:"Full",bloom:"Summer",tags:["cretan-endemic","medicinal","rare"],crete:true,desc:"Legendary Cretan healing herb. Fuzzy rounded leaves, delicate pink flowers. Sacred since Minoan times."},
+  {cat:"herbs",name:"Lavender Cotton",latin:"Santolina chamaecyparissus",emoji:"💛",h:"0.3-0.6m",water:"Low",sun:"Full",bloom:"Jun-Jul",tags:["silver","button-flower","hedge"],crete:true,desc:"Silver filigree foliage with yellow button flowers. Superb low aromatic hedge or edging plant."},
+  {cat:"herbs",name:"Mountain Tea",latin:"Sideritis syriaca",emoji:"🏛️",h:"0.3-0.5m",water:"Low",sun:"Full",bloom:"Summer",tags:["cretan","tea","medicinal"],crete:true,desc:"Malotira — Crete's beloved mountain tea. Woolly silvery leaves, yellow flowers. A must-have Cretan herb."},
+  {cat:"herbs",name:"Lemon Balm",latin:"Melissa officinalis",emoji:"🍋",h:"0.3-0.6m",water:"Medium",sun:"Part/Full",bloom:"Summer",tags:["tea","calming","bee"],crete:true,desc:"Lemon-scented leaves for soothing teas. Name means 'bee' in Greek — a pollinator magnet."},
+  {cat:"herbs",name:"Flat-leaf Parsley",latin:"Petroselinum crispum",emoji:"🌿",h:"0.3-0.5m",water:"Medium",sun:"Full/Part",bloom:"Summer",tags:["culinary","biennial","essential"],crete:true,desc:"Kitchen essential. Flat-leaf variety preferred in Mediterranean cuisine. Easy to grow year-round."},
+  {cat:"herbs",name:"Wild Fennel",latin:"Foeniculum vulgare",emoji:"🌿",h:"1-2m",water:"Low",sun:"Full",bloom:"Summer",tags:["culinary","tall","native"],crete:true,desc:"Feathery bronze-green foliage, anise flavour. Grows wild on Cretan and Costa Blanca hillsides."},
+  {cat:"herbs",name:"Wormwood",latin:"Artemisia absinthium",emoji:"🌿",h:"0.6-1m",water:"Low",sun:"Full",bloom:"Summer",tags:["silver","medicinal","aromatic"],crete:true,desc:"Beautiful silver-grey foliage. Historic medicinal herb. Ornamental accent in herb gardens."},
+  {cat:"herbs",name:"Savory",latin:"Satureja thymbra",emoji:"🌿",h:"0.2-0.4m",water:"Low",sun:"Full",bloom:"Spring",tags:["culinary","compact","cretan"],crete:true,desc:"Peppery Mediterranean herb used in Cretan cuisine. Compact, aromatic, extremely drought-hardy."},
+  {cat:"herbs",name:"Hyssop",latin:"Hyssopus officinalis",emoji:"💙",h:"0.3-0.6m",water:"Low",sun:"Full",bloom:"Summer",tags:["medicinal","blue","bee"],crete:true,desc:"Deep blue flower spikes attract bees. Ancient medicinal herb mentioned in biblical texts."},
+  {cat:"herbs",name:"Rue",latin:"Ruta graveolens",emoji:"💚",h:"0.3-0.6m",water:"Low",sun:"Full",bloom:"Summer",tags:["medicinal","blue-green","traditional"],crete:true,desc:"Blue-green ferny foliage, yellow flowers. Traditional Mediterranean herb garden plant since antiquity."},
+  {cat:"herbs",name:"Chamomile",latin:"Matricaria chamomilla",emoji:"🌼",h:"0.2-0.4m",water:"Low",sun:"Full",bloom:"Spring-Summer",tags:["tea","medicinal","lawn"],crete:true,desc:"Dainty apple-scented daisy flowers for soothing tea. Can create a fragrant walking lawn."},
+  {cat:"herbs",name:"Lemon Verbena",latin:"Aloysia citrodora",emoji:"🍋",h:"1-3m",water:"Low",sun:"Full",bloom:"Summer",tags:["tea","fragrant","deciduous"],crete:true,desc:"Intensely lemon-scented leaves — finest herbal tea plant. Deciduous shrubby herb."},
+  {cat:"herbs",name:"French Lavender",latin:"Lavandula stoechas",emoji:"💜",h:"0.4-0.7m",water:"Low",sun:"Full",bloom:"Mar-Jun",tags:["ornamental","butterfly","tufted"],crete:true,desc:"Distinctive tufted 'bunny ear' flowers. Earlier blooming than English lavender. Native to Mediterranean."},
+
+  // === CACTI & SUCCULENTS (20) ===
+  {cat:"cacti",name:"Century Plant",latin:"Agave americana",emoji:"🌵",h:"1-2m",water:"Very Low",sun:"Full",bloom:"Once (dies)",tags:["sculptural","dramatic","xeriscaping"],crete:false,desc:"Massive blue-grey rosette. Flowers once spectacularly after 15-25 years. Ultimate architectural accent."},
+  {cat:"cacti",name:"Prickly Pear",latin:"Opuntia ficus-indica",emoji:"🌵",h:"2-5m",water:"Very Low",sun:"Full",bloom:"Spring",tags:["fruit","native","iconic"],crete:true,desc:"Paddle cactus producing sweet fruit. Found in both Cretan and Spanish landscapes. Edible fruit and pads."},
+  {cat:"cacti",name:"Aloe Vera",latin:"Aloe vera",emoji:"🌿",h:"0.3-0.6m",water:"Low",sun:"Full/Part",bloom:"Spring",tags:["medicinal","succulent","useful"],crete:true,desc:"Healing gel plant. Rosettes of thick fleshy leaves. Medicinal, cosmetic and ornamental."},
+  {cat:"cacti",name:"Mexican Snowball",latin:"Echeveria elegans",emoji:"🩵",h:"0.1m",water:"Low",sun:"Full",bloom:"Spring",tags:["rosette","compact","container"],crete:false,desc:"Perfect pale blue-green rosettes. Stunning in pots, rock gardens and succulent walls."},
+  {cat:"cacti",name:"Tree Aeonium",latin:"Aeonium arboreum",emoji:"🌿",h:"0.5-1m",water:"Low",sun:"Full",bloom:"Spring",tags:["rosette","tree-form","dramatic"],crete:false,desc:"Large dark rosettes on branching stems. 'Zwartkop' variety has nearly black leaves — stunning."},
+  {cat:"cacti",name:"Stonecrop",latin:"Sedum spectabile",emoji:"🌿",h:"0.3-0.5m",water:"Low",sun:"Full",bloom:"Autumn",tags:["butterfly","groundcover","autumn"],crete:false,desc:"Flat heads of pink autumn flowers loved by butterflies. Fleshy blue-green leaves. Easy groundcover."},
+  {cat:"cacti",name:"Pencil Cactus",latin:"Euphorbia tirucalli",emoji:"🌵",h:"2-5m",water:"Very Low",sun:"Full",bloom:"-",tags:["sculptural","modern","fire-stick"],crete:false,desc:"Coral-like branching stems, turning fiery red in cool weather. 'Sticks on Fire' is the popular variety."},
+  {cat:"cacti",name:"Desert Spoon",latin:"Dasylirion wheeleri",emoji:"🌿",h:"1-1.5m",water:"Very Low",sun:"Full",bloom:"Summer",tags:["architectural","rosette","tough"],crete:false,desc:"Explosive fountain of serrated grey-blue leaves. Dramatic Ibiza villa accent. Desert tough."},
+  {cat:"cacti",name:"Spanish Bayonet",latin:"Yucca aloifolia",emoji:"🗡️",h:"2-4m",water:"Very Low",sun:"Full",bloom:"Summer",tags:["dramatic","white-flower","coastal"],crete:false,desc:"Rigid sword leaves and spectacular white flower spikes. Extremely coastal-tolerant."},
+  {cat:"cacti",name:"Hedge Cactus",latin:"Cereus hildmannianus",emoji:"🌵",h:"3-8m",water:"Very Low",sun:"Full",bloom:"Summer",tags:["columnar","night-flower","sculptural"],crete:false,desc:"Tall ribbed columns with huge white night-blooming flowers. Living sculpture for modern gardens."},
+  {cat:"cacti",name:"Blue Chalk Sticks",latin:"Curio repens",emoji:"🩵",h:"0.2m",water:"Low",sun:"Full",bloom:"Summer",tags:["groundcover","blue","spreading"],crete:false,desc:"Carpet of blue finger-like leaves. Superb groundcover for dry slopes and edges."},
+  {cat:"cacti",name:"Jade Plant",latin:"Crassula ovata",emoji:"🌿",h:"0.5-1.5m",water:"Low",sun:"Full/Part",bloom:"Winter",tags:["bonsai","glossy","easy"],crete:false,desc:"Thick trunk and glossy rounded leaves — natural bonsai. Pink star flowers in winter."},
+  {cat:"cacti",name:"Flaming Katy",latin:"Kalanchoe blossfeldiana",emoji:"🔴",h:"0.2-0.4m",water:"Low",sun:"Full/Part",bloom:"Winter-Spring",tags:["colorful","compact","container"],crete:false,desc:"Clusters of tiny flowers in red, orange, yellow, pink. Winter colour when most plants rest."},
+  {cat:"cacti",name:"Golden Barrel",latin:"Echinocactus grusonii",emoji:"🌵",h:"0.3-1m",water:"Very Low",sun:"Full",bloom:"Summer",tags:["globe","golden","iconic"],crete:false,desc:"Perfect golden sphere studded with spines. Group three or five for a dramatic gravel garden feature."},
+  {cat:"cacti",name:"Foxtail Agave",latin:"Agave attenuata",emoji:"🌿",h:"0.8-1.2m",water:"Low",sun:"Full/Part",bloom:"Once",tags:["soft","elegant","architectural"],crete:false,desc:"Soft spineless agave with blue-grey rosettes. Curved flower spike resembles a fox tail. Elegant."},
+  {cat:"cacti",name:"Candelabra Aloe",latin:"Aloe arborescens",emoji:"🔥",h:"1-3m",water:"Low",sun:"Full",bloom:"Winter",tags:["red-flower","hedging","medicinal"],crete:false,desc:"Flaming red-orange torch flowers in midwinter. Can form a spectacular flowering hedge."},
+  {cat:"cacti",name:"Fishhook Barrel",latin:"Ferocactus wislizeni",emoji:"🌵",h:"0.5-1.5m",water:"Very Low",sun:"Full",bloom:"Summer",tags:["barrel","hooked-spines","orange"],crete:false,desc:"Large barrel with hooked red spines and orange flowers. Slow-growing desert jewel."},
+  {cat:"cacti",name:"Ice Plant",latin:"Carpobrotus edulis",emoji:"🌺",h:"0.15m spread",water:"Very Low",sun:"Full",bloom:"Spring",tags:["groundcover","coastal","edible"],crete:true,desc:"Magenta or yellow daisy flowers on fleshy trailing stems. Coastal cliff stabilizer. Edible fruit."},
+  {cat:"cacti",name:"Houseleek",latin:"Sempervivum tectorum",emoji:"🌿",h:"0.1m",water:"Very Low",sun:"Full",bloom:"Summer",tags:["rosette","alpine","container"],crete:true,desc:"'Hens and chicks' rosettes. Multiplies freely. Ancient roof plant. Perfect for green roof or rock wall."},
+  {cat:"cacti",name:"Crown of Thorns",latin:"Euphorbia milii",emoji:"🔴",h:"0.5-1m",water:"Low",sun:"Full",bloom:"Year-round",tags:["thorny","red","continuous"],crete:false,desc:"Clusters of bright red bracts year-round on thorny stems. Tough, showy, never stops flowering."}
+];
+
+let currentCat = "all";
+let searchTerm = "";
+
+function renderCards() {
+  const grid = document.getElementById("grid");
+  const filtered = plants.filter(p => {
+    const catMatch = currentCat === "all" || (currentCat === "crete" ? p.crete : p.cat === currentCat);
+    const searchMatch = !searchTerm ||
+      p.name.toLowerCase().includes(searchTerm) ||
+      p.latin.toLowerCase().includes(searchTerm) ||
+      p.tags.some(t => t.includes(searchTerm));
+    return catMatch && searchMatch;
+  });
+
+  grid.innerHTML = filtered.map((p, i) => `
+    <div class="card cat-${p.cat}" onclick="showModal(${plants.indexOf(p)})">
+      <div class="card-img">
+        <span>${p.emoji}</span>
+        <span class="card-badge">${p.cat === 'cacti' ? 'Cactus/Succulent' : p.cat.charAt(0).toUpperCase() + p.cat.slice(1)}</span>
+      </div>
+      <div class="card-body">
+        <h3>${p.name}</h3>
+        <div class="latin">${p.latin}</div>
+        <div class="tags">
+          ${p.crete ? '<span class="tag crete-tag">🏛️ Crete</span>' : ''}
+          ${p.tags.slice(0, 3).map(t => `<span class="tag">${t}</span>`).join('')}
+        </div>
+        <div class="desc">${p.desc.substring(0, 80)}...</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function showModal(idx) {
+  const p = plants[idx];
+  const modal = document.getElementById("modal");
+  const content = document.getElementById("modalContent");
+  content.innerHTML = `
+    <div style="font-size:64px;text-align:center;margin-bottom:16px">${p.emoji}</div>
+    <h2>${p.name}</h2>
+    <div class="latin2">${p.latin}</div>
+    <p style="color:#a0b0a0;font-size:13px;margin-bottom:20px;line-height:1.6">${p.desc}</p>
+    <div class="detail-row"><span class="label">Category</span><span class="value">${p.cat.charAt(0).toUpperCase() + p.cat.slice(1)}</span></div>
+    <div class="detail-row"><span class="label">Height</span><span class="value">${p.h}</span></div>
+    <div class="detail-row"><span class="label">Water Needs</span><span class="value">${p.water}</span></div>
+    <div class="detail-row"><span class="label">Sun</span><span class="value">${p.sun}</span></div>
+    <div class="detail-row"><span class="label">Bloom Season</span><span class="value">${p.bloom}</span></div>
+    <div class="detail-row"><span class="label">Found in Crete</span><span class="value">${p.crete ? '✅ Yes — Botanical Gardens' : '➖ No (but thrives in same climate)'}</span></div>
+    <div class="detail-row"><span class="label">Tags</span><span class="value">${p.tags.join(', ')}</span></div>
+    <div style="text-align:center"><button class="close-btn" onclick="document.getElementById('modal').classList.remove('show')">Close</button></div>
+  `;
+  modal.classList.add("show");
+}
+
+document.getElementById("modal").addEventListener("click", e => {
+  if (e.target.id === "modal") document.getElementById("modal").classList.remove("show");
+});
+
+document.querySelectorAll(".nav button").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".nav button").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    currentCat = btn.dataset.cat;
+    renderCards();
+  });
+});
+
+document.getElementById("search").addEventListener("input", e => {
+  searchTerm = e.target.value.toLowerCase();
+  renderCards();
+});
+
+renderCards();
+</script>
+</body>
+</html>

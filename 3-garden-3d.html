@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Moraira Villa Garden — 3D Interactive View</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#000;overflow:hidden}
+#c{width:100vw;height:100vh;display:block}
+.hud{position:fixed;top:16px;left:16px;color:#7fdbca;font-size:13px;background:rgba(10,15,26,.85);padding:14px 20px;border-radius:10px;border:1px solid #2a4a3a;max-width:320px;z-index:10}
+.hud h2{font-size:16px;margin-bottom:6px}
+.hud p{color:#6a8a7a;font-size:11px;line-height:1.5}
+.controls{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:10}
+.controls button{padding:8px 16px;background:rgba(10,15,26,.85);border:1px solid #2a4a3a;border-radius:8px;color:#7fdbca;cursor:pointer;font-size:12px;transition:all .3s}
+.controls button:hover{background:#1a3a2a;border-color:#4a8a6a}
+.label3d{position:absolute;color:#7fdbca;font-size:10px;background:rgba(10,15,26,.7);padding:2px 6px;border-radius:4px;pointer-events:none;white-space:nowrap}
+.legend-3d{position:fixed;top:16px;right:16px;background:rgba(10,15,26,.85);padding:14px;border-radius:10px;border:1px solid #2a4a3a;z-index:10;font-size:11px;color:#8ab4a8}
+.legend-3d div{display:flex;align-items:center;gap:6px;margin:4px 0}
+.legend-3d span{width:12px;height:12px;border-radius:50%;display:inline-block}
+</style>
+</head>
+<body>
+<div class="hud">
+  <h2>🏡 Moraira Villa — 3D Garden</h2>
+  <p>Click + drag to orbit · Scroll to zoom · Right-click drag to pan<br>1000m² plot · Ibiza-style villa · Mediterranean planting</p>
+</div>
+<div class="legend-3d">
+  <strong style="color:#7fdbca">Legend</strong>
+  <div><span style="background:#2a6a2a"></span> Pine / Cypress</div>
+  <div><span style="background:#4a8a2a"></span> Olive / Fruit trees</div>
+  <div><span style="background:#8a2a6a"></span> Bougainvillea</div>
+  <div><span style="background:#6a4aaa"></span> Jacaranda</div>
+  <div><span style="background:#2a8a6a"></span> Palms</div>
+  <div><span style="background:#6a6a2a"></span> Herbs / Lavender</div>
+  <div><span style="background:#8a6a2a"></span> Cacti / Succulents</div>
+  <div><span style="background:#3a7aaa"></span> Pool</div>
+</div>
+<div class="controls">
+  <button onclick="resetCamera()">Reset View</button>
+  <button onclick="toggleSeason()">Toggle Season</button>
+  <button onclick="toggleLabels()">Toggle Labels</button>
+  <button onclick="toggleNight()">Day / Night</button>
+</div>
+<canvas id="c"></canvas>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+// Scene setup
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(50, window.innerWidth/window.innerHeight, 0.1, 200);
+const renderer = new THREE.WebGLRenderer({canvas:document.getElementById('c'),antialias:true});
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.2;
+
+let isNight = false;
+let showLabels = true;
+let isSummer = true;
+
+// Sky
+scene.background = new THREE.Color(0x87CEEB);
+scene.fog = new THREE.Fog(0x87CEEB, 60, 120);
+
+// Lights
+const ambLight = new THREE.AmbientLight(0x6688aa, 0.5);
+scene.add(ambLight);
+const sunLight = new THREE.DirectionalLight(0xffffcc, 1.2);
+sunLight.position.set(20, 30, 10);
+sunLight.castShadow = true;
+sunLight.shadow.mapSize.width = 2048;
+sunLight.shadow.mapSize.height = 2048;
+sunLight.shadow.camera.near = 1;
+sunLight.shadow.camera.far = 80;
+sunLight.shadow.camera.left = -30;
+sunLight.shadow.camera.right = 30;
+sunLight.shadow.camera.top = 30;
+sunLight.shadow.camera.bottom = -30;
+scene.add(sunLight);
+const hemiLight = new THREE.HemisphereLight(0x88bbdd, 0x445522, 0.4);
+scene.add(hemiLight);
+
+// Ground
+const groundGeo = new THREE.PlaneGeometry(100, 100);
+const groundMat = new THREE.MeshLambertMaterial({color: 0x3a5a2a});
+const ground = new THREE.Mesh(groundGeo, groundMat);
+ground.rotation.x = -Math.PI/2;
+ground.receiveShadow = true;
+scene.add(ground);
+
+// Plot boundary (25x40m, centered)
+const plotW = 25, plotD = 40;
+// We'll center the plot at origin
+
+// Helper functions
+function box(w,h,d,color,x,y,z,castS=true){
+  const g=new THREE.BoxGeometry(w,h,d);
+  const m=new THREE.MeshLambertMaterial({color});
+  const mesh=new THREE.Mesh(g,m);
+  mesh.position.set(x,y,z);
+  mesh.castShadow=castS;
+  mesh.receiveShadow=true;
+  scene.add(mesh);
+  return mesh;
+}
+
+function makeTree(x,z,trunkH,canopyR,canopyColor,trunkColor=0x5a3a1a){
+  // Trunk
+  const trunkGeo = new THREE.CylinderGeometry(0.15, 0.2, trunkH, 8);
+  const trunkMat = new THREE.MeshLambertMaterial({color: trunkColor});
+  const trunk = new THREE.Mesh(trunkGeo, trunkMat);
+  trunk.position.set(x, trunkH/2, z);
+  trunk.castShadow = true;
+  scene.add(trunk);
+  // Canopy (sphere)
+  const canopyGeo = new THREE.SphereGeometry(canopyR, 12, 10);
+  const canopyMat = new THREE.MeshLambertMaterial({color: canopyColor});
+  const canopy = new THREE.Mesh(canopyGeo, canopyMat);
+  canopy.position.set(x, trunkH + canopyR*0.6, z);
+  canopy.castShadow = true;
+  scene.add(canopy);
+  return {trunk, canopy};
+}
+
+function makeCypress(x, z) {
+  const trunkGeo = new THREE.CylinderGeometry(0.1, 0.15, 5, 6);
+  const trunkMat = new THREE.MeshLambertMaterial({color: 0x3a2a1a});
+  const trunk = new THREE.Mesh(trunkGeo, trunkMat);
+  trunk.position.set(x, 2.5, z);
+  trunk.castShadow = true;
+  scene.add(trunk);
+  const coneGeo = new THREE.CylinderGeometry(0.1, 0.8, 5, 8);
+  const coneMat = new THREE.MeshLambertMaterial({color: 0x1a4a2a});
+  const cone = new THREE.Mesh(coneGeo, coneMat);
+  cone.position.set(x, 5, z);
+  cone.castShadow = true;
+  scene.add(cone);
+}
+
+function makePalm(x, z) {
+  const trunkGeo = new THREE.CylinderGeometry(0.2, 0.3, 6, 8);
+  const trunkMat = new THREE.MeshLambertMaterial({color: 0x6a5a3a});
+  const trunk = new THREE.Mesh(trunkGeo, trunkMat);
+  trunk.position.set(x, 3, z);
+  trunk.castShadow = true;
+  scene.add(trunk);
+  // Fronds (flattened spheres)
+  for(let i = 0; i < 6; i++) {
+    const frondGeo = new THREE.SphereGeometry(1.8, 6, 4);
+    frondGeo.scale(1, 0.15, 0.4);
+    const frondMat = new THREE.MeshLambertMaterial({color: 0x2a7a3a});
+    const frond = new THREE.Mesh(frondGeo, frondMat);
+    const angle = (i / 6) * Math.PI * 2;
+    frond.position.set(x + Math.cos(angle)*1, 6.2, z + Math.sin(angle)*1);
+    frond.rotation.z = Math.cos(angle) * 0.4;
+    frond.rotation.x = Math.sin(angle) * 0.4;
+    frond.castShadow = true;
+    scene.add(frond);
+  }
+}
+
+function makeBush(x, z, r, color) {
+  const geo = new THREE.SphereGeometry(r, 8, 6);
+  const mat = new THREE.MeshLambertMaterial({color});
+  const mesh = new THREE.Mesh(geo, mat);
+  mesh.position.set(x, r*0.7, z);
+  mesh.castShadow = true;
+  scene.add(mesh);
+  return mesh;
+}
+
+function makeCactus(x, z) {
+  const geo = new THREE.CylinderGeometry(0.15, 0.2, 1.2, 6);
+  const mat = new THREE.MeshLambertMaterial({color: 0x3a6a2a});
+  const mesh = new THREE.Mesh(geo, mat);
+  mesh.position.set(x, 0.6, z);
+  mesh.castShadow = true;
+  scene.add(mesh);
+  // Arms
+  const armGeo = new THREE.CylinderGeometry(0.08, 0.1, 0.5, 6);
+  const arm1 = new THREE.Mesh(armGeo, mat);
+  arm1.position.set(x+0.2, 0.8, z);
+  arm1.rotation.z = -0.5;
+  scene.add(arm1);
+}
+
+function makeAgave(x, z) {
+  for(let i = 0; i < 8; i++) {
+    const leafGeo = new THREE.CylinderGeometry(0.02, 0.1, 0.8, 4);
+    const leafMat = new THREE.MeshLambertMaterial({color: 0x4a7a5a});
+    const leaf = new THREE.Mesh(leafGeo, leafMat);
+    const angle = (i/8) * Math.PI * 2;
+    leaf.position.set(x + Math.cos(angle)*0.3, 0.3, z + Math.sin(angle)*0.3);
+    leaf.rotation.z = Math.cos(angle) * 0.8;
+    leaf.rotation.x = Math.sin(angle) * 0.8;
+    scene.add(leaf);
+  }
+}
+
+// === BUILD THE GARDEN ===
+
+// VILLA (centered, 14x9m)
+const villaBase = box(14, 4, 9, 0xf5f0e8, 0, 2, -2, true);
+// Roof
+const roofGeo = new THREE.BoxGeometry(14.5, 0.4, 9.5);
+const roofMat = new THREE.MeshLambertMaterial({color: 0xc4a882});
+const roof = new THREE.Mesh(roofGeo, roofMat);
+roof.position.set(0, 4.2, -2);
+roof.castShadow = true;
+scene.add(roof);
+// Villa details - windows
+for(let i = -5; i <= 5; i += 2.5) {
+  box(0.1, 1.2, 0.8, 0x3a5a7a, i, 2, 2.55);
+  box(0.1, 1.2, 0.8, 0x3a5a7a, i, 2, -6.55);
+}
+
+// POOL (15x3m, south of villa)
+const poolGeo = new THREE.BoxGeometry(6, 0.1, 3);
+const poolMat = new THREE.MeshLambertMaterial({color: 0x2a8aba, transparent: true, opacity: 0.8});
+const pool = new THREE.Mesh(poolGeo, poolMat);
+pool.position.set(0, 0.05, 6);
+scene.add(pool);
+// Pool water surface
+const waterGeo = new THREE.PlaneGeometry(5.8, 2.8);
+const waterMat = new THREE.MeshLambertMaterial({color: 0x4abaee, transparent: true, opacity: 0.6});
+const water = new THREE.Mesh(waterGeo, waterMat);
+water.rotation.x = -Math.PI/2;
+water.position.set(0, 0.15, 6);
+scene.add(water);
+// Pool surround
+box(8, 0.08, 5, 0xd4c8b0, 0, 0.04, 6);
+
+// TERRACE
+box(12, 0.08, 3, 0xc8bca0, 0, 0.04, 3);
+
+// DRIVEWAY
+box(4, 0.05, 6, 0x8a8a7a, -9, 0.03, -2);
+
+// === TREES ===
+
+// Aleppo Pines (windbreak, north edge)
+for(let i = -10; i <= 10; i += 4) {
+  makeTree(i, -18, 5, 2.5, 0x1a5a2a);
+}
+
+// Italian Cypress (boundary)
+for(let i = -16; i <= 6; i += 4) {
+  makeCypress(-11.5, i);
+  makeCypress(11.5, i);
+}
+
+// Olive trees
+makeTree(-5, -10, 3, 2, 0x5a7a4a);
+makeTree(2, -9, 3.5, 2.2, 0x5a7a4a);
+makeTree(8, -11, 3, 1.8, 0x5a7a4a);
+makeTree(-8, -8, 3.2, 2, 0x5a7a4a);
+
+// Carob trees
+makeTree(-4, -6, 3, 1.8, 0x3a5a2a);
+makeTree(7, -5, 3, 1.8, 0x3a5a2a);
+
+// Fig tree
+makeTree(0, -7, 2.5, 2, 0x4a6a2a);
+
+// Jacaranda (focal point)
+makeTree(0, -4, 3.5, 2.5, 0x7a4aaa);
+
+// Almond trees
+makeTree(-7, -4, 2.5, 1.5, 0x8a6a5a);
+makeTree(9, -4, 2.5, 1.5, 0x8a6a5a);
+
+// Citrus grove (east side)
+makeTree(10, -1, 2, 1.2, 0x3a7a1a);
+makeTree(10.5, 1.5, 2, 1.2, 0x4a8a1a);
+makeTree(10, -3.5, 2, 1.2, 0x3a7a1a);
+makeTree(10.5, 4, 2, 1.2, 0x4a8a1a);
+
+// Pomegranate
+makeTree(-3, 10, 2, 1.2, 0x5a4a2a);
+
+// Palms (entrance)
+makePalm(-4, 3.5);
+makePalm(4, 3.5);
+// Fan palms by pool
+makePalm(-5, 7);
+
+// Strawberry tree
+makeTree(-9, -2, 2.5, 1.5, 0x5a3a2a);
+
+// === SHRUBS ===
+
+// Oleander hedge (boundary)
+for(let i = -18; i <= 18; i += 2) {
+  makeBush(-12, i, 0.8, 0x8a3a5a);
+  makeBush(12, i, 0.8, 0x8a3a5a);
+}
+for(let i = -10; i <= 10; i += 2) {
+  makeBush(i, -19, 0.8, 0x8a3a5a);
+  makeBush(i, 19, 0.8, 0x8a3a5a);
+}
+
+// Bougainvillea on villa
+makeBush(-7, -6.2, 1.2, 0xaa2a6a);
+makeBush(7, -6.2, 1.2, 0xaa2a6a);
+makeBush(-7, 2.2, 1.2, 0xcc3a8a);
+makeBush(7, 2.2, 1.2, 0xcc3a8a);
+
+// Hibiscus by pool
+makeBush(-4, 8, 0.6, 0xba2a2a);
+makeBush(4, 8, 0.6, 0xba2a2a);
+
+// Plumbago
+makeBush(-6, 1, 0.5, 0x4a7aba);
+makeBush(6, 1, 0.5, 0x4a7aba);
+
+// Lantana (color garden)
+makeBush(8, 12, 0.4, 0xba8a2a);
+makeBush(9, 13, 0.4, 0xba5a2a);
+
+// === HERB TERRACE (band across mid-slope) ===
+for(let i = -8; i <= 8; i += 1.5) {
+  makeBush(i, -12.5, 0.3, 0x6a5a8a); // lavender
+}
+for(let i = -7; i <= 7; i += 2) {
+  makeBush(i, -13.5, 0.25, 0x3a6a3a); // rosemary/thyme
+}
+
+// === CACTUS GARDEN (southwest) ===
+makeCactus(-9, 12);
+makeCactus(-8, 14);
+makeCactus(-10, 15);
+makeAgave(-8, 11);
+makeAgave(-10, 13);
+makeAgave(-7, 15);
+// Golden barrels (spheres)
+for(let i = 0; i < 5; i++) {
+  const bGeo = new THREE.SphereGeometry(0.25, 8, 6);
+  const bMat = new THREE.MeshLambertMaterial({color: 0x8a8a2a});
+  const barrel = new THREE.Mesh(bGeo, bMat);
+  barrel.position.set(-9 + i*0.6, 0.25, 16);
+  barrel.castShadow = true;
+  scene.add(barrel);
+}
+
+// Perennial bed (southeast)
+makeBush(8, 10, 0.5, 0x3a5aaa); // agapanthus
+makeBush(9, 11, 0.5, 0x3a5aaa);
+makeBush(10, 10, 0.4, 0x4a8a4a); // strelitzia
+makeBush(8, 13, 0.4, 0xaa4a4a); // valerian
+makeBush(9, 15, 0.5, 0x2a6a5a); // echium
+
+// === GARDEN PATHS ===
+const pathGeo = new THREE.PlaneGeometry(1.5, 30);
+const pathMat = new THREE.MeshLambertMaterial({color: 0x9a8a6a});
+const path1 = new THREE.Mesh(pathGeo, pathMat);
+path1.rotation.x = -Math.PI/2;
+path1.position.set(-5, 0.02, 0);
+scene.add(path1);
+
+const path2Geo = new THREE.PlaneGeometry(20, 1.2);
+const path2 = new THREE.Mesh(path2Geo, pathMat);
+path2.rotation.x = -Math.PI/2;
+path2.position.set(0, 0.02, 10);
+scene.add(path2);
+
+// === CAMERA & ORBIT ===
+camera.position.set(25, 20, 25);
+camera.lookAt(0, 0, 0);
+
+// Simple orbit controls
+let isDragging = false, isRightDrag = false;
+let prevX = 0, prevY = 0;
+let orbitTheta = Math.PI/4, orbitPhi = Math.PI/4, orbitDist = 35;
+let panX = 0, panZ = 0;
+
+function updateCamera() {
+  camera.position.x = panX + orbitDist * Math.sin(orbitPhi) * Math.cos(orbitTheta);
+  camera.position.y = orbitDist * Math.cos(orbitPhi);
+  camera.position.z = panZ + orbitDist * Math.sin(orbitPhi) * Math.sin(orbitTheta);
+  camera.lookAt(panX, 0, panZ);
+}
+updateCamera();
+
+const canvas = document.getElementById('c');
+canvas.addEventListener('mousedown', e => {
+  if(e.button === 2) isRightDrag = true;
+  else isDragging = true;
+  prevX = e.clientX; prevY = e.clientY;
+});
+canvas.addEventListener('mousemove', e => {
+  const dx = e.clientX - prevX, dy = e.clientY - prevY;
+  if(isDragging) {
+    orbitTheta -= dx * 0.005;
+    orbitPhi = Math.max(0.2, Math.min(1.4, orbitPhi - dy * 0.005));
+    updateCamera();
+  }
+  if(isRightDrag) {
+    panX -= dx * 0.05;
+    panZ -= dy * 0.05;
+    updateCamera();
+  }
+  prevX = e.clientX; prevY = e.clientY;
+});
+canvas.addEventListener('mouseup', () => { isDragging = false; isRightDrag = false; });
+canvas.addEventListener('contextmenu', e => e.preventDefault());
+canvas.addEventListener('wheel', e => {
+  orbitDist = Math.max(10, Math.min(80, orbitDist + e.deltaY * 0.03));
+  updateCamera();
+});
+
+// Touch support
+canvas.addEventListener('touchstart', e => {
+  isDragging = true;
+  prevX = e.touches[0].clientX;
+  prevY = e.touches[0].clientY;
+});
+canvas.addEventListener('touchmove', e => {
+  if(!isDragging) return;
+  const dx = e.touches[0].clientX - prevX;
+  const dy = e.touches[0].clientY - prevY;
+  orbitTheta -= dx * 0.005;
+  orbitPhi = Math.max(0.2, Math.min(1.4, orbitPhi - dy * 0.005));
+  updateCamera();
+  prevX = e.touches[0].clientX;
+  prevY = e.touches[0].clientY;
+});
+canvas.addEventListener('touchend', () => isDragging = false);
+
+// Animate
+let time = 0;
+function animate() {
+  requestAnimationFrame(animate);
+  time += 0.01;
+  // Gentle water ripple
+  water.position.y = 0.15 + Math.sin(time * 2) * 0.02;
+  renderer.render(scene, camera);
+}
+animate();
+
+// Resize
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+// Controls
+function resetCamera() {
+  orbitTheta = Math.PI/4; orbitPhi = Math.PI/4; orbitDist = 35;
+  panX = 0; panZ = 0;
+  updateCamera();
+}
+
+function toggleNight() {
+  isNight = !isNight;
+  if(isNight) {
+    scene.background = new THREE.Color(0x0a0a2a);
+    scene.fog = new THREE.Fog(0x0a0a2a, 40, 100);
+    sunLight.intensity = 0.1;
+    sunLight.color.set(0x4444aa);
+    ambLight.intensity = 0.15;
+    hemiLight.intensity = 0.1;
+    renderer.toneMappingExposure = 0.6;
+  } else {
+    scene.background = new THREE.Color(0x87CEEB);
+    scene.fog = new THREE.Fog(0x87CEEB, 60, 120);
+    sunLight.intensity = 1.2;
+    sunLight.color.set(0xffffcc);
+    ambLight.intensity = 0.5;
+    hemiLight.intensity = 0.4;
+    renderer.toneMappingExposure = 1.2;
+  }
+}
+
+function toggleSeason() {
+  isSummer = !isSummer;
+  groundMat.color.set(isSummer ? 0x3a5a2a : 0x5a6a3a);
+}
+
+function toggleLabels() {
+  showLabels = !showLabels;
+  document.querySelector('.legend-3d').style.display = showLabels ? 'block' : 'none';
+}
+</script>
+</body>
+</html>

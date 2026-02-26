@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Moraira Villa Garden — Maps & Plans</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#0a0f1a;color:#e0e0e0}
+.header{background:linear-gradient(135deg,#1a3a2a,#0d2233);padding:24px 32px;border-bottom:2px solid #2a5a3a}
+.header h1{font-size:24px;color:#7fdbca}.header p{color:#6a8a7a;font-size:13px;margin-top:4px}
+.tabs{display:flex;gap:6px;padding:12px 32px;background:#0d1520;border-bottom:1px solid #1a2a35;flex-wrap:wrap}
+.tabs button{padding:10px 18px;border:1px solid #2a3a4a;border-radius:8px;background:#121d2e;color:#8ab4a8;cursor:pointer;font-size:12px;transition:all .3s}
+.tabs button:hover,.tabs button.active{background:#1a3a2a;border-color:#4a8a6a;color:#7fdbca}
+.view{display:none;padding:20px 32px}.view.active{display:block}
+.map-container{background:#0d1822;border:1px solid #1a2a3a;border-radius:12px;overflow:hidden;margin-bottom:20px}
+.map-title{padding:16px 20px;background:#121d2e;border-bottom:1px solid #1a2a3a;font-size:16px;color:#7fdbca}
+.map-subtitle{font-size:12px;color:#6a8a7a;margin-top:4px}
+svg{width:100%;height:auto}
+.legend{display:flex;flex-wrap:wrap;gap:8px;padding:16px 20px;background:#0d1520;border-top:1px solid #1a2a3a}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:11px;color:#8ab4a8}
+.legend-dot{width:12px;height:12px;border-radius:50%;border:1px solid rgba(255,255,255,.2)}
+.info-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:20px}
+.info-box{background:#121d2e;border:1px solid #1a2a3a;border-radius:8px;padding:14px}
+.info-box .val{font-size:20px;font-weight:700;color:#7fdbca}.info-box .lbl{font-size:11px;color:#6a8a7a;text-transform:uppercase;letter-spacing:.5px}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{text-align:left;padding:10px;background:#121d2e;color:#7fdbca;border-bottom:2px solid #2a5a3a;position:sticky;top:0}
+td{padding:8px 10px;border-bottom:1px solid #1a2a3a;color:#a0b0a0}
+tr:hover td{background:#121d2e}
+.cat-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🏡 Moraira Villa Garden — Maps & Planting Plans</h1>
+  <p>1000m² plot · Ibiza-style villa (300m²) · 3×15m pool with terrace · Scale 1:100</p>
+</div>
+
+<div class="tabs" id="tabs">
+  <button class="active" data-view="hillside">🏔️ Hillside Plan</button>
+  <button data-view="terraced">🏛️ Terraced Villa</button>
+  <button data-view="crete">🌿 Crete Botanical</button>
+  <button data-view="cad">📐 CAD Plan</button>
+  <button data-view="counts">📊 Plant Counts</button>
+</div>
+
+<!-- ========== HILLSIDE PLAN ========== -->
+<div class="view active" id="hillside">
+<div class="map-container">
+<div class="map-title">Moraira Hillside Planting Plan<div class="map-subtitle">Mediterranean slope garden · 25m × 40m · North ↑ · Sea view south</div></div>
+<svg viewBox="0 0 1000 1600" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <pattern id="grass1" width="20" height="20" patternUnits="userSpaceOnUse"><rect width="20" height="20" fill="#1a2a1a"/><circle cx="5" cy="5" r="1" fill="#2a4a2a"/><circle cx="15" cy="15" r="1" fill="#2a4a2a"/></pattern>
+    <pattern id="gravel1" width="8" height="8" patternUnits="userSpaceOnUse"><rect width="8" height="8" fill="#2a2a2a"/><circle cx="2" cy="2" r="0.8" fill="#3a3a3a"/><circle cx="6" cy="6" r="0.6" fill="#3a3a3a"/></pattern>
+    <pattern id="water1" width="20" height="10" patternUnits="userSpaceOnUse"><rect width="20" height="10" fill="#1a3a5a"/><path d="M0 5 Q5 3,10 5 T20 5" stroke="#2a5a8a" fill="none" stroke-width="0.5"/></pattern>
+    <linearGradient id="hill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#1a3a2a"/><stop offset="100%" stop-color="#0d2a1a"/></linearGradient>
+  </defs>
+  <!-- Background -->
+  <rect width="1000" height="1600" fill="url(#hill)"/>
+  <!-- Contour lines (hillside) -->
+  <path d="M0 200 Q250 180,500 200 T1000 190" stroke="#2a4a3a" fill="none" stroke-width="1" stroke-dasharray="8,4"/>
+  <path d="M0 400 Q250 370,500 400 T1000 380" stroke="#2a4a3a" fill="none" stroke-width="1" stroke-dasharray="8,4"/>
+  <path d="M0 600 Q250 560,500 590 T1000 570" stroke="#2a4a3a" fill="none" stroke-width="1" stroke-dasharray="8,4"/>
+  <path d="M0 800 Q250 770,500 790 T1000 780" stroke="#2a4a3a" fill="none" stroke-width="1" stroke-dasharray="8,4"/>
+  <path d="M0 1000 Q250 970,500 990 T1000 980" stroke="#2a4a3a" fill="none" stroke-width="1" stroke-dasharray="8,4"/>
+  <text x="960" y="195" fill="#3a5a4a" font-size="12">+8m</text>
+  <text x="960" y="395" fill="#3a5a4a" font-size="12">+6m</text>
+  <text x="960" y="595" fill="#3a5a4a" font-size="12">+4m</text>
+  <text x="960" y="795" fill="#3a5a4a" font-size="12">+2m</text>
+  <text x="960" y="995" fill="#3a5a4a" font-size="12">+0m</text>
+
+  <!-- Villa -->
+  <rect x="280" y="650" width="440" height="280" rx="4" fill="#1a1a2a" stroke="#4a5a6a" stroke-width="2"/>
+  <text x="500" y="780" text-anchor="middle" fill="#6a7a8a" font-size="18" font-weight="600">IBIZA VILLA</text>
+  <text x="500" y="805" text-anchor="middle" fill="#4a5a6a" font-size="12">300m² · Single story</text>
+  <!-- Interior rooms hint -->
+  <line x1="500" y1="650" x2="500" y2="930" stroke="#2a3a4a" stroke-width="1" stroke-dasharray="4,4"/>
+  <line x1="280" y1="790" x2="720" y2="790" stroke="#2a3a4a" stroke-width="1" stroke-dasharray="4,4"/>
+
+  <!-- Pool -->
+  <rect x="340" y="990" width="320" height="120" rx="8" fill="url(#water1)" stroke="#3a6a8a" stroke-width="2"/>
+  <text x="500" y="1055" text-anchor="middle" fill="#5a9aba" font-size="14">POOL 3×15m</text>
+  <!-- Pool terrace -->
+  <rect x="300" y="960" width="400" height="180" rx="8" fill="none" stroke="#3a4a3a" stroke-width="1.5" stroke-dasharray="6,3"/>
+  <text x="500" y="1160" text-anchor="middle" fill="#4a5a4a" font-size="10">POOL TERRACE</text>
+
+  <!-- Driveway -->
+  <rect x="100" y="700" width="160" height="200" rx="4" fill="url(#gravel1)" stroke="#3a3a3a" stroke-width="1"/>
+  <text x="180" y="800" text-anchor="middle" fill="#5a5a5a" font-size="11">DRIVE</text>
+
+  <!-- === UPPER HILLSIDE (top) - Windbreak & Feature Trees === -->
+  <!-- Aleppo Pines (windbreak row) -->
+  <circle cx="100" cy="100" r="28" fill="#1a4a2a" stroke="#2a6a3a" stroke-width="1.5" opacity=".8"/><text x="100" y="105" text-anchor="middle" fill="#4a8a5a" font-size="8">Pine</text>
+  <circle cx="200" cy="80" r="30" fill="#1a4a2a" stroke="#2a6a3a" stroke-width="1.5" opacity=".8"/><text x="200" y="85" text-anchor="middle" fill="#4a8a5a" font-size="8">Pine</text>
+  <circle cx="320" cy="90" r="28" fill="#1a4a2a" stroke="#2a6a3a" stroke-width="1.5" opacity=".8"/><text x="320" y="95" text-anchor="middle" fill="#4a8a5a" font-size="8">Pine</text>
+  <circle cx="440" cy="75" r="26" fill="#1a4a2a" stroke="#2a6a3a" stroke-width="1.5" opacity=".8"/><text x="440" y="80" text-anchor="middle" fill="#4a8a5a" font-size="8">Pine</text>
+  <circle cx="580" cy="85" r="30" fill="#1a4a2a" stroke="#2a6a3a" stroke-width="1.5" opacity=".8"/><text x="580" y="90" text-anchor="middle" fill="#4a8a5a" font-size="8">Pine</text>
+  <circle cx="720" cy="95" r="28" fill="#1a4a2a" stroke="#2a6a3a" stroke-width="1.5" opacity=".8"/><text x="720" y="100" text-anchor="middle" fill="#4a8a5a" font-size="8">Pine</text>
+  <circle cx="860" cy="80" r="32" fill="#1a4a2a" stroke="#2a6a3a" stroke-width="1.5" opacity=".8"/><text x="860" y="85" text-anchor="middle" fill="#4a8a5a" font-size="8">Pine</text>
+
+  <!-- Italian Cypress avenue -->
+  <ellipse cx="130" cy="200" rx="8" ry="20" fill="#1a5a2a" stroke="#2a7a3a" stroke-width="1"/>
+  <ellipse cx="130" cy="300" rx="8" ry="20" fill="#1a5a2a" stroke="#2a7a3a" stroke-width="1"/>
+  <ellipse cx="130" cy="400" rx="8" ry="20" fill="#1a5a2a" stroke="#2a7a3a" stroke-width="1"/>
+  <ellipse cx="130" cy="500" rx="8" ry="20" fill="#1a5a2a" stroke="#2a7a3a" stroke-width="1"/>
+  <ellipse cx="870" cy="200" rx="8" ry="20" fill="#1a5a2a" stroke="#2a7a3a" stroke-width="1"/>
+  <ellipse cx="870" cy="300" rx="8" ry="20" fill="#1a5a2a" stroke="#2a7a3a" stroke-width="1"/>
+  <ellipse cx="870" cy="400" rx="8" ry="20" fill="#1a5a2a" stroke="#2a7a3a" stroke-width="1"/>
+  <ellipse cx="870" cy="500" rx="8" ry="20" fill="#1a5a2a" stroke="#2a7a3a" stroke-width="1"/>
+  <text x="145" y="350" fill="#3a6a4a" font-size="9" transform="rotate(90,145,350)">Cypress avenue</text>
+
+  <!-- Mid slope - Olives, Carobs, Figs -->
+  <circle cx="250" cy="250" r="22" fill="#2a4a1a" stroke="#4a6a2a" stroke-width="1.5"/><text x="250" y="254" text-anchor="middle" fill="#6a8a4a" font-size="8">Olive</text>
+  <circle cx="400" cy="230" r="24" fill="#2a4a1a" stroke="#4a6a2a" stroke-width="1.5"/><text x="400" y="234" text-anchor="middle" fill="#6a8a4a" font-size="8">Olive</text>
+  <circle cx="600" cy="240" r="22" fill="#2a4a1a" stroke="#4a6a2a" stroke-width="1.5"/><text x="600" y="244" text-anchor="middle" fill="#6a8a4a" font-size="8">Olive</text>
+  <circle cx="750" cy="220" r="24" fill="#2a4a1a" stroke="#4a6a2a" stroke-width="1.5"/><text x="750" y="224" text-anchor="middle" fill="#6a8a4a" font-size="8">Olive</text>
+  <circle cx="320" cy="350" r="20" fill="#3a4a2a" stroke="#5a6a3a" stroke-width="1.5"/><text x="320" y="354" text-anchor="middle" fill="#7a8a5a" font-size="7">Carob</text>
+  <circle cx="680" cy="340" r="20" fill="#3a4a2a" stroke="#5a6a3a" stroke-width="1.5"/><text x="680" y="344" text-anchor="middle" fill="#7a8a5a" font-size="7">Carob</text>
+  <circle cx="500" cy="320" r="18" fill="#3a5a2a" stroke="#5a7a3a" stroke-width="1.5"/><text x="500" y="324" text-anchor="middle" fill="#7a9a5a" font-size="7">Fig</text>
+
+  <!-- Herb terrace band -->
+  <rect x="200" y="430" width="600" height="60" rx="30" fill="none" stroke="#6a6a2a" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <text x="500" y="465" text-anchor="middle" fill="#8a8a4a" font-size="11">🌿 HERB TERRACE — Lavender · Rosemary · Thyme · Sage · Oregano · Dittany</text>
+
+  <!-- Citrus grove near villa -->
+  <circle cx="770" cy="680" r="16" fill="#3a5a1a" stroke="#5a8a2a" stroke-width="1.5"/><text x="770" y="684" text-anchor="middle" fill="#8aaa4a" font-size="7">🍋</text>
+  <circle cx="810" cy="730" r="16" fill="#3a5a1a" stroke="#5a8a2a" stroke-width="1.5"/><text x="810" y="734" text-anchor="middle" fill="#8aaa4a" font-size="7">🍊</text>
+  <circle cx="770" cy="780" r="16" fill="#3a5a1a" stroke="#5a8a2a" stroke-width="1.5"/><text x="770" y="784" text-anchor="middle" fill="#8aaa4a" font-size="7">🍋</text>
+  <circle cx="810" cy="830" r="16" fill="#3a5a1a" stroke="#5a8a2a" stroke-width="1.5"/><text x="810" y="834" text-anchor="middle" fill="#8aaa4a" font-size="7">🍊</text>
+  <text x="790" y="870" text-anchor="middle" fill="#5a7a3a" font-size="9">Citrus grove</text>
+
+  <!-- Oleander hedge around boundary -->
+  <rect x="30" y="30" width="940" height="1540" rx="8" fill="none" stroke="#8a3a5a" stroke-width="2" stroke-dasharray="12,4"/>
+  <text x="500" y="20" text-anchor="middle" fill="#8a4a5a" font-size="10">OLEANDER BOUNDARY HEDGE</text>
+
+  <!-- Bougainvillea on villa walls -->
+  <circle cx="290" cy="660" r="10" fill="#8a1a4a" stroke="#aa2a6a" stroke-width="1"/><text x="310" y="663" fill="#aa4a7a" font-size="7">Bougainvillea</text>
+  <circle cx="710" cy="660" r="10" fill="#8a1a4a" stroke="#aa2a6a" stroke-width="1"/>
+  <circle cx="290" cy="920" r="10" fill="#8a1a4a" stroke="#aa2a6a" stroke-width="1"/>
+  <circle cx="710" cy="920" r="10" fill="#8a1a4a" stroke="#aa2a6a" stroke-width="1"/>
+
+  <!-- Palms at entrance -->
+  <circle cx="260" cy="930" r="20" fill="#1a5a3a" stroke="#2a8a4a" stroke-width="2"/><text x="260" y="934" text-anchor="middle" fill="#4aaa6a" font-size="7">🌴 Palm</text>
+  <circle cx="740" cy="930" r="20" fill="#1a5a3a" stroke="#2a8a4a" stroke-width="2"/><text x="740" y="934" text-anchor="middle" fill="#4aaa6a" font-size="7">🌴 Palm</text>
+
+  <!-- Cactus garden (lower left) -->
+  <rect x="60" y="1100" width="200" height="200" rx="12" fill="#1a1a0a" stroke="#4a4a2a" stroke-width="1.5"/>
+  <text x="160" y="1130" text-anchor="middle" fill="#8a8a4a" font-size="10">🌵 CACTUS GARDEN</text>
+  <circle cx="100" cy="1170" r="10" fill="#2a3a1a"/><text x="100" y="1174" text-anchor="middle" fill="#6a7a4a" font-size="6">Agave</text>
+  <circle cx="150" cy="1180" r="8" fill="#4a3a1a"/><text x="150" y="1184" text-anchor="middle" fill="#8a6a4a" font-size="6">Barrel</text>
+  <circle cx="200" cy="1170" r="10" fill="#2a3a1a"/><text x="200" y="1174" text-anchor="middle" fill="#6a7a4a" font-size="6">Aloe</text>
+  <circle cx="120" cy="1230" r="12" fill="#3a2a1a"/><text x="120" y="1234" text-anchor="middle" fill="#7a5a3a" font-size="6">Prickly P.</text>
+  <circle cx="180" cy="1240" r="8" fill="#2a2a1a"/><text x="180" y="1244" text-anchor="middle" fill="#6a6a4a" font-size="6">Aeonium</text>
+  <circle cx="140" cy="1270" r="10" fill="#3a3a1a"/><text x="140" y="1274" text-anchor="middle" fill="#7a7a4a" font-size="6">Yucca</text>
+
+  <!-- Flowering perennial border (lower right) -->
+  <rect x="740" y="1100" width="200" height="200" rx="12" fill="#1a0a1a" stroke="#4a2a4a" stroke-width="1.5"/>
+  <text x="840" y="1130" text-anchor="middle" fill="#8a4a8a" font-size="10">🌸 PERENNIAL BED</text>
+  <circle cx="780" cy="1170" r="8" fill="#2a1a3a"/><text x="780" y="1174" text-anchor="middle" fill="#6a4a7a" font-size="6">Agapan.</text>
+  <circle cx="830" cy="1165" r="8" fill="#3a1a2a"/><text x="830" y="1169" text-anchor="middle" fill="#7a4a5a" font-size="6">Valerian</text>
+  <circle cx="880" cy="1175" r="8" fill="#2a1a4a"/><text x="880" y="1179" text-anchor="middle" fill="#5a4a8a" font-size="6">Echium</text>
+  <circle cx="800" cy="1220" r="8" fill="#3a1a3a"/><text x="800" y="1224" text-anchor="middle" fill="#7a4a7a" font-size="6">Jasmine</text>
+  <circle cx="860" cy="1225" r="8" fill="#3a2a1a"/><text x="860" y="1229" text-anchor="middle" fill="#7a6a4a" font-size="6">Gazania</text>
+  <circle cx="830" cy="1270" r="8" fill="#2a2a3a"/><text x="830" y="1274" text-anchor="middle" fill="#6a6a8a" font-size="6">Strelitzia</text>
+
+  <!-- Jacaranda feature -->
+  <circle cx="500" cy="540" r="30" fill="#3a2a5a" stroke="#5a3a8a" stroke-width="2"/><text x="500" y="544" text-anchor="middle" fill="#8a6aba" font-size="9">Jacaranda</text>
+
+  <!-- Almond trees -->
+  <circle cx="200" cy="500" r="16" fill="#4a3a3a" stroke="#6a4a4a" stroke-width="1"/><text x="200" y="504" text-anchor="middle" fill="#9a6a6a" font-size="7">Almond</text>
+  <circle cx="800" cy="510" r="16" fill="#4a3a3a" stroke="#6a4a4a" stroke-width="1"/><text x="800" y="514" text-anchor="middle" fill="#9a6a6a" font-size="7">Almond</text>
+
+  <!-- Lower garden path -->
+  <path d="M160 1200 Q400 1300,500 1350 T840 1200" stroke="#4a4a3a" fill="none" stroke-width="3" stroke-dasharray="10,5"/>
+  <text x="500" y="1380" text-anchor="middle" fill="#5a5a4a" font-size="9">Garden path (decomposed granite)</text>
+
+  <!-- Scale bar -->
+  <line x1="50" y1="1550" x2="450" y2="1550" stroke="#6a8a7a" stroke-width="2"/>
+  <line x1="50" y1="1540" x2="50" y2="1560" stroke="#6a8a7a" stroke-width="2"/>
+  <line x1="450" y1="1540" x2="450" y2="1560" stroke="#6a8a7a" stroke-width="2"/>
+  <text x="250" y="1575" text-anchor="middle" fill="#6a8a7a" font-size="12">10m (scale 1:100)</text>
+
+  <!-- North arrow -->
+  <polygon points="930,1520 940,1560 920,1560" fill="#6a8a7a"/>
+  <text x="930" y="1510" text-anchor="middle" fill="#6a8a7a" font-size="12" font-weight="bold">N</text>
+
+  <!-- Sea direction -->
+  <text x="500" y="1595" text-anchor="middle" fill="#3a6a8a" font-size="11">↓ SEA VIEW (South) ↓</text>
+</svg>
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:#1a4a2a"></div>Aleppo Pine</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#1a5a2a"></div>Italian Cypress</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#2a4a1a"></div>Olive Tree</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#3a4a2a"></div>Carob</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#3a5a1a"></div>Citrus</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#8a1a4a"></div>Bougainvillea</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#3a2a5a"></div>Jacaranda</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#1a5a3a"></div>Palms</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#1a1a0a;border-color:#4a4a2a"></div>Cactus Zone</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#1a0a1a;border-color:#4a2a4a"></div>Perennial Bed</div>
+</div>
+</div>
+</div>
+
+<!-- ========== TERRACED VILLA ========== -->
+<div class="view" id="terraced">
+<div class="map-container">
+<div class="map-title">Terraced Villa Garden Palette<div class="map-subtitle">3 terraces descending toward pool · Mixed Mediterranean & tropical · 25m × 40m</div></div>
+<svg viewBox="0 0 1000 1600" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <pattern id="tile1" width="16" height="16" patternUnits="userSpaceOnUse"><rect width="16" height="16" fill="#2a2a1a"/><rect x="0" y="0" width="7.5" height="7.5" fill="#2e2e1e"/><rect x="8.5" y="8.5" width="7.5" height="7.5" fill="#2e2e1e"/></pattern>
+    <pattern id="water2" width="20" height="10" patternUnits="userSpaceOnUse"><rect width="20" height="10" fill="#15354a"/><path d="M0 5 Q5 3,10 5 T20 5" stroke="#2a5a7a" fill="none" stroke-width="0.5"/></pattern>
+  </defs>
+  <rect width="1000" height="1600" fill="#0d1a0d"/>
+
+  <!-- TERRACE 1: Upper (Entry & Formal) -->
+  <rect x="50" y="50" width="900" height="400" rx="4" fill="#121a12" stroke="#3a5a3a" stroke-width="2"/>
+  <text x="500" y="85" text-anchor="middle" fill="#5a8a5a" font-size="14" font-weight="600">TERRACE 1 — Entry & Formal Garden (+3m)</text>
+  <!-- Formal hedge rows -->
+  <rect x="100" y="120" width="340" height="20" rx="10" fill="#2a4a2a" stroke="#3a6a3a" stroke-width="1"/><text x="270" y="135" text-anchor="middle" fill="#5a8a5a" font-size="9">Myrtle hedge</text>
+  <rect x="560" y="120" width="340" height="20" rx="10" fill="#2a4a2a" stroke="#3a6a3a" stroke-width="1"/><text x="730" y="135" text-anchor="middle" fill="#5a8a5a" font-size="9">Pittosporum hedge</text>
+  <!-- Entry palms -->
+  <circle cx="490" cy="180" r="22" fill="#1a5a3a" stroke="#2a8a4a" stroke-width="2"/><text x="490" y="184" text-anchor="middle" fill="#4aaa6a" font-size="8">🌴</text>
+  <circle cx="510" cy="240" r="22" fill="#1a5a3a" stroke="#2a8a4a" stroke-width="2"/><text x="510" y="244" text-anchor="middle" fill="#4aaa6a" font-size="8">🌴</text>
+  <!-- Lavender borders -->
+  <rect x="100" y="170" width="300" height="15" rx="7" fill="#3a2a4a"/><text x="250" y="181" text-anchor="middle" fill="#7a5a9a" font-size="8">Lavender row</text>
+  <rect x="600" y="170" width="300" height="15" rx="7" fill="#3a2a4a"/><text x="750" y="181" text-anchor="middle" fill="#7a5a9a" font-size="8">Lavender row</text>
+  <!-- Rose of Sharon + Judas Trees -->
+  <circle cx="150" cy="280" r="18" fill="#4a2a3a" stroke="#6a3a5a" stroke-width="1.5"/><text x="150" y="284" text-anchor="middle" fill="#8a5a7a" font-size="7">Judas</text>
+  <circle cx="850" cy="280" r="18" fill="#4a2a3a" stroke="#6a3a5a" stroke-width="1.5"/><text x="850" y="284" text-anchor="middle" fill="#8a5a7a" font-size="7">Judas</text>
+  <circle cx="300" cy="310" r="14" fill="#5a2a4a"/><text x="300" y="314" text-anchor="middle" fill="#9a5a7a" font-size="7">Hibiscus</text>
+  <circle cx="700" cy="310" r="14" fill="#5a2a4a"/><text x="700" y="314" text-anchor="middle" fill="#9a5a7a" font-size="7">Hibiscus</text>
+  <!-- Herb spiral -->
+  <circle cx="500" cy="370" r="40" fill="#1a2a1a" stroke="#4a6a4a" stroke-width="1.5"/>
+  <path d="M500 330 Q540 340,540 370 Q540 400,500 410 Q460 420,460 370 Q460 350,480 340" stroke="#6a8a4a" fill="none" stroke-width="1.5"/>
+  <text x="500" y="374" text-anchor="middle" fill="#6a8a4a" font-size="9">Herb Spiral</text>
+
+  <!-- Retaining wall -->
+  <rect x="50" y="445" width="900" height="10" fill="#3a3a2a" rx="2"/>
+  <text x="500" y="442" text-anchor="middle" fill="#6a6a4a" font-size="9">▼ Stone retaining wall ▼</text>
+
+  <!-- TERRACE 2: Villa Level -->
+  <rect x="50" y="460" width="900" height="500" rx="4" fill="#0d150d" stroke="#2a4a3a" stroke-width="2"/>
+  <text x="500" y="490" text-anchor="middle" fill="#4a7a5a" font-size="14" font-weight="600">TERRACE 2 — Villa Level (+1.5m)</text>
+  <!-- Villa -->
+  <rect x="200" y="520" width="600" height="250" rx="4" fill="#1a1a2a" stroke="#4a5a6a" stroke-width="2"/>
+  <text x="500" y="640" text-anchor="middle" fill="#6a7a8a" font-size="16" font-weight="600">IBIZA VILLA</text>
+  <text x="500" y="665" text-anchor="middle" fill="#4a5a6a" font-size="11">300m² · White rendered walls</text>
+  <!-- Bougainvillea on walls -->
+  <circle cx="210" cy="530" r="12" fill="#8a1a4a" stroke="#aa2a6a" stroke-width="1.5"/>
+  <circle cx="790" cy="530" r="12" fill="#8a1a4a" stroke="#aa2a6a" stroke-width="1.5"/>
+  <circle cx="210" cy="760" r="12" fill="#6a1a6a" stroke="#8a2a8a" stroke-width="1.5"/>
+  <circle cx="790" cy="760" r="12" fill="#6a1a6a" stroke="#8a2a8a" stroke-width="1.5"/>
+  <text x="140" y="650" text-anchor="middle" fill="#8a3a5a" font-size="8" transform="rotate(-90,140,650)">Bougainvillea</text>
+  <!-- Star Jasmine pergola -->
+  <rect x="300" y="790" width="400" height="40" rx="4" fill="#1a2a1a" stroke="#3a5a3a" stroke-width="1.5"/>
+  <text x="500" y="815" text-anchor="middle" fill="#5a8a5a" font-size="9">Star Jasmine Pergola</text>
+  <!-- Side planting -->
+  <circle cx="120" cy="580" r="20" fill="#2a4a1a" stroke="#4a6a2a" stroke-width="1.5"/><text x="120" y="584" text-anchor="middle" fill="#6a8a4a" font-size="7">Olive</text>
+  <circle cx="880" cy="580" r="20" fill="#2a4a1a" stroke="#4a6a2a" stroke-width="1.5"/><text x="880" y="584" text-anchor="middle" fill="#6a8a4a" font-size="7">Olive</text>
+  <circle cx="120" cy="700" r="14" fill="#3a5a1a"/><text x="120" y="704" text-anchor="middle" fill="#6a8a3a" font-size="7">🍋</text>
+  <circle cx="880" cy="700" r="14" fill="#3a5a1a"/><text x="880" y="704" text-anchor="middle" fill="#6a8a3a" font-size="7">🍊</text>
+  <!-- Geranium pots row -->
+  <circle cx="250" cy="780" r="6" fill="#5a1a1a"/><circle cx="330" cy="780" r="6" fill="#5a1a1a"/><circle cx="410" cy="780" r="6" fill="#5a1a1a"/>
+  <circle cx="590" cy="780" r="6" fill="#5a1a1a"/><circle cx="670" cy="780" r="6" fill="#5a1a1a"/><circle cx="750" cy="780" r="6" fill="#5a1a1a"/>
+  <text x="500" y="778" text-anchor="middle" fill="#8a4a4a" font-size="8">Geranium pots</text>
+
+  <!-- Retaining wall 2 -->
+  <rect x="50" y="955" width="900" height="10" fill="#3a3a2a" rx="2"/>
+
+  <!-- TERRACE 3: Pool & Tropical -->
+  <rect x="50" y="970" width="900" height="580" rx="4" fill="#0a120a" stroke="#1a3a2a" stroke-width="2"/>
+  <text x="500" y="1000" text-anchor="middle" fill="#3a6a4a" font-size="14" font-weight="600">TERRACE 3 — Pool & Tropical Garden (±0m)</text>
+  <!-- Pool -->
+  <rect x="300" y="1040" width="400" height="130" rx="10" fill="url(#water2)" stroke="#3a6a8a" stroke-width="2"/>
+  <text x="500" y="1110" text-anchor="middle" fill="#5a9aba" font-size="13">POOL 3×15m</text>
+  <!-- Pool terrace -->
+  <rect x="250" y="1010" width="500" height="190" rx="8" fill="none" stroke="#3a4a3a" stroke-width="1.5" stroke-dasharray="6,3"/>
+  <!-- Poolside tropicals -->
+  <circle cx="270" cy="1080" r="14" fill="#2a5a2a"/><text x="270" y="1084" text-anchor="middle" fill="#5a9a5a" font-size="6">Strelitzia</text>
+  <circle cx="270" cy="1130" r="14" fill="#1a4a3a"/><text x="270" y="1134" text-anchor="middle" fill="#4a8a6a" font-size="6">Canna</text>
+  <circle cx="730" cy="1080" r="14" fill="#2a5a2a"/><text x="730" y="1084" text-anchor="middle" fill="#5a9a5a" font-size="6">Strelitzia</text>
+  <circle cx="730" cy="1130" r="14" fill="#1a4a3a"/><text x="730" y="1134" text-anchor="middle" fill="#4a8a6a" font-size="6">Canna</text>
+  <!-- Agapanthus row along pool -->
+  <rect x="320" y="1180" width="360" height="14" rx="7" fill="#1a2a4a"/><text x="500" y="1191" text-anchor="middle" fill="#4a6a9a" font-size="8">Agapanthus border</text>
+  <!-- Cactus display corners -->
+  <rect x="80" y="1250" width="180" height="160" rx="10" fill="#1a1a0a" stroke="#3a3a1a" stroke-width="1.5"/>
+  <text x="170" y="1275" text-anchor="middle" fill="#7a7a3a" font-size="9">🌵 Succulent Display</text>
+  <circle cx="120" cy="1310" r="12" fill="#2a3a1a"/><text x="120" y="1314" text-anchor="middle" fill="#5a7a3a" font-size="6">Century</text>
+  <circle cx="180" cy="1320" r="10" fill="#3a3a1a"/><text x="180" y="1324" text-anchor="middle" fill="#6a6a3a" font-size="6">Golden B.</text>
+  <circle cx="140" cy="1370" r="10" fill="#2a4a1a"/><text x="140" y="1374" text-anchor="middle" fill="#5a8a3a" font-size="6">Aloe</text>
+
+  <!-- Flowering feature (right) -->
+  <rect x="740" y="1250" width="180" height="160" rx="10" fill="#1a0a1a" stroke="#3a1a3a" stroke-width="1.5"/>
+  <text x="830" y="1275" text-anchor="middle" fill="#7a3a7a" font-size="9">🌺 Color Garden</text>
+  <circle cx="780" cy="1310" r="10" fill="#4a1a2a"/><text x="780" y="1314" text-anchor="middle" fill="#8a3a5a" font-size="6">Lantana</text>
+  <circle cx="840" cy="1320" r="10" fill="#3a1a4a"/><text x="840" y="1324" text-anchor="middle" fill="#6a3a8a" font-size="6">Plumbago</text>
+  <circle cx="800" cy="1370" r="10" fill="#4a2a1a"/><text x="800" y="1374" text-anchor="middle" fill="#8a5a3a" font-size="6">Gazania</text>
+
+  <!-- Pomegranate + Fig (lower centre) -->
+  <circle cx="420" cy="1350" r="18" fill="#3a2a1a" stroke="#5a4a2a" stroke-width="1.5"/><text x="420" y="1354" text-anchor="middle" fill="#8a6a3a" font-size="7">Pomegran.</text>
+  <circle cx="580" cy="1350" r="18" fill="#3a3a2a" stroke="#5a5a3a" stroke-width="1.5"/><text x="580" y="1354" text-anchor="middle" fill="#8a8a4a" font-size="7">Fig</text>
+
+  <!-- Oleander boundary -->
+  <rect x="50" y="50" width="900" height="1500" rx="8" fill="none" stroke="#8a3a5a" stroke-width="2" stroke-dasharray="12,4"/>
+
+  <!-- Scale & compass -->
+  <line x1="50" y1="1570" x2="450" y2="1570" stroke="#6a8a7a" stroke-width="2"/>
+  <line x1="50" y1="1560" x2="50" y2="1580" stroke="#6a8a7a" stroke-width="2"/>
+  <line x1="450" y1="1560" x2="450" y2="1580" stroke="#6a8a7a" stroke-width="2"/>
+  <text x="250" y="1592" text-anchor="middle" fill="#6a8a7a" font-size="12">10m</text>
+  <polygon points="930,1530 940,1570 920,1570" fill="#6a8a7a"/>
+  <text x="930" y="1520" text-anchor="middle" fill="#6a8a7a" font-size="12" font-weight="bold">N</text>
+</svg>
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:#3a2a4a"></div>Lavender</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#1a5a3a"></div>Palms</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#2a4a1a"></div>Olive</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#8a1a4a"></div>Bougainvillea</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#1a2a4a"></div>Agapanthus</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#2a5a2a"></div>Strelitzia</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#5a1a1a"></div>Geranium</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#4a2a3a"></div>Judas Tree</div>
+</div>
+</div>
+</div>
+
+<!-- ========== CRETE BOTANICAL ========== -->
+<div class="view" id="crete">
+<div class="map-container">
+<div class="map-title">Crete-Style Botanical Garden Map<div class="map-subtitle">Themed zones inspired by the Botanical Park & Gardens of Crete, Chania · 25m × 40m</div></div>
+<svg viewBox="0 0 1000 1600" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <pattern id="stone" width="12" height="12" patternUnits="userSpaceOnUse"><rect width="12" height="12" fill="#1a1a15"/><rect x="1" y="1" width="5" height="5" fill="#1e1e18" rx="1"/><rect x="7" y="7" width="4" height="4" fill="#1c1c17" rx="1"/></pattern>
+  </defs>
+  <rect width="1000" height="1600" fill="#0d150d"/>
+
+  <!-- Winding path through garden -->
+  <path d="M500 50 Q300 150,350 300 Q400 450,250 550 Q100 650,300 750 Q500 850,400 1000 Q300 1100,500 1200 Q700 1300,500 1500" stroke="#4a4a2a" fill="none" stroke-width="12" stroke-linecap="round" opacity=".6"/>
+  <path d="M500 50 Q300 150,350 300 Q400 450,250 550 Q100 650,300 750 Q500 850,400 1000 Q300 1100,500 1200 Q700 1300,500 1500" stroke="#5a5a3a" fill="none" stroke-width="4" stroke-dasharray="10,5" stroke-linecap="round"/>
+  <text x="500" y="40" text-anchor="middle" fill="#6a6a4a" font-size="11">ENTRANCE</text>
+
+  <!-- ZONE 1: Cretan Herb Garden (top left) -->
+  <ellipse cx="200" cy="200" rx="170" ry="130" fill="#1a2a1a" stroke="#3a5a2a" stroke-width="2" stroke-dasharray="8,4"/>
+  <text x="200" y="120" text-anchor="middle" fill="#6a9a4a" font-size="13" font-weight="600">🏛️ CRETAN HERB GARDEN</text>
+  <circle cx="120" cy="180" r="12" fill="#2a3a1a"/><text x="120" y="184" text-anchor="middle" fill="#5a7a3a" font-size="7">Dittany</text>
+  <circle cx="180" cy="160" r="12" fill="#3a3a1a"/><text x="180" y="164" text-anchor="middle" fill="#6a6a3a" font-size="7">Malotira</text>
+  <circle cx="250" cy="170" r="12" fill="#2a4a1a"/><text x="250" y="174" text-anchor="middle" fill="#5a8a3a" font-size="7">Oregano</text>
+  <circle cx="140" cy="230" r="12" fill="#3a2a1a"/><text x="140" y="234" text-anchor="middle" fill="#6a5a3a" font-size="7">Thyme</text>
+  <circle cx="220" cy="240" r="12" fill="#2a2a2a"/><text x="220" y="244" text-anchor="middle" fill="#5a5a5a" font-size="7">Sage</text>
+  <circle cx="290" cy="220" r="12" fill="#3a3a2a"/><text x="290" y="224" text-anchor="middle" fill="#6a6a4a" font-size="7">Savory</text>
+  <circle cx="180" cy="290" r="12" fill="#2a3a2a"/><text x="180" y="294" text-anchor="middle" fill="#5a6a5a" font-size="7">Cistus</text>
+  <circle cx="260" cy="280" r="12" fill="#3a2a2a"/><text x="260" y="284" text-anchor="middle" fill="#6a5a5a" font-size="7">Hyssop</text>
+
+  <!-- ZONE 2: Olive & Carob Grove (top right) -->
+  <ellipse cx="750" cy="220" rx="180" ry="150" fill="#1a1a0d" stroke="#3a4a2a" stroke-width="2" stroke-dasharray="8,4"/>
+  <text x="750" y="110" text-anchor="middle" fill="#6a8a3a" font-size="13" font-weight="600">🫒 OLIVE & CAROB GROVE</text>
+  <circle cx="670" cy="180" r="24" fill="#2a4a1a" stroke="#4a6a2a" stroke-width="1.5"/><text x="670" y="184" text-anchor="middle" fill="#6a8a4a" font-size="8">Olive</text>
+  <circle cx="780" cy="160" r="26" fill="#2a4a1a" stroke="#4a6a2a" stroke-width="1.5"/><text x="780" y="164" text-anchor="middle" fill="#6a8a4a" font-size="8">Olive</text>
+  <circle cx="870" cy="200" r="22" fill="#2a4a1a" stroke="#4a6a2a" stroke-width="1.5"/><text x="870" y="204" text-anchor="middle" fill="#6a8a4a" font-size="8">Olive</text>
+  <circle cx="720" cy="270" r="20" fill="#3a4a2a" stroke="#5a6a3a" stroke-width="1.5"/><text x="720" y="274" text-anchor="middle" fill="#7a8a5a" font-size="7">Carob</text>
+  <circle cx="840" cy="290" r="20" fill="#3a4a2a" stroke="#5a6a3a" stroke-width="1.5"/><text x="840" y="294" text-anchor="middle" fill="#7a8a5a" font-size="7">Carob</text>
+  <circle cx="700" cy="330" r="16" fill="#3a3a2a"/><text x="700" y="334" text-anchor="middle" fill="#6a6a4a" font-size="7">Fig</text>
+
+  <!-- ZONE 3: Citrus Orchard (middle left) -->
+  <rect x="60" y="420" width="320" height="240" rx="20" fill="#0d1a0d" stroke="#3a5a1a" stroke-width="2" stroke-dasharray="8,4"/>
+  <text x="220" y="450" text-anchor="middle" fill="#5a8a2a" font-size="13" font-weight="600">🍋 CITRUS ORCHARD</text>
+  <circle cx="120" cy="500" r="16" fill="#3a5a1a" stroke="#5a8a2a" stroke-width="1"/><text x="120" y="504" text-anchor="middle" fill="#8aaa4a" font-size="7">🍋 Lemon</text>
+  <circle cx="220" cy="490" r="16" fill="#3a5a1a" stroke="#5a8a2a" stroke-width="1"/><text x="220" y="494" text-anchor="middle" fill="#8aaa4a" font-size="7">🍊 Orange</text>
+  <circle cx="320" cy="500" r="16" fill="#3a5a1a" stroke="#5a8a2a" stroke-width="1"/><text x="320" y="504" text-anchor="middle" fill="#8aaa4a" font-size="7">🍋 Lemon</text>
+  <circle cx="170" cy="570" r="16" fill="#3a5a1a" stroke="#5a8a2a" stroke-width="1"/><text x="170" y="574" text-anchor="middle" fill="#8aaa4a" font-size="7">🍊 Orange</text>
+  <circle cx="270" cy="580" r="16" fill="#3a5a1a" stroke="#5a8a2a" stroke-width="1"/><text x="270" y="584" text-anchor="middle" fill="#8aaa4a" font-size="7">Kumquat</text>
+  <circle cx="160" cy="630" r="14" fill="#4a5a1a"/><text x="160" y="634" text-anchor="middle" fill="#8a9a3a" font-size="7">Loquat</text>
+  <circle cx="280" cy="620" r="14" fill="#4a5a1a"/><text x="280" y="624" text-anchor="middle" fill="#8a9a3a" font-size="7">Pomegran.</text>
+
+  <!-- ZONE 4: Villa & Pool (centre) -->
+  <rect x="340" y="500" width="320" height="200" rx="4" fill="#1a1a2a" stroke="#4a5a6a" stroke-width="2"/>
+  <text x="500" y="595" text-anchor="middle" fill="#6a7a8a" font-size="14" font-weight="600">VILLA</text>
+  <rect x="380" y="740" width="240" height="90" rx="8" fill="#15354a" stroke="#3a6a8a" stroke-width="2"/>
+  <text x="500" y="790" text-anchor="middle" fill="#5a9aba" font-size="12">POOL</text>
+
+  <!-- ZONE 5: Endemic Wildflower Meadow (middle right) -->
+  <ellipse cx="800" cy="560" rx="160" ry="130" fill="#1a0d1a" stroke="#4a2a4a" stroke-width="2" stroke-dasharray="8,4"/>
+  <text x="800" y="470" text-anchor="middle" fill="#8a4a8a" font-size="13" font-weight="600">🌸 ENDEMIC WILDFLOWERS</text>
+  <circle cx="740" cy="530" r="10" fill="#3a1a3a"/><text x="740" y="534" text-anchor="middle" fill="#7a4a7a" font-size="7">Cyclamen</text>
+  <circle cx="820" cy="520" r="10" fill="#4a1a2a"/><text x="820" y="524" text-anchor="middle" fill="#8a4a5a" font-size="7">Dianthus</text>
+  <circle cx="880" cy="550" r="10" fill="#3a2a3a"/><text x="880" y="554" text-anchor="middle" fill="#6a5a6a" font-size="7">Iris</text>
+  <circle cx="760" cy="590" r="10" fill="#3a3a1a"/><text x="760" y="594" text-anchor="middle" fill="#6a6a4a" font-size="7">Phlomis</text>
+  <circle cx="850" cy="600" r="10" fill="#4a2a3a"/><text x="850" y="604" text-anchor="middle" fill="#8a5a6a" font-size="7">Valerian</text>
+  <circle cx="800" cy="640" r="10" fill="#3a1a4a"/><text x="800" y="644" text-anchor="middle" fill="#6a4a8a" font-size="7">Euphorbia</text>
+
+  <!-- ZONE 6: Vineyard (lower left) -->
+  <rect x="60" y="860" width="280" height="200" rx="12" fill="#1a1a0a" stroke="#4a4a1a" stroke-width="2" stroke-dasharray="8,4"/>
+  <text x="200" y="890" text-anchor="middle" fill="#8a8a2a" font-size="13" font-weight="600">🍇 CRETAN VINEYARD</text>
+  <line x1="100" y1="920" x2="100" y2="1040" stroke="#4a4a2a" stroke-width="2"/>
+  <line x1="160" y1="920" x2="160" y2="1040" stroke="#4a4a2a" stroke-width="2"/>
+  <line x1="220" y1="920" x2="220" y2="1040" stroke="#4a4a2a" stroke-width="2"/>
+  <line x1="280" y1="920" x2="280" y2="1040" stroke="#4a4a2a" stroke-width="2"/>
+  <text x="200" y="980" text-anchor="middle" fill="#6a6a3a" font-size="9">Vine rows</text>
+
+  <!-- ZONE 7: Succulent & Cactus Rockery (lower centre) -->
+  <ellipse cx="500" cy="1000" rx="150" ry="100" fill="#1a1a0a" stroke="#5a4a2a" stroke-width="2" stroke-dasharray="8,4"/>
+  <text x="500" y="940" text-anchor="middle" fill="#8a6a2a" font-size="13" font-weight="600">🌵 ROCKERY & SUCCULENTS</text>
+  <circle cx="440" cy="990" r="14" fill="#2a3a1a"/><text x="440" y="994" text-anchor="middle" fill="#5a7a3a" font-size="7">Agave</text>
+  <circle cx="520" cy="980" r="10" fill="#4a3a1a"/><text x="520" y="984" text-anchor="middle" fill="#8a6a3a" font-size="7">Golden B.</text>
+  <circle cx="580" cy="1000" r="12" fill="#3a4a1a"/><text x="580" y="1004" text-anchor="middle" fill="#6a8a3a" font-size="7">Aloe</text>
+  <circle cx="460" cy="1050" r="12" fill="#3a2a1a"/><text x="460" y="1054" text-anchor="middle" fill="#6a5a3a" font-size="7">Prickly P.</text>
+  <circle cx="540" cy="1060" r="10" fill="#2a2a1a"/><text x="540" y="1064" text-anchor="middle" fill="#5a5a3a" font-size="7">Ice Plant</text>
+
+  <!-- ZONE 8: Tropical Corner (lower right) -->
+  <ellipse cx="800" cy="950" rx="160" ry="120" fill="#0d1a1a" stroke="#2a5a5a" stroke-width="2" stroke-dasharray="8,4"/>
+  <text x="800" y="870" text-anchor="middle" fill="#4a8a8a" font-size="13" font-weight="600">🌴 TROPICAL CORNER</text>
+  <circle cx="740" cy="930" r="20" fill="#1a5a3a" stroke="#2a8a4a" stroke-width="2"/><text x="740" y="934" text-anchor="middle" fill="#4aaa6a" font-size="7">🌴 Palm</text>
+  <circle cx="840" cy="920" r="18" fill="#2a5a2a"/><text x="840" y="924" text-anchor="middle" fill="#5a9a5a" font-size="7">Strelitzia</text>
+  <circle cx="780" cy="980" r="14" fill="#1a4a3a"/><text x="780" y="984" text-anchor="middle" fill="#4a8a6a" font-size="7">Canna</text>
+  <circle cx="860" cy="990" r="14" fill="#2a4a2a"/><text x="860" y="994" text-anchor="middle" fill="#5a8a5a" font-size="7">Ginger L.</text>
+  <circle cx="820" cy="1040" r="16" fill="#3a2a5a"/><text x="820" y="1044" text-anchor="middle" fill="#6a5a9a" font-size="7">Jacaranda</text>
+
+  <!-- ZONE 9: Native Tree Walk (bottom) -->
+  <rect x="100" y="1150" width="800" height="200" rx="20" fill="#0d1a0d" stroke="#2a4a2a" stroke-width="2" stroke-dasharray="8,4"/>
+  <text x="500" y="1180" text-anchor="middle" fill="#4a8a4a" font-size="13" font-weight="600">🌳 NATIVE TREE WALK</text>
+  <circle cx="180" cy="1260" r="20" fill="#1a4a2a" stroke="#2a6a3a" stroke-width="1.5"/><text x="180" y="1264" text-anchor="middle" fill="#4a8a5a" font-size="7">Strawberry</text>
+  <circle cx="320" cy="1250" r="18" fill="#4a2a3a" stroke="#6a3a5a" stroke-width="1.5"/><text x="320" y="1254" text-anchor="middle" fill="#8a5a7a" font-size="7">Judas</text>
+  <circle cx="460" cy="1270" r="20" fill="#2a4a1a" stroke="#4a6a2a" stroke-width="1.5"/><text x="460" y="1274" text-anchor="middle" fill="#6a8a4a" font-size="7">Almond</text>
+  <circle cx="600" cy="1250" r="18" fill="#3a3a1a" stroke="#5a5a2a" stroke-width="1.5"/><text x="600" y="1254" text-anchor="middle" fill="#7a7a4a" font-size="7">Tamarisk</text>
+  <circle cx="740" cy="1260" r="18" fill="#2a3a1a" stroke="#4a5a2a" stroke-width="1.5"/><text x="740" y="1264" text-anchor="middle" fill="#6a7a4a" font-size="7">Mulberry</text>
+
+  <!-- Zone labels path -->
+  <text x="500" y="1420" text-anchor="middle" fill="#5a5a3a" font-size="10">Decomposed granite pathways with stone edging</text>
+
+  <!-- Boundary -->
+  <rect x="40" y="40" width="920" height="1520" rx="12" fill="none" stroke="#4a6a3a" stroke-width="2"/>
+  <text x="500" y="1580" text-anchor="middle" fill="#4a6a3a" font-size="10">Oleander & Mastic boundary hedge</text>
+
+  <!-- Scale -->
+  <line x1="50" y1="1550" x2="450" y2="1550" stroke="#6a8a7a" stroke-width="2"/>
+  <text x="250" y="1540" text-anchor="middle" fill="#6a8a7a" font-size="12">10m</text>
+  <polygon points="920,1500 930,1540 910,1540" fill="#6a8a7a"/>
+  <text x="920" y="1490" text-anchor="middle" fill="#6a8a7a" font-size="12" font-weight="bold">N</text>
+</svg>
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:#1a2a1a;border-color:#3a5a2a"></div>Herb Garden</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#1a1a0d;border-color:#3a4a2a"></div>Olive Grove</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#0d1a0d;border-color:#3a5a1a"></div>Citrus Orchard</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#1a0d1a;border-color:#4a2a4a"></div>Wildflowers</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#1a1a0a;border-color:#5a4a2a"></div>Rockery</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#0d1a1a;border-color:#2a5a5a"></div>Tropical</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#1a1a0a;border-color:#4a4a1a"></div>Vineyard</div>
+</div>
+</div>
+</div>
+
+<!-- ========== CAD PLAN ========== -->
+<div class="view" id="cad">
+<div class="map-container">
+<div class="map-title">CAD-Style Scaled Plan<div class="map-subtitle">Technical drawing · All dimensions in meters · Scale 1:100 · Grid = 1m</div></div>
+<svg viewBox="0 0 1000 1600" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <pattern id="cadgrid" width="40" height="40" patternUnits="userSpaceOnUse"><rect width="40" height="40" fill="#0a0a10"/><path d="M40 0V40M0 40H40" stroke="#1a1a2a" stroke-width="0.5"/></pattern>
+    <pattern id="cadgrid5" width="200" height="200" patternUnits="userSpaceOnUse"><rect width="200" height="200" fill="none"/><path d="M200 0V200M0 200H200" stroke="#1a1a3a" stroke-width="1"/></pattern>
+  </defs>
+  <rect width="1000" height="1600" fill="url(#cadgrid)"/>
+  <rect width="1000" height="1600" fill="url(#cadgrid5)"/>
+
+  <!-- Plot boundary -->
+  <rect x="0" y="0" width="1000" height="1600" fill="none" stroke="#4a8aba" stroke-width="3"/>
+  <!-- Dims -->
+  <line x1="0" y1="-10" x2="1000" y2="-10" stroke="#6a8a7a" stroke-width="1" transform="translate(0,1620)"/>
+  <text x="500" y="1640" text-anchor="middle" fill="#6a8a7a" font-size="14">25.0m</text>
+  <line x1="-10" y1="0" x2="-10" y2="1600" stroke="#6a8a7a" stroke-width="1" transform="translate(1020,0)"/>
+  <text x="1040" y="800" text-anchor="middle" fill="#6a8a7a" font-size="14" transform="rotate(90,1040,800)">40.0m</text>
+
+  <!-- Villa footprint -->
+  <rect x="220" y="560" width="560" height="360" fill="none" stroke="#ff6a3a" stroke-width="2.5"/>
+  <text x="500" y="730" text-anchor="middle" fill="#ff6a3a" font-size="16" font-weight="600">VILLA 14×9m = 126m²</text>
+  <text x="500" y="755" text-anchor="middle" fill="#ff6a3a" font-size="11">(Total built w/ walls: 300m²)</text>
+  <!-- Villa dims -->
+  <line x1="220" y1="540" x2="780" y2="540" stroke="#ff6a3a" stroke-width="1"/><text x="500" y="535" text-anchor="middle" fill="#ff6a3a" font-size="11">14.0m</text>
+  <line x1="200" y1="560" x2="200" y2="920" stroke="#ff6a3a" stroke-width="1"/><text x="190" y="740" text-anchor="middle" fill="#ff6a3a" font-size="11" transform="rotate(-90,190,740)">9.0m</text>
+
+  <!-- Covered terrace -->
+  <rect x="280" y="920" width="440" height="80" fill="none" stroke="#ff6a3a" stroke-width="1.5" stroke-dasharray="8,4"/>
+  <text x="500" y="965" text-anchor="middle" fill="#cc5a3a" font-size="10">Covered terrace 11×2m</text>
+
+  <!-- Pool -->
+  <rect x="380" y="1040" width="240" height="120" fill="none" stroke="#3a8afa" stroke-width="2.5"/>
+  <text x="500" y="1105" text-anchor="middle" fill="#3a8afa" font-size="14">POOL</text>
+  <text x="500" y="1125" text-anchor="middle" fill="#3a8afa" font-size="10">15.0 × 3.0m = 45m²</text>
+  <!-- Pool dims -->
+  <line x1="380" y1="1020" x2="620" y2="1020" stroke="#3a8afa" stroke-width="1"/><text x="500" y="1015" text-anchor="middle" fill="#3a8afa" font-size="10">6.0m</text>
+  <line x1="360" y1="1040" x2="360" y2="1160" stroke="#3a8afa" stroke-width="1"/><text x="345" y="1100" text-anchor="middle" fill="#3a8afa" font-size="10" transform="rotate(-90,345,1100)">3.0m</text>
+
+  <!-- Pool terrace -->
+  <rect x="320" y="1000" width="360" height="200" fill="none" stroke="#3a6a8a" stroke-width="1.5" stroke-dasharray="6,3"/>
+  <text x="500" y="1220" text-anchor="middle" fill="#3a6a8a" font-size="9">Pool surround 9×5m = 45m²</text>
+
+  <!-- Driveway -->
+  <rect x="40" y="640" width="160" height="240" fill="none" stroke="#8a8a3a" stroke-width="1.5"/>
+  <text x="120" y="765" text-anchor="middle" fill="#8a8a3a" font-size="10">DRIVE</text>
+  <text x="120" y="780" text-anchor="middle" fill="#8a8a3a" font-size="8">4×6m</text>
+
+  <!-- Planting zones (dashed outlines) -->
+  <rect x="40" y="40" width="920" height="480" fill="none" stroke="#2a8a2a" stroke-width="1.5" stroke-dasharray="10,5"/>
+  <text x="500" y="70" text-anchor="middle" fill="#2a8a2a" font-size="12">ZONE A: Upper Garden — Trees, Herbs, Windbreak (460m²)</text>
+
+  <rect x="40" y="540" width="160" height="420" fill="none" stroke="#8a2a8a" stroke-width="1.5" stroke-dasharray="10,5"/>
+  <text x="120" y="940" text-anchor="middle" fill="#8a2a8a" font-size="9" transform="rotate(-90,120,810)">ZONE B: Side garden (67m²)</text>
+
+  <rect x="800" y="540" width="160" height="420" fill="none" stroke="#8a2a8a" stroke-width="1.5" stroke-dasharray="10,5"/>
+  <text x="880" y="940" text-anchor="middle" fill="#8a2a8a" font-size="9" transform="rotate(90,880,810)">ZONE C: Citrus grove (67m²)</text>
+
+  <rect x="40" y="1000" width="260" height="560" fill="none" stroke="#8a8a2a" stroke-width="1.5" stroke-dasharray="10,5"/>
+  <text x="170" y="1540" text-anchor="middle" fill="#8a8a2a" font-size="10">ZONE D: Cactus (145m²)</text>
+
+  <rect x="700" y="1000" width="260" height="560" fill="none" stroke="#2a4a8a" stroke-width="1.5" stroke-dasharray="10,5"/>
+  <text x="830" y="1540" text-anchor="middle" fill="#2a4a8a" font-size="10">ZONE E: Perennials (145m²)</text>
+
+  <rect x="320" y="1240" width="360" height="320" fill="none" stroke="#6a6a2a" stroke-width="1.5" stroke-dasharray="10,5"/>
+  <text x="500" y="1540" text-anchor="middle" fill="#6a6a2a" font-size="10">ZONE F: Lawn/Path (115m²)</text>
+
+  <!-- Tree positions (CAD circles with cross) -->
+  <g stroke="#2a8a2a" stroke-width="1" fill="none">
+    <circle cx="120" cy="120" r="16"/><line x1="104" y1="120" x2="136" y2="120"/><line x1="120" y1="104" x2="120" y2="136"/>
+    <circle cx="300" cy="140" r="16"/><line x1="284" y1="140" x2="316" y2="140"/><line x1="300" y1="124" x2="300" y2="156"/>
+    <circle cx="500" cy="130" r="16"/><line x1="484" y1="130" x2="516" y2="130"/><line x1="500" y1="114" x2="500" y2="146"/>
+    <circle cx="700" cy="120" r="16"/><line x1="684" y1="120" x2="716" y2="120"/><line x1="700" y1="104" x2="700" y2="136"/>
+    <circle cx="900" cy="140" r="16"/><line x1="884" y1="140" x2="916" y2="140"/><line x1="900" y1="124" x2="900" y2="156"/>
+  </g>
+  <text x="500" y="170" text-anchor="middle" fill="#2a8a2a" font-size="9">Aleppo Pine windbreak (5 trees @ 4m spacing)</text>
+
+  <g stroke="#4a6a2a" stroke-width="1" fill="none">
+    <circle cx="250" cy="280" r="14"/><line x1="236" y1="280" x2="264" y2="280"/><line x1="250" y1="266" x2="250" y2="294"/>
+    <circle cx="500" cy="260" r="14"/><line x1="486" y1="260" x2="514" y2="260"/><line x1="500" y1="246" x2="500" y2="274"/>
+    <circle cx="750" cy="270" r="14"/><line x1="736" y1="270" x2="764" y2="270"/><line x1="750" y1="256" x2="750" y2="284"/>
+  </g>
+  <text x="500" y="310" text-anchor="middle" fill="#4a6a2a" font-size="9">Olive trees (3 mature specimens)</text>
+
+  <!-- Title block -->
+  <rect x="620" y="1560" width="380" height="40" fill="#0a0a15" stroke="#4a5a6a" stroke-width="1.5"/>
+  <text x="810" y="1578" text-anchor="middle" fill="#6a8a9a" font-size="10">MORAIRA VILLA GARDEN · 1000m² · Scale 1:100</text>
+  <text x="810" y="1593" text-anchor="middle" fill="#4a6a7a" font-size="9">Drawing: Garden Layout · Date: Feb 2026</text>
+
+  <!-- North arrow -->
+  <polygon points="960,40 970,80 950,80" fill="#6a8a7a" stroke="#8aaa9a" stroke-width="1"/>
+  <text x="960" y="30" text-anchor="middle" fill="#8aaa9a" font-size="14" font-weight="bold">N</text>
+</svg>
+</div>
+</div>
+
+<!-- ========== PLANT COUNTS ========== -->
+<div class="view" id="counts">
+<div class="info-grid">
+  <div class="info-box"><div class="val">1000m²</div><div class="lbl">Total Plot</div></div>
+  <div class="info-box"><div class="val">300m²</div><div class="lbl">Villa Footprint</div></div>
+  <div class="info-box"><div class="val">45m²</div><div class="lbl">Pool</div></div>
+  <div class="info-box"><div class="val">45m²</div><div class="lbl">Pool Terrace</div></div>
+  <div class="info-box"><div class="val">24m²</div><div class="lbl">Driveway</div></div>
+  <div class="info-box"><div class="val">586m²</div><div class="lbl">Plantable Area</div></div>
+  <div class="info-box"><div class="val">187</div><div class="lbl">Total Plants</div></div>
+  <div class="info-box"><div class="val">52</div><div class="lbl">Species Used</div></div>
+</div>
+
+<div class="map-container">
+<div class="map-title">Exact Plant Counts by Species<div class="map-subtitle">Complete bill of quantities for nursery ordering</div></div>
+<div style="overflow-x:auto;max-height:80vh;overflow-y:auto">
+<table>
+<thead><tr><th>Cat</th><th>Species</th><th>Latin Name</th><th>Qty</th><th>Zone</th><th>Size at Planting</th><th>Spacing</th><th>Crete?</th></tr></thead>
+<tbody>
+<tr><td><span class="cat-dot" style="background:#2a8a2a"></span>Tree</td><td>Aleppo Pine</td><td>Pinus halepensis</td><td>5</td><td>A — Windbreak</td><td>2.5-3m</td><td>4m</td><td>✅</td></tr>
+<tr><td><span class="cat-dot" style="background:#2a8a2a"></span>Tree</td><td>Italian Cypress</td><td>Cupressus sempervirens</td><td>8</td><td>A — Boundaries</td><td>2m</td><td>2.5m</td><td>✅</td></tr>
+<tr><td><span class="cat-dot" style="background:#2a8a2a"></span>Tree</td><td>Olive Tree</td><td>Olea europaea</td><td>4</td><td>A — Mid slope</td><td>Mature</td><td>6m</td><td>✅</td></tr>
+<tr><td><span class="cat-dot" style="background:#2a8a2a"></span>Tree</td><td>Carob Tree</td><td>Ceratonia siliqua</td><td>2</td><td>A — Mid slope</td><td>2m</td><td>8m</td><td>✅</td></tr>
+<tr><td><span class="cat-dot" style="background:#2a8a2a"></span>Tree</td><td>Fig Tree</td><td>Ficus carica</td><td>1</td><td>A — Feature</td><td>1.5m</td><td>Single</td><td>✅</td></tr>
+<tr><td><span class="cat-dot" style="background:#2a8a2a"></span>Tree</td><td>Jacaranda</td><td>Jacaranda mimosifolia</td><td>1</td><td>A — Focal point</td><td>2.5m</td><td>Single</td><td>-</td></tr>
+<tr><td><span class="cat-dot" style="background:#2a8a2a"></span>Tree</td><td>Almond Tree</td><td>Prunus dulcis</td><td>2</td><td>A — Mid slope</td><td>2m</td><td>6m</td><td>✅</td></tr>
+<tr><td><span class="cat-dot" style="background:#2a8a2a"></span>Tree</td><td>Lemon Tree</td><td>Citrus × limon</td><td>3</td><td>C — Citrus grove</td><td>1.2m</td><td>3m</td><td>✅</td></tr>
+<tr><td><span class="cat-dot" style="background:#2a8a2a"></span>Tree</td><td>Orange Tree</td><td>Citrus × sinensis</td><td>3</td><td>C — Citrus grove</td><td>1.2m</td><td>3m</td><td>✅</td></tr>
+<tr><td><span class="cat-dot" style="background:#2a8a2a"></span>Tree</td><td>Pomegranate</td><td>Punica granatum</td><td>1</td><td>F — Feature</td><td>1.5m</td><td>Single</td><td>✅</td></tr>
+<tr><td><span class="cat-dot" style="background:#2a8a2a"></span>Tree</td><td>Canary Date Palm</td><td>Phoenix canariensis</td><td>2</td><td>Villa entrance</td><td>2-3m trunk</td><td>6m</td><td>-</td></tr>
+<tr><td><span class="cat-dot" style="background:#2a8a2a"></span>Tree</td><td>European Fan Palm</td><td>Chamaerops humilis</td><td>3</td><td>Pool terrace</td><td>1m</td><td>3m</td><td>✅</td></tr>
+<tr><td><span class="cat-dot" style="background:#2a8a2a"></span>Tree</td><td>Strawberry Tree</td><td>Arbutus unedo</td><td>1</td><td>A — Feature</td><td>1.5m</td><td>Single</td><td>✅</td></tr>
+<tr><td><span class="cat-dot" style="background:#2a8a2a"></span>Tree</td><td>Loquat</td><td>Eriobotrya japonica</td><td>1</td><td>C — Citrus grove</td><td>1.2m</td><td>Single</td><td>✅</td></tr>
+<tr><td><span class="cat-dot" style="background:#5a2a5a"></span>Shrub</td><td>Oleander</td><td>Nerium oleander</td><td>18</td><td>Boundary hedge</td><td>1m</td><td>1.5m</td><td>✅</td></tr>
+<tr><td><span class="cat-dot" style="background:#5a2a5a"></span>Shrub</td><td>Bougainvillea</td><td>Bougainvillea glabra</td><td>6</td><td>Villa walls</td><td>1m</td><td>3m</td><td>✅</td></tr>
+<tr><td><span class="cat-dot" style="background:#5a2a5a"></span>Shrub</td><td>Mastic</td><td>Pistacia lentiscus</td><td>4</td><td>Boundary</td><td>0.6m</td><td>2m</td><td>✅</td></tr>
+<tr><td><span class="cat-dot" style="background:#5a2a5a"></span>Shrub</td><td>Common Myrtle</td><td>Myrtus communis</td><td>6</td><td>Formal hedge</td><td>0.4m</td><td>0.6m</td><td>✅</td></tr>
+<tr><td><span class="cat-dot" style="background:#5a2a5a"></span>Shrub</td><td>Cretan Rock Rose</td><td>Cistus creticus</td><td>5</td><td>A — Hillside</td><td>0.3m</td><td>1m</td><td>✅</td></tr>
+<tr><td><span class="cat-dot" style="background:#5a2a5a"></span>Shrub</td><td>Lantana</td><td>Lantana camara</td><td>4</td><td>E — Color</td><td>0.3m</td><td>1m</td><td>-</td></tr>
+<tr><td><span class="cat-dot" style="background:#5a2a5a"></span>Shrub</td><td>Hibiscus</td><td>Hibiscus rosa-sinensis</td><td>4</td><td>Pool terrace</td><td>0.5m</td><td>2m</td><td>-</td></tr>
+<tr><td><span class="cat-dot" style="background:#5a2a5a"></span>Shrub</td><td>Plumbago</td><td>Plumbago auriculata</td><td>3</td><td>Villa walls</td><td>0.4m</td><td>2m</td><td>-</td></tr>
+<tr><td><span class="cat-dot" style="background:#5a2a5a"></span>Shrub</td><td>Spanish Broom</td><td>Spartium junceum</td><td>3</td><td>A — Hillside</td><td>0.5m</td><td>2m</td><td>✅</td></tr>
+<tr><td><span class="cat-dot" style="background:#5a2a5a"></span>Shrub</td><td>False Dittany</td><td>Ballota pseudodictamnus</td><td>4</td><td>A — Rock garden</td><td>0.2m</td><td>0.5m</td><td>✅</td></tr>
+<tr><td><span class="cat-dot" style="background:#5a2a5a"></span>Shrub</td><td>Pittosporum</td><td>Pittosporum tobira</td><td>6</td><td>Formal hedge</td><td>0.4m</td><td>0.6m</td><td>-</td></tr>
+<tr><td><span class="cat-dot" style="background:#2a4a6a"></span>Perennial</td><td>Agapanthus</td><td>Agapanthus africanus</td><td>12</td><td>Pool border</td><td>0.3m</td><td>0.4m</td><td>-</td></tr>
+<tr><td><span class="cat-dot" style="background:#2a4a6a"></span>Perennial</td><td>Star Jasmine</td><td>Trachelospermum jasminoides</td><td>4</td><td>Pergola</td><td>0.5m</td><td>2m</td><td>-</td></tr>
+<tr><td><span class="cat-dot" style="background:#2a4a6a"></span>Perennial</td><td>Bird of Paradise</td><td>Strelitzia reginae</td><td>4</td><td>Pool sides</td><td>0.3m</td><td>1m</td><td>-</td></tr>
+<tr><td><span class="cat-dot" style="background:#2a4a6a"></span>Perennial</td><td>Geranium</td><td>Pelargonium × hortorum</td><td>12</td><td>Terrace pots</td><td>Pot</td><td>0.5m</td><td>✅</td></tr>
+<tr><td><span class="cat-dot" style="background:#2a4a6a"></span>Perennial</td><td>Gazania</td><td>Gazania rigens</td><td>8</td><td>E — Groundcover</td><td>0.15m</td><td>0.3m</td><td>-</td></tr>
+<tr><td><span class="cat-dot" style="background:#2a4a6a"></span>Perennial</td><td>Canna Lily</td><td>Canna indica</td><td>4</td><td>Pool sides</td><td>Rhizome</td><td>0.5m</td><td>-</td></tr>
+<tr><td><span class="cat-dot" style="background:#2a4a6a"></span>Perennial</td><td>Red Valerian</td><td>Centranthus ruber</td><td>6</td><td>E — Perennial bed</td><td>0.2m</td><td>0.5m</td><td>✅</td></tr>
+<tr><td><span class="cat-dot" style="background:#5a5a2a"></span>Herb</td><td>English Lavender</td><td>Lavandula angustifolia</td><td>12</td><td>A — Border rows</td><td>0.2m</td><td>0.5m</td><td>✅</td></tr>
+<tr><td><span class="cat-dot" style="background:#5a5a2a"></span>Herb</td><td>Rosemary</td><td>Salvia rosmarinus</td><td>6</td><td>A — Herb terrace</td><td>0.3m</td><td>0.8m</td><td>✅</td></tr>
+<tr><td><span class="cat-dot" style="background:#5a5a2a"></span>Herb</td><td>Common Thyme</td><td>Thymus vulgaris</td><td>8</td><td>A — Herb terrace</td><td>Plug</td><td>0.3m</td><td>✅</td></tr>
+<tr><td><span class="cat-dot" style="background:#5a5a2a"></span>Herb</td><td>Sage</td><td>Salvia officinalis</td><td>4</td><td>A — Herb spiral</td><td>0.2m</td><td>0.4m</td><td>✅</td></tr>
+<tr><td><span class="cat-dot" style="background:#5a5a2a"></span>Herb</td><td>Greek Oregano</td><td>Origanum vulgare hirtum</td><td>4</td><td>A — Herb spiral</td><td>Plug</td><td>0.3m</td><td>✅</td></tr>
+<tr><td><span class="cat-dot" style="background:#5a5a2a"></span>Herb</td><td>Dittany of Crete</td><td>Origanum dictamnus</td><td>3</td><td>A — Herb spiral</td><td>Plug</td><td>0.3m</td><td>✅</td></tr>
+<tr><td><span class="cat-dot" style="background:#5a5a2a"></span>Herb</td><td>Mountain Tea</td><td>Sideritis syriaca</td><td>3</td><td>A — Herb terrace</td><td>Plug</td><td>0.4m</td><td>✅</td></tr>
+<tr><td><span class="cat-dot" style="background:#5a5a2a"></span>Herb</td><td>Lavender Cotton</td><td>Santolina chamaecyparissus</td><td>6</td><td>A — Edging</td><td>0.2m</td><td>0.4m</td><td>✅</td></tr>
+<tr><td><span class="cat-dot" style="background:#5a3a2a"></span>Cactus</td><td>Century Plant</td><td>Agave americana</td><td>3</td><td>D — Focal points</td><td>0.5m</td><td>2m</td><td>-</td></tr>
+<tr><td><span class="cat-dot" style="background:#5a3a2a"></span>Cactus</td><td>Prickly Pear</td><td>Opuntia ficus-indica</td><td>2</td><td>D — Rockery</td><td>0.3m pad</td><td>2m</td><td>✅</td></tr>
+<tr><td><span class="cat-dot" style="background:#5a3a2a"></span>Cactus</td><td>Aloe Vera</td><td>Aloe vera</td><td>6</td><td>D — Mass plant</td><td>0.2m</td><td>0.4m</td><td>✅</td></tr>
+<tr><td><span class="cat-dot" style="background:#5a3a2a"></span>Cactus</td><td>Golden Barrel</td><td>Echinocactus grusonii</td><td>5</td><td>D — Feature group</td><td>0.15m</td><td>0.5m</td><td>-</td></tr>
+<tr><td><span class="cat-dot" style="background:#5a3a2a"></span>Cactus</td><td>Foxtail Agave</td><td>Agave attenuata</td><td>3</td><td>D — Mid border</td><td>0.3m</td><td>1m</td><td>-</td></tr>
+<tr><td><span class="cat-dot" style="background:#5a3a2a"></span>Cactus</td><td>Ice Plant</td><td>Carpobrotus edulis</td><td>8</td><td>D — Groundcover</td><td>Cutting</td><td>0.5m</td><td>✅</td></tr>
+<tr style="font-weight:700;background:#121d2e"><td></td><td colspan="2">GRAND TOTAL</td><td>187</td><td colspan="4">52 species across 5 categories</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<script>
+document.querySelectorAll('.tabs button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.view).classList.add('active');
+  });
+});
+</script>
+</body>
+</html>
